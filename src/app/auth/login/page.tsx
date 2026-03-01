@@ -24,13 +24,20 @@ function LoginForm() {
     setMessage(null)
 
     if (isSignUp) {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${redirect}` },
       })
-      if (error) setError(error.message)
-      else setMessage('Check your email for a confirmation link!')
+      if (error) {
+        setError(error.message)
+      } else if (data.session) {
+        // Email confirmation disabled — user is logged in immediately
+        window.location.href = redirect
+      } else {
+        // Email confirmation enabled — need to verify
+        setMessage('Check your email for a confirmation link!')
+      }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(error.message)
