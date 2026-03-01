@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (programError || !program) {
-      return NextResponse.json({ error: 'Program not found' }, { status: 404 })
+      return NextResponse.json({ error: `Program not found: ${programError?.message}` }, { status: 404 })
     }
 
     // Create interview record
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (insertError || !interview) {
-      return NextResponse.json({ error: 'Failed to create interview' }, { status: 500 })
+      return NextResponse.json({ error: `Failed to create interview: ${insertError?.message}` }, { status: 500 })
     }
 
     // Call Claude for initial greeting
@@ -65,8 +65,8 @@ export async function POST(request: NextRequest) {
       interview_id: interview.id,
       message: agentMessage,
     })
-  } catch (err) {
+  } catch (err: any) {
     console.error('Interview start error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: `Server error: ${err.message || 'Unknown'}` }, { status: 500 })
   }
 }
