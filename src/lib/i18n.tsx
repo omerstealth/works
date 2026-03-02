@@ -102,6 +102,8 @@ const translations = {
     // ── Landing / Nav ──
     'nav.login': 'Giriş Yap',
     'nav.create': 'Program Oluştur',
+    'nav.myPrograms': 'Programlarım',
+    'nav.logout': 'Çıkış Yap',
 
     // ── Landing / Hero ──
     'hero.badge': 'Uçtan Uca AI Pipeline',
@@ -418,6 +420,8 @@ const translations = {
     // ── Landing / Nav ──
     'nav.login': 'Sign In',
     'nav.create': 'Create Program',
+    'nav.myPrograms': 'My Programs',
+    'nav.logout': 'Sign Out',
 
     // ── Landing / Hero ──
     'hero.badge': 'End-to-End AI Pipeline',
