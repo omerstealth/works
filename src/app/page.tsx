@@ -1,13 +1,109 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 
+interface PipelineStage {
+  emoji: string
+  title: string
+  desc: string
+  color: string
+  detail: {
+    subtitle: string
+    howItWorks: string
+    features: string[]
+    agents?: { emoji: string; name: string; role: string }[]
+    output: string
+  }
+}
+
 export default function HomePage() {
-  const pipeline = [
-    { emoji: '🤖', title: 'AI Interviews', desc: 'Adaptive conversations with 6 unique AI candidate personas. Multi-language, real-time evaluation.', color: '#58A6FF' },
-    { emoji: '⚖️', title: 'Expert Jury', desc: '3 AI jury members independently evaluate each interview from technical, business, and vision perspectives.', color: '#D2A8FF' },
-    { emoji: '🗣', title: 'Deliberation', desc: 'Jury members review each other\'s evaluations, debate, and reach consensus — just like a real selection committee.', color: '#F78166' },
-    { emoji: '✅', title: 'Smart Decisions', desc: 'Data-driven ACCEPT / WAITLIST / REJECT decisions based on deliberated scores and configurable thresholds.', color: '#3FB950' },
-    { emoji: '🚀', title: 'Mentor Matching', desc: '5 specialized mentors auto-matched to founders based on their weakest areas. Personalized 8-week roadmaps.', color: '#58A6FF' },
-    { emoji: '🎤', title: 'Demo Day', desc: 'Full program execution from Kickoff to Demo Day. Investor briefs, pitch readiness scores, graduation reports.', color: '#F78166' },
+  const [selectedStage, setSelectedStage] = useState<number | null>(null)
+
+  const pipeline: PipelineStage[] = [
+    {
+      emoji: '🤖', title: 'AI Interviews', color: '#58A6FF',
+      desc: 'Adaptive conversations with 6 unique AI candidate personas. Multi-language, real-time evaluation.',
+      detail: {
+        subtitle: 'Conversational AI that adapts to each candidate',
+        howItWorks: 'Each candidate has a unique AI persona with different backgrounds, expertise levels, and communication styles. The AI interviewer conducts adaptive 10-minute conversations, asking follow-up questions based on responses. Interviews run in parallel — 6 candidates can be evaluated simultaneously.',
+        features: ['Multi-language support (TR/EN)', 'Adaptive questioning based on responses', 'Real-time transcript generation', 'Auto-evaluation with structured scores', 'Step-based API for reliable execution'],
+        agents: [
+          { emoji: '🚀', name: 'Ayşe Demir', role: 'Strong technical founder (DeepMind background)' },
+          { emoji: '💡', name: 'Kerem Yılmaz', role: 'Creative product thinker (design → tech)' },
+          { emoji: '📊', name: 'Mehmet Kaya', role: 'Data-driven business founder' },
+          { emoji: '🌍', name: 'Elif Arslan', role: 'Impact-driven social entrepreneur' },
+          { emoji: '🎯', name: 'Can Öztürk', role: 'Sales-driven hustler' },
+          { emoji: '🔬', name: 'Zeynep Aydın', role: 'Deep-tech researcher' },
+        ],
+        output: 'Structured evaluation with scores across 6 dimensions, recommendation (STRONG_YES → NO), highlights, and red flags',
+      },
+    },
+    {
+      emoji: '⚖️', title: 'Expert Jury', color: '#D2A8FF',
+      desc: '3 AI jury members independently evaluate each interview from technical, business, and vision perspectives.',
+      detail: {
+        subtitle: 'Independent expert evaluation from three perspectives',
+        howItWorks: 'Each completed interview is reviewed by 3 AI jury members, each with a distinct evaluation lens. They read the full transcript and produce independent scores — no jury member sees another\'s evaluation at this stage. This prevents groupthink and ensures diverse perspectives.',
+        features: ['Independent evaluation (no cross-contamination)', 'Weighted scoring per jury expertise', 'Structured output with rationale for each score', 'Red flags and highlights identification', 'One-line summary per jury member'],
+        agents: [
+          { emoji: '🔬', name: 'Dr. Zeynep Akar', role: 'Technical Evaluator — AI depth, architecture, defensibility' },
+          { emoji: '📊', name: 'Ahmet Çelik', role: 'Business Evaluator — market awareness, PMF, traction' },
+          { emoji: '🌟', name: 'Selin Yıldırım', role: 'Vision Evaluator — founder energy, ambition, program fit' },
+        ],
+        output: '3 independent evaluations per candidate, each with scores, recommendation, key concerns, and highlights',
+      },
+    },
+    {
+      emoji: '🗣', title: 'Deliberation', color: '#F78166',
+      desc: 'Jury members review each other\'s evaluations, debate, and reach consensus — just like a real selection committee.',
+      detail: {
+        subtitle: 'AI-powered consensus building',
+        howItWorks: 'After independent evaluations, each jury member sees the other two members\' assessments. They can change their mind, adjust scores, and provide reasoning for their final position. This mimics real-world selection committee dynamics — sometimes a technical concern raises everyone\'s awareness, sometimes a business insight changes the picture.',
+        features: ['Cross-review of all jury evaluations', 'Score adjustment with reasoning', 'Track "changed mind" decisions', 'Original vs. final score comparison', 'Consensus analysis across jury'],
+        output: 'Deliberation notes per jury member showing original → final scores, whether they changed their mind, and detailed reasoning',
+      },
+    },
+    {
+      emoji: '✅', title: 'Smart Decisions', color: '#3FB950',
+      desc: 'Data-driven ACCEPT / WAITLIST / REJECT decisions based on deliberated scores and configurable thresholds.',
+      detail: {
+        subtitle: 'Threshold-based decisions with full transparency',
+        howItWorks: 'The decision engine aggregates deliberated final scores (falling back to jury averages if deliberation hasn\'t run). Candidates are sorted by score and classified using configurable thresholds: ≥7 = ACCEPT, 5-6.9 = WAITLIST, <5 = REJECT. Every decision is traceable back to individual jury scores and deliberation notes.',
+        features: ['Configurable score thresholds', 'Uses deliberated scores (post-consensus)', 'Fallback to jury average if needed', 'Full audit trail from interview → decision', 'Batch processing for entire cohort'],
+        output: 'ACCEPT / WAITLIST / REJECT decision per candidate with final score, applied to all evaluated interviews in the program',
+      },
+    },
+    {
+      emoji: '🚀', title: 'Mentor Matching', color: '#58A6FF',
+      desc: '5 specialized mentors auto-matched to founders based on their weakest areas. Personalized 8-week roadmaps.',
+      detail: {
+        subtitle: 'Intelligent mentor-founder matching',
+        howItWorks: 'Each accepted founder is matched with the mentor who best addresses their weakest area (identified from jury evaluations). The mentor then creates a personalized 8-week roadmap with specific milestones, focus areas, and first-week tasks. A Program Manager oversees the matching and provides additional notes.',
+        features: ['Weakness-based matching algorithm', 'Personalized 8-week roadmap per founder', 'First-week task assignments', 'Program Manager oversight', 'Focus area identification'],
+        agents: [
+          { emoji: '🚀', name: 'Aylin Güneş', role: 'AI-native startup co-founder — Technical mentor' },
+          { emoji: '🤖', name: 'Berk Aydın', role: 'AI agent infra co-founder (YC) — Product mentor' },
+          { emoji: '💰', name: 'Canan Korkmaz', role: 'Angel investor (30+ deals) — PMF expert' },
+          { emoji: '📈', name: 'Deniz Ertürk', role: 'VC Partner — Fundraising & growth' },
+          { emoji: '🎓', name: 'Prof. Elif Şahin', role: 'Boğaziçi CS + Fortune 500 — Strategy' },
+        ],
+        output: 'Mentor assignment, welcome message, 8-week roadmap, focus areas, and first-week tasks for each accepted founder',
+      },
+    },
+    {
+      emoji: '🎤', title: 'Demo Day', color: '#F78166',
+      desc: 'Full program execution from Kickoff to Demo Day. Investor briefs, pitch readiness scores, graduation reports.',
+      detail: {
+        subtitle: 'From Kickoff to graduation in one click',
+        howItWorks: 'The 8-week program is simulated with three key checkpoints. At Demo Day (Week 8), mentors write investor recommendation letters, assess pitch readiness (1-10), and compile key metrics. The Program Manager determines graduation status: Graduated with Honors, Graduated, or Needs Extension.',
+        features: ['Mentor recommendation letters', 'Pitch readiness scoring (1-10)', 'Investor-ready briefs', 'Key metrics compilation', 'Graduation status determination', 'Post-program next steps'],
+        agents: [
+          { emoji: '👩‍💼', name: 'İrem Başaran', role: 'Program Director — Oversees all stages' },
+        ],
+        output: 'Demo Day report with mentor recommendation, pitch readiness, investor brief, key metrics, graduation status, and next steps',
+      },
+    },
   ]
 
   const stats = [
@@ -23,6 +119,8 @@ export default function HomePage() {
     { emoji: '🎓', title: 'University Incubators', desc: 'Scale your startup program without scaling your team' },
     { emoji: '🏗', title: 'Corporate Innovation', desc: 'Evaluate internal ventures and intrapreneurs systematically' },
   ]
+
+  const selected = selectedStage !== null ? pipeline[selectedStage] : null
 
   return (
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3]">
@@ -109,14 +207,16 @@ export default function HomePage() {
             Six AI-powered stages.{' '}
             <span className="text-[#8B949E]">Zero manual work.</span>
           </h2>
+          <p className="text-sm text-[#484F58] mt-3 font-mono">Click any stage to explore</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {pipeline.map((step, i) => (
             <div
               key={step.title}
-              className="group bg-[#161B22] border border-[#30363D] rounded-xl p-6 hover:border-[color:var(--hover-color)] transition-all hover:-translate-y-0.5"
-              style={{ '--hover-color': step.color } as React.CSSProperties}
+              onClick={() => setSelectedStage(i)}
+              className="group bg-[#161B22] border border-[#30363D] rounded-xl p-6 cursor-pointer transition-all hover:-translate-y-0.5"
+              style={{ borderColor: selectedStage === i ? step.color : undefined }}
             >
               <div className="flex items-center gap-3 mb-3">
                 <div
@@ -126,6 +226,7 @@ export default function HomePage() {
                   {String(i + 1).padStart(2, '0')}
                 </div>
                 <span className="text-xl">{step.emoji}</span>
+                <svg className="w-4 h-4 text-[#484F58] ml-auto group-hover:text-[#8B949E] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 5l7 7-7 7" /></svg>
               </div>
               <h3 className="text-base font-semibold mb-2">{step.title}</h3>
               <p className="text-sm text-[#8B949E] leading-relaxed">{step.desc}</p>
@@ -133,6 +234,119 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+
+      {/* Stage Detail Modal */}
+      {selected && selectedStage !== null && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setSelectedStage(null)}>
+          <div
+            className="bg-[#161B22] border rounded-2xl p-0 max-w-2xl w-full max-h-[85vh] overflow-hidden"
+            style={{ borderColor: selected.color }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-6 pb-4" style={{ background: `linear-gradient(135deg, ${selected.color}15, transparent)` }}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-mono font-bold"
+                    style={{ background: `${selected.color}22`, color: selected.color }}
+                  >
+                    {String(selectedStage + 1).padStart(2, '0')}
+                  </div>
+                  <span className="text-2xl">{selected.emoji}</span>
+                </div>
+                <button
+                  onClick={() => setSelectedStage(null)}
+                  className="text-[#8B949E] hover:text-white text-xl w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#30363D] transition-colors"
+                >
+                  &times;
+                </button>
+              </div>
+              <h3 className="text-xl font-bold mb-1">{selected.title}</h3>
+              <p className="text-sm" style={{ color: selected.color }}>{selected.detail.subtitle}</p>
+            </div>
+
+            {/* Modal Body */}
+            <div className="px-6 pb-6 overflow-y-auto max-h-[calc(85vh-140px)] space-y-5" style={{ scrollbarWidth: 'thin', scrollbarColor: '#30363D transparent' }}>
+              {/* How It Works */}
+              <div>
+                <div className="text-[10px] font-mono text-[#8B949E] mb-2 tracking-wider">HOW IT WORKS</div>
+                <p className="text-sm text-[#E6EDF3] leading-relaxed">{selected.detail.howItWorks}</p>
+              </div>
+
+              {/* Agents */}
+              {selected.detail.agents && selected.detail.agents.length > 0 && (
+                <div>
+                  <div className="text-[10px] font-mono text-[#8B949E] mb-2 tracking-wider">
+                    {selectedStage === 0 ? 'AI CANDIDATE PERSONAS' : selectedStage === 1 ? 'JURY MEMBERS' : selectedStage === 4 ? 'MENTOR PANEL' : 'AGENTS'}
+                  </div>
+                  <div className="space-y-1.5">
+                    {selected.detail.agents.map(agent => (
+                      <div key={agent.name} className="flex items-center gap-3 bg-[#0D1117] rounded-lg px-3 py-2">
+                        <span className="text-lg">{agent.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-sm font-semibold">{agent.name}</span>
+                          <span className="text-xs text-[#8B949E] ml-2">{agent.role}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Features */}
+              <div>
+                <div className="text-[10px] font-mono text-[#8B949E] mb-2 tracking-wider">KEY FEATURES</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {selected.detail.features.map(f => (
+                    <span
+                      key={f}
+                      className="text-[11px] px-2.5 py-1 rounded-full font-mono"
+                      style={{ background: `${selected.color}15`, color: selected.color }}
+                    >
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Output */}
+              <div>
+                <div className="text-[10px] font-mono text-[#8B949E] mb-2 tracking-wider">OUTPUT</div>
+                <div className="bg-[#0D1117] rounded-lg px-4 py-3 text-sm text-[#8B949E] leading-relaxed border-l-2" style={{ borderColor: selected.color }}>
+                  {selected.detail.output}
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between pt-2 border-t border-[#30363D]">
+                <button
+                  onClick={() => setSelectedStage(selectedStage > 0 ? selectedStage - 1 : pipeline.length - 1)}
+                  className="text-xs text-[#8B949E] hover:text-[#E6EDF3] transition-colors flex items-center gap-1"
+                >
+                  ← {pipeline[selectedStage > 0 ? selectedStage - 1 : pipeline.length - 1].title}
+                </button>
+                <div className="flex gap-1">
+                  {pipeline.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedStage(i)}
+                      className="w-2 h-2 rounded-full transition-colors"
+                      style={{ background: i === selectedStage ? selected.color : '#30363D' }}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => setSelectedStage(selectedStage < pipeline.length - 1 ? selectedStage + 1 : 0)}
+                  className="text-xs text-[#8B949E] hover:text-[#E6EDF3] transition-colors flex items-center gap-1"
+                >
+                  {pipeline[selectedStage < pipeline.length - 1 ? selectedStage + 1 : 0].title} →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Who It's For */}
       <div className="bg-[#161B22] py-20 px-6">
