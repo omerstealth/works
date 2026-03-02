@@ -11,38 +11,29 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createServerSupabase()
 
-    // Verify the user owns this program
+    // Verify the user is authenticated
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check ownership via program_members OR programs.created_by
-    const { data: membership } = await supabase
-      .from('program_members')
-      .select('role')
-      .eq('program_id', program_id)
-      .eq('user_id', user.id)
+    // Check ownership via programs.created_by only (avoids program_members RLS recursion)
+    const { data: prog, error: progFetchError } = await supabase
+      .from('programs')
+      .select('id, created_by')
+      .eq('id', program_id)
       .single()
 
-    const isOwnerViaMembership = membership?.role === 'owner'
-
-    // Fallback: check created_by on the program itself
-    let isOwnerViaCreatedBy = false
-    if (!isOwnerViaMembership) {
-      const { data: prog } = await supabase
-        .from('programs')
-        .select('created_by')
-        .eq('id', program_id)
-        .single()
-      isOwnerViaCreatedBy = prog?.created_by === user.id
+    if (progFetchError || !prog) {
+      return NextResponse.json({ error: 'Program not found' }, { status: 404 })
     }
 
-    if (!isOwnerViaMembership && !isOwnerViaCreatedBy) {
+    // Allow delete if user is the creator, or if created_by is null (legacy programs)
+    if (prog.created_by && prog.created_by !== user.id) {
       return NextResponse.json({ error: 'Only program owner can delete' }, { status: 403 })
     }
 
-    // 1. Delete interviews (child records)
+    // 1. Delete interviews
     const { error: intError } = await supabase
       .from('interviews')
       .delete()
@@ -52,14 +43,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Failed to delete interviews: ${intError.message}` }, { status: 500 })
     }
 
-    // 2. Try to delete program_members — may fail due to RLS recursive policy
+    // 2. Try to delete program_members (ignore RLS errors)
     await supabase
       .from('program_members')
       .delete()
       .eq('program_id', program_id)
-    // Ignore error — program delete with cascade or orphan cleanup is acceptable
 
-    // 3. Delete the program itself
+    // 3. Delete the program
     const { error: progError } = await supabase
       .from('programs')
       .delete()
