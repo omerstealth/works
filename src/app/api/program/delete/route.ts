@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Check ownership via program_members OR programs.created_by
     const { data: membership } = await supabase
       .from('program_members')
       .select('role')
@@ -24,7 +25,20 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .single()
 
-    if (!membership || membership.role !== 'owner') {
+    const isOwnerViaMembership = membership?.role === 'owner'
+
+    // Fallback: check created_by on the program itself
+    let isOwnerViaCreatedBy = false
+    if (!isOwnerViaMembership) {
+      const { data: prog } = await supabase
+        .from('programs')
+        .select('created_by')
+        .eq('id', program_id)
+        .single()
+      isOwnerViaCreatedBy = prog?.created_by === user.id
+    }
+
+    if (!isOwnerViaMembership && !isOwnerViaCreatedBy) {
       return NextResponse.json({ error: 'Only program owner can delete' }, { status: 403 })
     }
 
