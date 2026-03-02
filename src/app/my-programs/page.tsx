@@ -35,17 +35,10 @@ export default function MyProgramsPage() {
         .select('*')
         .order('created_at', { ascending: false })
 
-      console.log('Programs query result:', { allProgs, progsError, userId: user.id })
+      console.log('Programs query result:', JSON.stringify({ allProgs, progsError, userId: user.id }))
 
       const progs = (allProgs || []) as ProgramRow[]
       setPrograms(progs)
-
-      // If only one program, redirect to its dashboard directly
-      if (progs.length === 1) {
-        router.push(`/${progs[0].slug}/dashboard`)
-        return
-      }
-
       setLoading(false)
     }
     init()
