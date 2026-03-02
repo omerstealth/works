@@ -101,7 +101,23 @@ export interface Evaluation {
   suggested_mentors?: string[]
 }
 
+export interface JuryEvaluation {
+  jury_id: string
+  jury_name: string
+  jury_emoji: string
+  scores: Record<string, EvalScore>
+  overall_score: number
+  recommendation: 'STRONG_YES' | 'YES' | 'MAYBE' | 'NO'
+  one_line_summary: string
+  red_flags: string[]
+  highlights: string[]
+  key_concern: string
+}
+
 // Helper type for program with computed fields
 export type Program = Database['public']['Tables']['programs']['Row']
-export type Interview = Database['public']['Tables']['interviews']['Row']
+export type Interview = Database['public']['Tables']['interviews']['Row'] & {
+  jury_evaluations?: JuryEvaluation[]
+  jury_avg_score?: number
+}
 export type ProgramMember = Database['public']['Tables']['program_members']['Row']

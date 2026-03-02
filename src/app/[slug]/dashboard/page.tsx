@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import type { Program, Interview, Evaluation } from '@/lib/supabase/types'
+import type { Program, Interview, Evaluation, JuryEvaluation } from '@/lib/supabase/types'
 
 interface TestAgentProfile {
   id: string
@@ -12,6 +12,14 @@ interface TestAgentProfile {
   description: string
   language: string
   expectedScore: string
+}
+
+interface JuryMember {
+  id: string
+  name: string
+  emoji: string
+  title: string
+  description: string
 }
 
 export default function DashboardPage() {
@@ -32,6 +40,11 @@ export default function DashboardPage() {
   const [testRunning, setTestRunning] = useState(false)
   const [testProgress, setTestProgress] = useState('')
   const [testResults, setTestResults] = useState<any>(null)
+
+  // Jury state
+  const [juryMembers, setJuryMembers] = useState<JuryMember[]>([])
+  const [juryRunning, setJuryRunning] = useState(false)
+  const [juryProgress, setJuryProgress] = useState('')
 
   const supabase = createClient()
 
@@ -71,6 +84,13 @@ export default function DashboardPage() {
         const data = await profilesRes.json()
         setTestProfiles(data.profiles || [])
       }
+
+      // Load jury members
+      const juryRes = await fetch('/api/jury/evaluate')
+      if (juryRes.ok) {
+        const data = await juryRes.json()
+        setJuryMembers(data.jury || [])
+      }
     }
     init()
   }, [slug])
@@ -91,15 +111,10 @@ export default function DashboardPage() {
       setTestProgress(`[${i + 1}/${profilesToRun.length}] Starting interview with ${profile.emoji} ${profile.name}...`)
 
       try {
-        // Step 1: Start the interview
         const startRes = await fetch('/api/test-agents/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            program_id: program.id,
-            profile_id: profile.id,
-            action: 'start',
-          }),
+          body: JSON.stringify({ program_id: program.id, profile_id: profile.id, action: 'start' }),
         })
         const startData = await startRes.json()
         if (startData.error) {
@@ -111,19 +126,12 @@ export default function DashboardPage() {
         let status = startData.status
         let turn = 0
 
-        // Step 2: Run turns until complete
         while (status === 'in_progress' && turn < 15) {
           setTestProgress(`[${i + 1}/${profilesToRun.length}] ${profile.emoji} ${profile.name} — Turn ${turn + 1}...`)
-
           const turnRes = await fetch('/api/test-agents/run', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              program_id: program.id,
-              profile_id: profile.id,
-              action: 'turn',
-              interview_id: interviewId,
-            }),
+            body: JSON.stringify({ program_id: program.id, profile_id: profile.id, action: 'turn', interview_id: interviewId }),
           })
           const turnData = await turnRes.json()
           if (turnData.error) {
@@ -142,7 +150,6 @@ export default function DashboardPage() {
         results.push({ name: profile.name, expectedScore: profile.expectedScore, success: false, error: err.message })
       }
 
-      // Update results in real-time
       setTestResults({ results: [...results], total: profilesToRun.length, successful: results.filter(r => r.success).length })
     }
 
@@ -150,15 +157,89 @@ export default function DashboardPage() {
     setTestProgress(`Done! ${successCount}/${profilesToRun.length} interviews completed.`)
     setTestResults({ results, total: profilesToRun.length, successful: successCount })
 
+    const { data: ints } = await supabase
+      .from('interviews')
+      .select('*')
+      .eq('program_id', program.id)
+      .order('started_at', { ascending: false })
+    setInterviews((ints || []) as Interview[])
+    setTestRunning(false)
+  }
+
+  async function runJuryForAll() {
+    if (!program || juryRunning) return
+    setJuryRunning(true)
+    setJuryProgress('Starting jury evaluation...')
+
+    const interviewsWithMessages = interviews.filter(iv =>
+      (iv.messages as any[])?.length >= 4
+    )
+
+    let completed = 0
+    const total = interviewsWithMessages.length * juryMembers.length
+
+    for (let i = 0; i < interviewsWithMessages.length; i++) {
+      const iv = interviewsWithMessages[i]
+      for (let j = 0; j < juryMembers.length; j++) {
+        const jury = juryMembers[j]
+        setJuryProgress(`${jury.emoji} ${jury.name} evaluating ${iv.candidate_name || 'Unknown'}... (${completed + 1}/${total})`)
+
+        try {
+          await fetch('/api/jury/evaluate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ interview_id: iv.id, jury_id: jury.id }),
+          })
+        } catch {
+          // continue on error
+        }
+        completed++
+      }
+    }
+
+    setJuryProgress(`Done! ${total} jury evaluations completed.`)
+
     // Reload interviews
     const { data: ints } = await supabase
       .from('interviews')
       .select('*')
       .eq('program_id', program.id)
       .order('started_at', { ascending: false })
-
     setInterviews((ints || []) as Interview[])
-    setTestRunning(false)
+    setJuryRunning(false)
+  }
+
+  async function runJuryForOne(interviewId: string) {
+    if (juryRunning) return
+    setJuryRunning(true)
+
+    for (const jury of juryMembers) {
+      setJuryProgress(`${jury.emoji} ${jury.name} evaluating...`)
+      try {
+        await fetch('/api/jury/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ interview_id: interviewId, jury_id: jury.id }),
+        })
+      } catch {
+        // continue
+      }
+    }
+
+    setJuryProgress('')
+    setJuryRunning(false)
+
+    // Reload interviews and update selected
+    const { data: ints } = await supabase
+      .from('interviews')
+      .select('*')
+      .eq('program_id', program.id)
+      .order('started_at', { ascending: false })
+    const updated = (ints || []) as Interview[]
+    setInterviews(updated)
+    if (selectedInterview) {
+      setSelectedInterview(updated.find(iv => iv.id === selectedInterview.id) || null)
+    }
   }
 
   function toggleProfile(id: string) {
@@ -175,6 +256,7 @@ export default function DashboardPage() {
     )
   }
 
+  const withMessages = interviews.filter(iv => (iv.messages as any[])?.length >= 4)
   const completed = interviews.filter(i => i.status === 'completed')
   const strongYes = completed.filter(i => i.recommendation === 'STRONG_YES').length
   const yes = completed.filter(i => i.recommendation === 'YES').length
@@ -183,7 +265,13 @@ export default function DashboardPage() {
     ? (completed.reduce((s, i) => s + (i.overall_score || 0), 0) / completed.length).toFixed(1)
     : '-'
 
-  const sorted = [...completed].sort((a, b) => (b.overall_score || 0) - (a.overall_score || 0))
+  // Sort by jury avg score first, then overall score
+  const sorted = [...withMessages].sort((a, b) => {
+    const aScore = (a as any).jury_avg_score || a.overall_score || 0
+    const bScore = (b as any).jury_avg_score || b.overall_score || 0
+    return bScore - aScore
+  })
+
   const scoreColor = (s: number) => (s >= 8 ? '#3FB950' : s >= 6 ? '#58A6FF' : '#F78166')
   const recColor: Record<string, string> = { STRONG_YES: '#3FB950', YES: '#58A6FF', MAYBE: '#F78166', NO: '#F85149' }
   const expectedColor: Record<string, string> = { high: '#3FB950', medium: '#F78166', low: '#F85149' }
@@ -222,6 +310,20 @@ export default function DashboardPage() {
             🤖 Test Agents
           </button>
           <button
+            onClick={runJuryForAll}
+            disabled={juryRunning || withMessages.length === 0}
+            className="bg-[#DA7756] text-white px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#E08B6D] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {juryRunning ? (
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Jury Running...
+              </span>
+            ) : (
+              `⚖️ Run Jury (${withMessages.length})`
+            )}
+          </button>
+          <button
             onClick={exportJSON}
             className="bg-[#161B22] border border-[#30363D] text-[#8B949E] px-3.5 py-1.5 rounded-md text-xs hover:border-[#58A6FF] hover:text-[#58A6FF] transition-colors"
           >
@@ -229,6 +331,16 @@ export default function DashboardPage() {
           </button>
         </div>
       </header>
+
+      {/* Jury Progress */}
+      {juryProgress && (
+        <div className={`text-sm font-mono p-3 rounded-lg mb-4 ${
+          juryProgress.startsWith('Done') ? 'bg-[rgba(63,185,80,0.1)] text-[#3FB950]' : 'bg-[rgba(218,119,86,0.1)] text-[#DA7756]'
+        }`}>
+          {juryRunning && <span className="inline-block w-2 h-2 bg-[#DA7756] rounded-full animate-pulse mr-2" />}
+          {juryProgress}
+        </div>
+      )}
 
       {/* Test Agents Panel */}
       {showTestPanel && (
@@ -258,7 +370,6 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          {/* Profile Selection */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mb-4">
             {testProfiles.map((p) => (
               <div
@@ -275,23 +386,17 @@ export default function DashboardPage() {
                   <span className="text-sm font-semibold">{p.name}</span>
                   <span
                     className="ml-auto text-[10px] px-2 py-0.5 rounded-full font-mono font-bold"
-                    style={{
-                      background: `${expectedColor[p.expectedScore]}22`,
-                      color: expectedColor[p.expectedScore],
-                    }}
+                    style={{ background: `${expectedColor[p.expectedScore]}22`, color: expectedColor[p.expectedScore] }}
                   >
                     {p.expectedScore.toUpperCase()}
                   </span>
                 </div>
                 <p className="text-[11px] text-[#8B949E] leading-relaxed">{p.description}</p>
-                <div className="text-[10px] text-[#8B949E] font-mono mt-1">
-                  {p.language.toUpperCase()}
-                </div>
+                <div className="text-[10px] text-[#8B949E] font-mono mt-1">{p.language.toUpperCase()}</div>
               </div>
             ))}
           </div>
 
-          {/* Progress / Results */}
           {testProgress && (
             <div className={`text-sm font-mono p-3 rounded-lg ${
               testProgress.startsWith('Error') ? 'bg-[rgba(248,81,73,0.1)] text-[#F85149]' : 'bg-[rgba(88,166,255,0.1)] text-[#58A6FF]'
@@ -340,7 +445,7 @@ export default function DashboardPage() {
       {sorted.length === 0 ? (
         <div className="text-center py-20 text-[#8B949E]">
           <div className="text-5xl mb-4">&#128203;</div>
-          <h2 className="text-xl text-[#E6EDF3] mb-2">No completed interviews yet</h2>
+          <h2 className="text-xl text-[#E6EDF3] mb-2">No interviews yet</h2>
           <p className="text-sm max-w-md mx-auto leading-relaxed">
             Share your interview link or run test agents to see evaluations here.
           </p>
@@ -352,6 +457,10 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {sorted.map((iv) => {
             const eval_ = iv.evaluation as Evaluation | null
+            const juryEvals = (iv as any).jury_evaluations as JuryEvaluation[] | undefined
+            const juryAvg = (iv as any).jury_avg_score as number | undefined
+            const hasJury = juryEvals && juryEvals.length > 0
+
             return (
               <div
                 key={iv.id}
@@ -364,6 +473,7 @@ export default function DashboardPage() {
                     <div className="text-[10px] text-[#8B949E] font-mono">
                       {iv.started_at ? new Date(iv.started_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
                       &nbsp;&bull;&nbsp;{(iv.language || 'en').toUpperCase()}
+                      &nbsp;&bull;&nbsp;{(iv.messages as any[])?.length || 0} msgs
                     </div>
                   </div>
                   {iv.recommendation && (
@@ -376,12 +486,35 @@ export default function DashboardPage() {
                   )}
                 </div>
 
-                <div className="text-[32px] font-bold font-mono mb-2" style={{ color: scoreColor(iv.overall_score || 0) }}>
-                  {iv.overall_score || '-'}
-                </div>
-
-                {eval_?.scores && (
+                {/* Jury Scores */}
+                {hasJury ? (
                   <div className="mb-3">
+                    <div className="flex items-baseline gap-2 mb-2">
+                      <span className="text-[28px] font-bold font-mono" style={{ color: scoreColor(juryAvg || 0) }}>
+                        {juryAvg}
+                      </span>
+                      <span className="text-[10px] text-[#8B949E] font-mono">JURY AVG</span>
+                    </div>
+                    <div className="flex gap-2">
+                      {juryEvals!.map((je) => (
+                        <div key={je.jury_id} className="flex-1 bg-[#0D1117] rounded-lg p-2 text-center">
+                          <div className="text-sm mb-0.5">{je.jury_emoji}</div>
+                          <div className="text-[16px] font-bold font-mono" style={{ color: scoreColor(je.overall_score) }}>
+                            {je.overall_score}
+                          </div>
+                          <div className="text-[8px] text-[#8B949E] font-mono mt-0.5"
+                            style={{ color: recColor[je.recommendation] || '#8B949E' }}>
+                            {je.recommendation}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : eval_?.scores ? (
+                  <div className="mb-3">
+                    <div className="text-[32px] font-bold font-mono mb-2" style={{ color: scoreColor(iv.overall_score || 0) }}>
+                      {iv.overall_score || '-'}
+                    </div>
                     {Object.entries(eval_.scores).map(([key, val]) => (
                       <div key={key} className="flex items-center gap-2 mb-1.5">
                         <span className="text-[9px] text-[#8B949E] font-mono uppercase w-24">{key.replace(/_/g, ' ')}</span>
@@ -392,19 +525,26 @@ export default function DashboardPage() {
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <div className="text-xs text-[#8B949E] mb-3 font-mono">No evaluation yet</div>
                 )}
 
-                {eval_?.one_line_summary && (
-                  <div className="text-xs text-[#8B949E] italic mt-3 pt-3 border-t border-[#30363D] leading-relaxed">
+                {/* Summary from jury or eval */}
+                {hasJury && juryEvals![0]?.one_line_summary ? (
+                  <div className="text-xs text-[#8B949E] italic mt-2 pt-2 border-t border-[#30363D] leading-relaxed">
+                    &ldquo;{juryEvals![0].one_line_summary}&rdquo;
+                  </div>
+                ) : eval_?.one_line_summary ? (
+                  <div className="text-xs text-[#8B949E] italic mt-2 pt-2 border-t border-[#30363D] leading-relaxed">
                     &ldquo;{eval_.one_line_summary}&rdquo;
                   </div>
-                )}
+                ) : null}
 
                 <div className="flex flex-wrap gap-1.5 mt-2.5">
-                  {eval_?.highlights?.map((h, i) => (
+                  {(hasJury ? juryEvals![0]?.highlights : eval_?.highlights)?.map((h, i) => (
                     <span key={i} className="text-[10px] px-2 py-0.5 rounded bg-[rgba(63,185,80,0.1)] text-[#3FB950] font-mono">&#10003; {h}</span>
                   ))}
-                  {eval_?.red_flags?.map((r, i) => (
+                  {(hasJury ? juryEvals![0]?.red_flags : eval_?.red_flags)?.map((r, i) => (
                     <span key={i} className="text-[10px] px-2 py-0.5 rounded bg-[rgba(247,129,102,0.1)] text-[#F78166] font-mono">&#9888; {r}</span>
                   ))}
                 </div>
@@ -415,42 +555,120 @@ export default function DashboardPage() {
       )}
 
       {/* Detail Modal */}
-      {selectedInterview && (
-        <div
-          className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedInterview(null)}
-        >
-          <div
-            className="bg-[#161B22] border border-[#30363D] rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">{selectedInterview.candidate_name} — Full Evaluation</h3>
-              <button onClick={() => setSelectedInterview(null)} className="text-[#8B949E] hover:text-white text-xl">&times;</button>
-            </div>
+      {selectedInterview && (() => {
+        const eval_ = selectedInterview.evaluation as Evaluation | null
+        const juryEvals = (selectedInterview as any).jury_evaluations as JuryEvaluation[] | undefined
+        const hasJury = juryEvals && juryEvals.length > 0
 
-            {/* Chat Transcript */}
-            {selectedInterview.messages && (selectedInterview.messages as any[]).length > 0 && (
-              <div className="mb-4">
-                <h4 className="text-xs font-mono text-[#58A6FF] mb-2">// TRANSCRIPT</h4>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto bg-[#0D1117] rounded-lg p-3">
-                  {(selectedInterview.messages as any[]).map((msg: any, i: number) => (
-                    <div key={i} className={`text-[11px] leading-relaxed ${msg.role === 'assistant' ? 'text-[#58A6FF]' : 'text-[#E6EDF3]'}`}>
-                      <span className="font-mono font-bold text-[10px] mr-1">{msg.role === 'assistant' ? 'AI:' : 'Candidate:'}</span>
-                      {msg.content.substring(0, 300)}{msg.content.length > 300 ? '...' : ''}
-                    </div>
-                  ))}
+        return (
+          <div
+            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+            onClick={() => setSelectedInterview(null)}
+          >
+            <div
+              className="bg-[#161B22] border border-[#30363D] rounded-xl p-6 max-w-3xl w-full max-h-[85vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">{selectedInterview.candidate_name} — Full Evaluation</h3>
+                <div className="flex items-center gap-2">
+                  {!hasJury && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); runJuryForOne(selectedInterview.id) }}
+                      disabled={juryRunning}
+                      className="bg-[#DA7756] text-white px-3 py-1 rounded-md text-xs font-medium hover:bg-[#E08B6D] disabled:opacity-50"
+                    >
+                      {juryRunning ? 'Evaluating...' : '⚖️ Run Jury'}
+                    </button>
+                  )}
+                  <button onClick={() => setSelectedInterview(null)} className="text-[#8B949E] hover:text-white text-xl">&times;</button>
                 </div>
               </div>
-            )}
 
-            <h4 className="text-xs font-mono text-[#58A6FF] mb-2">// EVALUATION</h4>
-            <pre className="bg-[#0D1117] rounded-lg p-4 text-[11px] font-mono overflow-x-auto leading-relaxed text-[#E6EDF3]">
-              {JSON.stringify(selectedInterview.evaluation, null, 2)}
-            </pre>
+              {/* Jury Evaluations */}
+              {hasJury && (
+                <div className="mb-6">
+                  <h4 className="text-xs font-mono text-[#DA7756] mb-3">⚖️ JURY EVALUATIONS</h4>
+                  <div className="grid grid-cols-3 gap-3">
+                    {juryEvals!.map((je) => (
+                      <div key={je.jury_id} className="bg-[#0D1117] rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-lg">{je.jury_emoji}</span>
+                          <div>
+                            <div className="text-xs font-semibold">{je.jury_name}</div>
+                            <div className="text-[10px] font-mono" style={{ color: recColor[je.recommendation] || '#8B949E' }}>
+                              {je.recommendation}
+                            </div>
+                          </div>
+                          <div className="ml-auto text-xl font-bold font-mono" style={{ color: scoreColor(je.overall_score) }}>
+                            {je.overall_score}
+                          </div>
+                        </div>
+
+                        {/* Criterion scores */}
+                        {je.scores && Object.entries(je.scores).map(([key, val]) => (
+                          <div key={key} className="flex items-center gap-1.5 mb-1">
+                            <span className="text-[8px] text-[#8B949E] font-mono uppercase w-20 truncate">{key.replace(/_/g, ' ')}</span>
+                            <div className="flex-1 h-1 bg-[#30363D] rounded-sm overflow-hidden">
+                              <div className="h-full rounded-sm" style={{ width: `${val.score * 10}%`, background: scoreColor(val.score) }} />
+                            </div>
+                            <span className="text-[10px] font-mono w-5 text-right" style={{ color: scoreColor(val.score) }}>{val.score}</span>
+                          </div>
+                        ))}
+
+                        {je.one_line_summary && (
+                          <div className="text-[10px] text-[#8B949E] italic mt-2 pt-2 border-t border-[#30363D]">
+                            &ldquo;{je.one_line_summary}&rdquo;
+                          </div>
+                        )}
+
+                        {je.key_concern && (
+                          <div className="text-[10px] text-[#F78166] mt-1.5 font-mono">
+                            &#9888; {je.key_concern}
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {je.highlights?.map((h, i) => (
+                            <span key={i} className="text-[8px] px-1.5 py-0.5 rounded bg-[rgba(63,185,80,0.1)] text-[#3FB950] font-mono">&#10003; {h}</span>
+                          ))}
+                          {je.red_flags?.map((r, i) => (
+                            <span key={i} className="text-[8px] px-1.5 py-0.5 rounded bg-[rgba(247,129,102,0.1)] text-[#F78166] font-mono">&#9888; {r}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Chat Transcript */}
+              {selectedInterview.messages && (selectedInterview.messages as any[]).length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-xs font-mono text-[#58A6FF] mb-2">// TRANSCRIPT</h4>
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto bg-[#0D1117] rounded-lg p-3">
+                    {(selectedInterview.messages as any[]).map((msg: any, i: number) => (
+                      <div key={i} className={`text-[11px] leading-relaxed ${msg.role === 'assistant' ? 'text-[#58A6FF]' : 'text-[#E6EDF3]'}`}>
+                        <span className="font-mono font-bold text-[10px] mr-1">{msg.role === 'assistant' ? 'AI:' : 'Candidate:'}</span>
+                        {msg.content.substring(0, 300)}{msg.content.length > 300 ? '...' : ''}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {eval_ && (
+                <>
+                  <h4 className="text-xs font-mono text-[#58A6FF] mb-2">// INTERVIEWER EVALUATION</h4>
+                  <pre className="bg-[#0D1117] rounded-lg p-4 text-[11px] font-mono overflow-x-auto leading-relaxed text-[#E6EDF3]">
+                    {JSON.stringify(eval_, null, 2)}
+                  </pre>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
     </div>
   )
 }
