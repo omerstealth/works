@@ -435,7 +435,7 @@ export default function ProgramPage() {
                         ))}
                       </div>
                       <div>
-                        <div className="text-[10px] text-[#F78166] font-mono mb-1">{t('program.areasToImprove')}</div>
+                        <div className="text-[10px] text-[#F78166] font-mono mb-1">{t('program.improve')}</div>
                         {midterm.areas_to_improve?.map((a: string, i: number) => (
                           <div key={i} className="text-[10px] text-[#8B949E]">→ {a}</div>
                         ))}
@@ -443,7 +443,7 @@ export default function ProgramPage() {
                     </div>
 
                     <div className="border-t border-[#30363D] pt-2 mt-2">
-                      <div className="text-[10px] text-[#8B949E] font-mono">👩‍💼 {t('program.pmEvaluation')}</div>
+                      <div className="text-[10px] text-[#8B949E] font-mono">👩‍💼 {t('program.pmAssessment')}</div>
                       <p className="text-[11px] text-[#8B949E] mt-1">{midterm.pm_notes}</p>
                     </div>
                   </div>
@@ -473,7 +473,7 @@ export default function ProgramPage() {
                     </div>
 
                     <div>
-                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">{t('program.mentorRecommendation')}</div>
+                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">{t('program.mentorRec')}</div>
                       <p className="text-[11px] text-[#8B949E] leading-relaxed">{demoday.mentor_recommendation}</p>
                     </div>
 
