@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import type { Program, Interview, Evaluation, JuryEvaluation } from '@/lib/supabase/types'
+import type { Program, Interview, Evaluation, JuryEvaluation, DeliberationNote } from '@/lib/supabase/types'
 
 interface TestAgentProfile {
   id: string
@@ -45,6 +45,11 @@ export default function DashboardPage() {
   const [juryMembers, setJuryMembers] = useState<JuryMember[]>([])
   const [juryRunning, setJuryRunning] = useState(false)
   const [juryProgress, setJuryProgress] = useState('')
+
+  // Pipeline state
+  const [deliberating, setDeliberating] = useState(false)
+  const [deciding, setDeciding] = useState(false)
+  const [pipelineProgress, setPipelineProgress] = useState('')
 
   const supabase = createClient()
 
@@ -242,6 +247,73 @@ export default function DashboardPage() {
     }
   }
 
+  async function runDeliberation() {
+    if (!program || deliberating) return
+    setDeliberating(true)
+
+    const interviewsWithJury = interviews.filter(iv => {
+      const evals = (iv as any).jury_evaluations as JuryEvaluation[] | undefined
+      return evals != null && evals.length >= 2
+    })
+
+    let completed = 0
+    const total = interviewsWithJury.length * juryMembers.length
+
+    for (const iv of interviewsWithJury) {
+      for (const jury of juryMembers) {
+        setPipelineProgress(`🗣 ${jury.emoji} ${jury.name} deliberating on ${iv.candidate_name}... (${completed + 1}/${total})`)
+        try {
+          await fetch('/api/jury/deliberate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ interview_id: iv.id, jury_id: jury.id }),
+          })
+        } catch { /* continue */ }
+        completed++
+      }
+    }
+
+    setPipelineProgress('🗣 Deliberation complete!')
+
+    const { data: ints } = await supabase
+      .from('interviews')
+      .select('*')
+      .eq('program_id', program.id)
+      .order('started_at', { ascending: false })
+    setInterviews((ints || []) as Interview[])
+    setDeliberating(false)
+  }
+
+  async function runDecisions() {
+    if (!program || deciding) return
+    setDeciding(true)
+    setPipelineProgress('✅ Making final decisions...')
+
+    try {
+      const res = await fetch('/api/program/decide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ program_id: program.id }),
+      })
+      const data = await res.json()
+      if (data.error) {
+        setPipelineProgress(`Error: ${data.error}`)
+      } else {
+        setPipelineProgress(`✅ Decisions: ${data.accepted} accepted, ${data.waitlisted} waitlisted, ${data.rejected} rejected`)
+      }
+    } catch (err: any) {
+      setPipelineProgress(`Error: ${err.message}`)
+    }
+
+    const { data: ints } = await supabase
+      .from('interviews')
+      .select('*')
+      .eq('program_id', program.id)
+      .order('started_at', { ascending: false })
+    setInterviews((ints || []) as Interview[])
+    setDeciding(false)
+  }
+
   function toggleProfile(id: string) {
     setSelectedProfiles(prev =>
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
@@ -298,7 +370,7 @@ export default function DashboardPage() {
           <h1 className="text-lg font-semibold">{program?.name}</h1>
           <span className="text-xs text-[#8B949E] font-mono">Jury Dashboard — Interview Evaluations</span>
         </div>
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex gap-2 flex-wrap justify-end">
           <button
             onClick={() => setShowTestPanel(!showTestPanel)}
             className={`border px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
@@ -314,14 +386,27 @@ export default function DashboardPage() {
             disabled={juryRunning || withMessages.length === 0}
             className="bg-[#DA7756] text-white px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#E08B6D] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {juryRunning ? (
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Jury Running...
-              </span>
-            ) : (
-              `⚖️ Run Jury (${withMessages.length})`
-            )}
+            {juryRunning ? '⚖️ Jury...' : `⚖️ Jury (${withMessages.length})`}
+          </button>
+          <button
+            onClick={runDeliberation}
+            disabled={deliberating || interviews.filter(iv => ((iv as any).jury_evaluations)?.length >= 2).length === 0}
+            className="bg-[#8B5CF6] text-white px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#A78BFA] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {deliberating ? '🗣 Deliberating...' : '🗣 Deliberate'}
+          </button>
+          <button
+            onClick={runDecisions}
+            disabled={deciding}
+            className="bg-[#3FB950] text-[#0D1117] px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#56D364] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {deciding ? '✅ Deciding...' : '✅ Decide'}
+          </button>
+          <button
+            onClick={() => router.push(`/${slug}/results`)}
+            className="bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-3.5 py-1.5 rounded-md text-xs font-medium hover:border-[#3FB950] hover:text-[#3FB950] transition-colors"
+          >
+            📊 Results
           </button>
           <button
             onClick={exportJSON}
@@ -339,6 +424,18 @@ export default function DashboardPage() {
         }`}>
           {juryRunning && <span className="inline-block w-2 h-2 bg-[#DA7756] rounded-full animate-pulse mr-2" />}
           {juryProgress}
+        </div>
+      )}
+
+      {/* Pipeline Progress */}
+      {pipelineProgress && (
+        <div className={`text-sm font-mono p-3 rounded-lg mb-4 ${
+          pipelineProgress.startsWith('Error') ? 'bg-[rgba(248,81,73,0.1)] text-[#F85149]'
+            : pipelineProgress.startsWith('✅') ? 'bg-[rgba(63,185,80,0.1)] text-[#3FB950]'
+            : 'bg-[rgba(139,92,246,0.1)] text-[#8B5CF6]'
+        }`}>
+          {(deliberating || deciding) && <span className="inline-block w-2 h-2 bg-[#8B5CF6] rounded-full animate-pulse mr-2" />}
+          {pipelineProgress}
         </div>
       )}
 
@@ -653,6 +750,57 @@ export default function DashboardPage() {
                         {msg.content.substring(0, 300)}{msg.content.length > 300 ? '...' : ''}
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Deliberation Notes */}
+              {(() => {
+                const deliberationNotes = (selectedInterview as any).deliberation_notes as DeliberationNote[] | undefined
+                if (!deliberationNotes || deliberationNotes.length === 0) return null
+                return (
+                  <div className="mb-4">
+                    <h4 className="text-xs font-mono text-[#8B5CF6] mb-2">🗣 DELIBERATION</h4>
+                    <div className="space-y-2">
+                      {deliberationNotes.map((n: DeliberationNote) => (
+                        <div key={n.jury_id} className="bg-[#0D1117] rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span>{n.jury_emoji}</span>
+                            <span className="text-xs font-semibold">{n.jury_name}</span>
+                            {n.changed_mind ? (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(247,129,102,0.1)] text-[#F78166] font-mono ml-auto">
+                                Changed: {n.original_score} → {n.final_score}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(63,185,80,0.1)] text-[#3FB950] font-mono ml-auto">
+                                Maintained: {n.final_score}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-[#8B949E] leading-relaxed">{n.reasoning}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
+
+              {/* Decision */}
+              {(selectedInterview as any).decision && (
+                <div className="mb-4 p-3 rounded-lg border" style={{
+                  borderColor: (selectedInterview as any).decision === 'ACCEPT' ? '#3FB950'
+                    : (selectedInterview as any).decision === 'WAITLIST' ? '#F78166' : '#F85149',
+                  background: (selectedInterview as any).decision === 'ACCEPT' ? 'rgba(63,185,80,0.1)'
+                    : (selectedInterview as any).decision === 'WAITLIST' ? 'rgba(247,129,102,0.1)' : 'rgba(248,81,73,0.1)',
+                }}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-mono font-bold" style={{
+                      color: (selectedInterview as any).decision === 'ACCEPT' ? '#3FB950'
+                        : (selectedInterview as any).decision === 'WAITLIST' ? '#F78166' : '#F85149'
+                    }}>
+                      Final: {(selectedInterview as any).decision}
+                    </span>
+                    <span className="text-sm font-mono">Score: {(selectedInterview as any).decision_score}</span>
                   </div>
                 </div>
               )}

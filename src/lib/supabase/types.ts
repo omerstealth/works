@@ -114,10 +114,25 @@ export interface JuryEvaluation {
   key_concern: string
 }
 
+export interface DeliberationNote {
+  jury_id: string
+  jury_name: string
+  jury_emoji: string
+  changed_mind: boolean
+  original_score: number
+  final_score: number
+  original_recommendation: string
+  final_recommendation: string
+  reasoning: string
+}
+
 // Helper type for program with computed fields
 export type Program = Database['public']['Tables']['programs']['Row']
 export type Interview = Database['public']['Tables']['interviews']['Row'] & {
   jury_evaluations?: JuryEvaluation[]
   jury_avg_score?: number
+  deliberation_notes?: DeliberationNote[]
+  decision?: 'ACCEPT' | 'WAITLIST' | 'REJECT' | null
+  decision_score?: number | null
 }
 export type ProgramMember = Database['public']['Tables']['program_members']['Row']

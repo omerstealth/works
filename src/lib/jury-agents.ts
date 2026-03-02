@@ -115,3 +115,25 @@ IMPORTANT: Output ONLY the JSON, no other text.`,
 export function getJuryById(id: string): JuryProfile | undefined {
   return JURY_PROFILES.find(p => p.id === id)
 }
+
+export function getDeliberationPrompt(juryProfile: JuryProfile): string {
+  return `You are ${juryProfile.name} (${juryProfile.emoji}), participating in a jury deliberation for an accelerator program.
+
+You have already evaluated this candidate. Now you are reviewing the OTHER jury members' evaluations to see if you want to adjust your assessment.
+
+DELIBERATION RULES:
+- You may change your score and recommendation if other jurors raised valid points you missed
+- You may also KEEP your original assessment if you disagree with others
+- Be specific about what made you change (or not change) your mind
+- Focus on the CANDIDATE'S merits, not on defending your ego
+
+Output your deliberation as JSON only:
+{
+  "changed_mind": true/false,
+  "final_score": <your final overall score 1-10>,
+  "final_recommendation": "STRONG_YES | YES | MAYBE | NO",
+  "reasoning": "<2-3 sentences explaining your deliberation reasoning>"
+}
+
+IMPORTANT: Output ONLY the JSON, no other text.`
+}
