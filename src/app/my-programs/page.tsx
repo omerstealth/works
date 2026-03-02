@@ -28,27 +28,41 @@ export default function MyProgramsPage() {
         return
       }
 
-      // Get programs where user is a member
+      // Get programs where user is owner (created_by) or member
+      const { data: ownedProgs } = await supabase
+        .from('programs')
+        .select('*')
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false })
+
       const { data: memberships } = await supabase
         .from('program_members')
         .select('program_id')
         .eq('user_id', user.id)
 
+      let allProgs = [...((ownedProgs || []) as ProgramRow[])]
+
+      // Add member programs that aren't already in owned list
       if (memberships && memberships.length > 0) {
-        const programIds = memberships.map(m => m.program_id)
-        const { data: progs } = await supabase
-          .from('programs')
-          .select('*')
-          .in('id', programIds)
-          .order('created_at', { ascending: false })
-
-        setPrograms((progs || []) as ProgramRow[])
-
-        // If only one program, redirect to its dashboard directly
-        if (progs && progs.length === 1) {
-          router.push(`/${progs[0].slug}/dashboard`)
-          return
+        const ownedIds = new Set(allProgs.map(p => p.id))
+        const memberProgramIds = memberships.map(m => m.program_id).filter(id => !ownedIds.has(id))
+        if (memberProgramIds.length > 0) {
+          const { data: memberProgs } = await supabase
+            .from('programs')
+            .select('*')
+            .in('id', memberProgramIds)
+          if (memberProgs) {
+            allProgs = [...allProgs, ...(memberProgs as ProgramRow[])]
+          }
         }
+      }
+
+      setPrograms(allProgs)
+
+      // If only one program, redirect to its dashboard directly
+      if (allProgs.length === 1) {
+        router.push(`/${allProgs[0].slug}/dashboard`)
+        return
       }
 
       setLoading(false)
