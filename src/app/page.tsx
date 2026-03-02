@@ -80,7 +80,7 @@ export default function HomePage() {
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="#0D1117" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
             </Link>
             <Link
-              href="/auth/login"
+              href="/auth/login?redirect=/my-programs"
               className="inline-flex items-center gap-2 bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-8 py-4 rounded-xl text-base font-semibold transition-all hover:border-[#58A6FF] hover:-translate-y-0.5"
             >
               ▶️ Launch Demo
