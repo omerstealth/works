@@ -208,7 +208,7 @@ export default function ProgramPage() {
                     W{event.week}
                   </div>
                   <div className={`flex-1 py-2 ${isStage ? 'font-semibold' : 'text-[#8B949E] text-sm'}`}>
-                    {event.title}
+                    {t(`program.week${event.week}`)}
                   </div>
                   {isStage && (
                     <span className="text-xs font-mono">
