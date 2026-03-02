@@ -53,6 +53,10 @@ export default function DashboardPage() {
   const [deciding, setDeciding] = useState(false)
   const [pipelineProgress, setPipelineProgress] = useState('')
 
+  // User / owner state
+  const [ownerName, setOwnerName] = useState<string | null>(null)
+  const [ownerEmail, setOwnerEmail] = useState<string | null>(null)
+
   // Delete state
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -67,6 +71,8 @@ export default function DashboardPage() {
         return
       }
       setAuthChecked(true)
+      setOwnerName(user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || null)
+      setOwnerEmail(user.email || null)
 
       const { data: prog } = await supabase
         .from('programs')
@@ -396,7 +402,14 @@ export default function DashboardPage() {
         </div>
         <div>
           <h1 className="text-lg font-semibold">{program?.name}</h1>
-          <span className="text-xs text-[#8B949E] font-mono">{t('dashboard.subtitle')}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[#8B949E] font-mono">{t('dashboard.subtitle')}</span>
+            {ownerName && (
+              <span className="text-xs text-[#8B949E]">
+                · <span className="text-[#58A6FF]">{ownerName}</span>
+              </span>
+            )}
+          </div>
         </div>
         <div className="ml-auto flex gap-2 flex-wrap justify-end">
           <LanguageToggle />
