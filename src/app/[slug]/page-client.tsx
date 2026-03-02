@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useLanguage, LanguageToggle } from '@/lib/i18n'
+import { useLanguage } from '@/lib/i18n'
+import Navbar from '@/components/Navbar'
 import type { Program } from '@/lib/supabase/types'
 
 interface ProgramPageClientProps {
@@ -27,10 +28,7 @@ export default function ProgramPageClient({ program, colors, slug }: ProgramPage
 
   return (
     <div className="min-h-screen" style={{ background: colors.bg, color: '#E6EDF3' }}>
-      {/* Header with Language Toggle */}
-      <div className="flex justify-end p-4 pr-6">
-        <LanguageToggle />
-      </div>
+      <Navbar slug={slug} />
 
       {/* Hero */}
       <div className="relative text-center py-20 px-6 overflow-hidden">

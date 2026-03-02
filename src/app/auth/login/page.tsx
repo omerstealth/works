@@ -3,7 +3,8 @@
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { useLanguage, LanguageToggle } from '@/lib/i18n'
+import { useLanguage } from '@/lib/i18n'
+import Navbar from '@/components/Navbar'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -124,18 +125,18 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] flex items-center justify-center p-6">
-      <div className="absolute top-6 right-6">
-        <LanguageToggle />
+    <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3]">
+      <Navbar />
+      <div className="flex items-center justify-center p-6 min-h-[calc(100vh-80px)]">
+        <Suspense fallback={
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-[#58A6FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-[#8B949E] text-sm font-mono">Loading...</p>
+          </div>
+        }>
+          <LoginForm />
+        </Suspense>
       </div>
-      <Suspense fallback={
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#58A6FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-[#8B949E] text-sm font-mono">Loading...</p>
-        </div>
-      }>
-        <LoginForm />
-      </Suspense>
     </div>
   )
 }

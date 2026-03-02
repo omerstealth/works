@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { useLanguage, LanguageToggle } from '@/lib/i18n'
+import { useLanguage } from '@/lib/i18n'
+import Navbar from '@/components/Navbar'
 
 interface ProgramRow {
   id: string
@@ -58,20 +59,15 @@ export default function MyProgramsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] p-6">
-      <div className="max-w-2xl mx-auto">
-        <header className="flex items-center justify-between mb-8 pb-4 border-b border-[#30363D]">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-[#58A6FF] to-[#F78166] rounded-lg flex items-center justify-center font-mono font-bold text-[#0D1117]">
-              S
-            </div>
+    <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3]">
+      <Navbar />
+      <div className="p-6">
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-lg font-semibold">{t('myPrograms.title')}</h1>
               <span className="text-xs text-[#8B949E] font-mono">Devam etmek için bir program seçin</span>
             </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <LanguageToggle />
             <Link
               href="/create"
               className="text-sm bg-[#58A6FF] text-[#0D1117] px-4 py-2 rounded-lg font-semibold hover:bg-[#79B8FF] transition-colors"
@@ -79,7 +75,6 @@ export default function MyProgramsPage() {
               + Yeni Program
             </Link>
           </div>
-        </header>
 
         {programs.length === 0 ? (
           <div className="text-center py-20">
@@ -142,6 +137,7 @@ export default function MyProgramsPage() {
             ))}
           </div>
         )}
+        </div>
       </div>
     </div>
   )

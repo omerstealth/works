@@ -6,7 +6,8 @@ import { createClient } from '@/lib/supabase/client'
 import type { Program, Interview } from '@/lib/supabase/types'
 import { MENTOR_PROFILES } from '@/lib/mentor-agents'
 import { PROGRAM_TIMELINE, PROGRAM_MANAGER } from '@/lib/program-manager'
-import { useLanguage, LanguageToggle } from '@/lib/i18n'
+import { useLanguage } from '@/lib/i18n'
+import Navbar from '@/components/Navbar'
 
 type StageKey = 'kickoff' | 'midterm' | 'demoday'
 
@@ -147,33 +148,7 @@ export default function ProgramPage() {
 
   return (
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] p-6 max-w-5xl mx-auto">
-      {/* Header */}
-      <header className="mb-8 pb-4 border-b border-[#30363D]">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-[#58A6FF] to-[#F78166] rounded-[10px] flex items-center justify-center font-mono font-bold text-lg text-[#0D1117]">
-            {program?.name?.[0] || 'S'}
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold">{program?.name}</h1>
-            <span className="text-xs text-[#8B949E] font-mono">{t('program.subtitle')}</span>
-          </div>
-          <div className="ml-auto flex gap-2">
-            <LanguageToggle />
-            <button
-              onClick={() => router.push(`/${slug}/results`)}
-              className="bg-[#161B22] border border-[#30363D] text-[#8B949E] px-3.5 py-1.5 rounded-md text-xs hover:border-[#58A6FF] hover:text-[#58A6FF] transition-colors"
-            >
-              📊 {t('common.results')}
-            </button>
-            <button
-              onClick={() => router.push(`/${slug}/dashboard`)}
-              className="bg-[#161B22] border border-[#30363D] text-[#8B949E] px-3.5 py-1.5 rounded-md text-xs hover:border-[#58A6FF] hover:text-[#58A6FF] transition-colors"
-            >
-              ← Dashboard
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navbar slug={slug} />
 
       {/* Program Manager */}
       <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-4 mb-6">

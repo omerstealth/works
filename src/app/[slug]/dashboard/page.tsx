@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { useLanguage, LanguageToggle } from '@/lib/i18n'
+import { useLanguage } from '@/lib/i18n'
+import Navbar from '@/components/Navbar'
 import type { Program, Interview, Evaluation, JuryEvaluation, DeliberationNote } from '@/lib/supabase/types'
 
 interface TestAgentProfile {
@@ -395,7 +396,9 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] p-6">
-      {/* Header */}
+      <Navbar slug={slug} />
+
+      {/* Header with program name and action buttons */}
       <header className="flex items-center gap-4 mb-8 pb-4 border-b border-[#30363D]">
         <div className="w-10 h-10 bg-gradient-to-br from-[#58A6FF] to-[#F78166] rounded-[10px] flex items-center justify-center font-mono font-bold text-lg text-[#0D1117]">
           {program?.name?.[0] || 'S'}
@@ -412,7 +415,6 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="ml-auto flex gap-2 flex-wrap justify-end">
-          <LanguageToggle />
           <button
             onClick={() => setShowTestPanel(!showTestPanel)}
             className={`border px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors ${

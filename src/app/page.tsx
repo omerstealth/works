@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { useLanguage, LanguageToggle } from '@/lib/i18n'
+import { useLanguage } from '@/lib/i18n'
+import Navbar from '@/components/Navbar'
 
 interface PipelineStage {
   emoji: string
@@ -30,22 +29,7 @@ function parseAgents(raw: string): { emoji: string; name: string; role: string }
 
 export default function HomePage() {
   const [selectedStage, setSelectedStage] = useState<number | null>(null)
-  const [user, setUser] = useState<{ email?: string; name?: string } | null>(null)
-  const [showUserMenu, setShowUserMenu] = useState(false)
   const { t } = useLanguage()
-  const router = useRouter()
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user: u } }) => {
-      if (u) {
-        setUser({
-          email: u.email,
-          name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0],
-        })
-      }
-    })
-  }, [])
 
   const stageEmojis = ['🤖', '⚖️', '🗣', '✅', '🚀', '🎤']
   const stageColors = ['#58A6FF', '#D2A8FF', '#F78166', '#3FB950', '#58A6FF', '#F78166']
@@ -95,73 +79,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3]">
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-[#30363D]">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-[#58A6FF] to-[#F78166] rounded-lg flex items-center justify-center font-mono font-bold text-[#0D1117]">
-            S
-          </div>
-          <span className="font-semibold tracking-wide">StealthWorks</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <LanguageToggle />
-          {user ? (
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 text-sm text-[#E6EDF3] hover:text-white transition-colors"
-              >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#58A6FF] to-[#D2A8FF] flex items-center justify-center text-xs font-bold text-[#0D1117]">
-                  {(user.name || '?')[0].toUpperCase()}
-                </div>
-                <span className="hidden sm:inline">{user.name}</span>
-              </button>
-              {showUserMenu && (
-                <div className="absolute right-0 top-12 bg-[#161B22] border border-[#30363D] rounded-lg shadow-xl py-1 min-w-[180px] z-50">
-                  <div className="px-4 py-2 border-b border-[#30363D]">
-                    <div className="text-sm font-medium text-[#E6EDF3]">{user.name}</div>
-                    <div className="text-xs text-[#8B949E]">{user.email}</div>
-                  </div>
-                  <Link
-                    href="/my-programs"
-                    className="block px-4 py-2 text-sm text-[#E6EDF3] hover:bg-[#30363D] transition-colors"
-                  >
-                    {t('nav.myPrograms')}
-                  </Link>
-                  <Link
-                    href="/create"
-                    className="block px-4 py-2 text-sm text-[#E6EDF3] hover:bg-[#30363D] transition-colors"
-                  >
-                    {t('nav.create')}
-                  </Link>
-                  <button
-                    onClick={async () => {
-                      const supabase = createClient()
-                      await supabase.auth.signOut()
-                      setUser(null)
-                      setShowUserMenu(false)
-                      router.refresh()
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-[#F85149] hover:bg-[#30363D] transition-colors"
-                  >
-                    {t('nav.logout')}
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <Link href="/auth/login" className="text-sm text-[#8B949E] hover:text-[#E6EDF3] transition-colors">
-              {t('nav.login')}
-            </Link>
-          )}
-          <Link
-            href="/create"
-            className="text-sm bg-[#58A6FF] text-[#0D1117] px-4 py-2 rounded-lg font-semibold hover:bg-[#79B8FF] transition-colors"
-          >
-            {t('nav.create')}
-          </Link>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero */}
       <div className="relative text-center py-28 px-6 overflow-hidden">

@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { useLanguage, LanguageToggle } from '@/lib/i18n'
+import { useLanguage } from '@/lib/i18n'
+import Navbar from '@/components/Navbar'
 import type { Program } from '@/lib/supabase/types'
 
 interface StageConfig {
@@ -343,27 +344,7 @@ export default function DemoPage() {
 
   return (
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3]">
-      {/* Header */}
-      <header className="border-b border-[#30363D] p-4">
-        <div className="max-w-5xl mx-auto flex items-center gap-4">
-          <div className="w-8 h-8 bg-gradient-to-br from-[#58A6FF] to-[#F78166] rounded-lg flex items-center justify-center font-mono font-bold text-sm text-[#0D1117]">
-            {program?.name?.[0] || 'S'}
-          </div>
-          <div className="flex-1">
-            <h1 className="text-sm font-semibold">{program?.name}</h1>
-            <span className="text-[10px] text-[#8B949E] font-mono">Full Pipeline Demo</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <LanguageToggle />
-            <button
-              onClick={() => router.push(`/${slug}/dashboard`)}
-              className="text-xs text-[#8B949E] hover:text-[#58A6FF] transition-colors"
-            >
-              ← {t('common.dashboard')}
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navbar slug={slug} />
 
       <div className="max-w-5xl mx-auto p-6">
         {/* Progress Bar */}

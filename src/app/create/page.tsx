@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { useLanguage, LanguageToggle } from '@/lib/i18n'
+import { useLanguage } from '@/lib/i18n'
+import Navbar from '@/components/Navbar'
 
 const DEFAULT_SYSTEM_PROMPT = `You are an AI Interview Agent for an accelerator program. Your role is to conduct structured yet adaptive interviews with startup founders.
 
@@ -139,15 +140,14 @@ export default function CreateProgramPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] p-6">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
+    <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3]">
+      <Navbar />
+      <div className="p-6">
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-8">
             <h1 className="text-2xl font-bold mb-2">{t('create.title')}</h1>
             <p className="text-[#8B949E] text-sm">AI destekli mülakat ajanınızı dakikalar içinde kurun.</p>
           </div>
-          <LanguageToggle />
-        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name */}
@@ -217,6 +217,7 @@ export default function CreateProgramPage() {
             {loading ? t('create.creating') : t('create.submitBtn')}
           </button>
         </form>
+        </div>
       </div>
     </div>
   )

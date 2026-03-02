@@ -104,6 +104,9 @@ const translations = {
     'nav.create': 'Program Oluştur',
     'nav.myPrograms': 'Programlarım',
     'nav.logout': 'Çıkış Yap',
+    'nav.dashboard': 'Dashboard',
+    'nav.results': 'Sonuçlar',
+    'nav.program': 'Program',
 
     // ── Landing / Hero ──
     'hero.badge': 'Uçtan Uca AI Pipeline',
@@ -422,6 +425,9 @@ const translations = {
     'nav.create': 'Create Program',
     'nav.myPrograms': 'My Programs',
     'nav.logout': 'Sign Out',
+    'nav.dashboard': 'Dashboard',
+    'nav.results': 'Results',
+    'nav.program': 'Program',
 
     // ── Landing / Hero ──
     'hero.badge': 'End-to-End AI Pipeline',

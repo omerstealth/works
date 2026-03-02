@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Program, Evaluation } from '@/lib/supabase/types'
-import { useLanguage, LanguageToggle } from '@/lib/i18n'
+import { useLanguage } from '@/lib/i18n'
+import Navbar from '@/components/Navbar'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -155,24 +156,16 @@ export default function InterviewPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: colors.bg, color: '#E6EDF3' }}>
-      {/* Header */}
-      <header className="bg-[#161B22] border-b border-[#30363D] px-6 py-4 flex items-center gap-4 shrink-0">
-        <div
-          className="w-10 h-10 rounded-[10px] flex items-center justify-center font-mono font-bold text-lg"
-          style={{ background: `linear-gradient(135deg, ${colors.accent}, ${colors.orange})`, color: colors.bg }}
-        >
-          {program?.name?.[0] || 'S'}
-        </div>
-        <div>
-          <h1 className="text-base font-semibold tracking-wide">{program?.name || t('interview.loading')}</h1>
-          <span className="text-[11px] text-[#8B949E] font-mono">{program?.description || t('interview.agent')}</span>
-        </div>
-        <LanguageToggle />
-        <div className="ml-auto flex items-center gap-2 bg-[rgba(63,185,80,0.15)] text-[#3FB950] px-3 py-1 rounded-full text-[11px] font-medium">
+      {/* Minimal Navbar for interview page */}
+      <Navbar slug={slug} minimal />
+
+      {/* Phase indicator */}
+      <div className="bg-[#161B22] border-b border-[#30363D] px-6 py-3 flex items-center justify-end">
+        <div className="flex items-center gap-2 bg-[rgba(63,185,80,0.15)] text-[#3FB950] px-3 py-1 rounded-full text-[11px] font-medium">
           <span className="w-1.5 h-1.5 rounded-full bg-[#3FB950] animate-pulse" />
           {phase}
         </div>
-      </header>
+      </div>
 
       {/* Welcome Screen */}
       {!isStarted && (
