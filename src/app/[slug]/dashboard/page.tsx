@@ -5,6 +5,15 @@ import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Program, Interview, Evaluation } from '@/lib/supabase/types'
 
+interface TestAgentProfile {
+  id: string
+  name: string
+  emoji: string
+  description: string
+  language: string
+  expectedScore: string
+}
+
 export default function DashboardPage() {
   const params = useParams()
   const router = useRouter()
@@ -16,11 +25,18 @@ export default function DashboardPage() {
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null)
   const [authChecked, setAuthChecked] = useState(false)
 
+  // Test agents state
+  const [showTestPanel, setShowTestPanel] = useState(false)
+  const [testProfiles, setTestProfiles] = useState<TestAgentProfile[]>([])
+  const [selectedProfiles, setSelectedProfiles] = useState<string[]>([])
+  const [testRunning, setTestRunning] = useState(false)
+  const [testProgress, setTestProgress] = useState('')
+  const [testResults, setTestResults] = useState<any>(null)
+
   const supabase = createClient()
 
   useEffect(() => {
     async function init() {
-      // Check auth
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         router.push(`/auth/login?redirect=/${slug}/dashboard`)
@@ -28,7 +44,6 @@ export default function DashboardPage() {
       }
       setAuthChecked(true)
 
-      // Load program
       const { data: prog } = await supabase
         .from('programs')
         .select('*')
@@ -41,7 +56,6 @@ export default function DashboardPage() {
       }
       setProgram(prog as Program)
 
-      // Load interviews
       const { data: ints } = await supabase
         .from('interviews')
         .select('*')
@@ -50,9 +64,61 @@ export default function DashboardPage() {
 
       setInterviews((ints || []) as Interview[])
       setLoading(false)
+
+      // Load test agent profiles
+      const profilesRes = await fetch('/api/test-agents/run')
+      if (profilesRes.ok) {
+        const data = await profilesRes.json()
+        setTestProfiles(data.profiles || [])
+      }
     }
     init()
   }, [slug])
+
+  async function runTestAgents() {
+    if (!program || testRunning) return
+    setTestRunning(true)
+    setTestResults(null)
+    setTestProgress(`Running ${selectedProfiles.length || testProfiles.length} test interviews...`)
+
+    try {
+      const res = await fetch('/api/test-agents/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          program_id: program.id,
+          profile_ids: selectedProfiles.length > 0 ? selectedProfiles : undefined,
+        }),
+      })
+
+      const data = await res.json()
+      if (data.error) {
+        setTestProgress(`Error: ${data.error}`)
+      } else {
+        setTestResults(data)
+        setTestProgress(`Done! ${data.successful}/${data.total} interviews completed.`)
+
+        // Reload interviews
+        const { data: ints } = await supabase
+          .from('interviews')
+          .select('*')
+          .eq('program_id', program.id)
+          .order('started_at', { ascending: false })
+
+        setInterviews((ints || []) as Interview[])
+      }
+    } catch (err: any) {
+      setTestProgress(`Error: ${err.message}`)
+    } finally {
+      setTestRunning(false)
+    }
+  }
+
+  function toggleProfile(id: string) {
+    setSelectedProfiles(prev =>
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    )
+  }
 
   if (!authChecked || loading) {
     return (
@@ -73,6 +139,7 @@ export default function DashboardPage() {
   const sorted = [...completed].sort((a, b) => (b.overall_score || 0) - (a.overall_score || 0))
   const scoreColor = (s: number) => (s >= 8 ? '#3FB950' : s >= 6 ? '#58A6FF' : '#F78166')
   const recColor: Record<string, string> = { STRONG_YES: '#3FB950', YES: '#58A6FF', MAYBE: '#F78166', NO: '#F85149' }
+  const expectedColor: Record<string, string> = { high: '#3FB950', medium: '#F78166', low: '#F85149' }
 
   function exportJSON() {
     const data = JSON.stringify(interviews, null, 2)
@@ -98,6 +165,16 @@ export default function DashboardPage() {
         </div>
         <div className="ml-auto flex gap-2">
           <button
+            onClick={() => setShowTestPanel(!showTestPanel)}
+            className={`border px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              showTestPanel
+                ? 'bg-[#58A6FF] border-[#58A6FF] text-[#0D1117]'
+                : 'bg-[#161B22] border-[#30363D] text-[#8B949E] hover:border-[#58A6FF] hover:text-[#58A6FF]'
+            }`}
+          >
+            🤖 Test Agents
+          </button>
+          <button
             onClick={exportJSON}
             className="bg-[#161B22] border border-[#30363D] text-[#8B949E] px-3.5 py-1.5 rounded-md text-xs hover:border-[#58A6FF] hover:text-[#58A6FF] transition-colors"
           >
@@ -105,6 +182,96 @@ export default function DashboardPage() {
           </button>
         </div>
       </header>
+
+      {/* Test Agents Panel */}
+      {showTestPanel && (
+        <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-semibold flex items-center gap-2">
+                🤖 AI Test Agents
+              </h2>
+              <p className="text-xs text-[#8B949E] mt-1">
+                Simulate interviews with AI-powered candidate profiles to test your evaluation system.
+              </p>
+            </div>
+            <button
+              onClick={runTestAgents}
+              disabled={testRunning}
+              className="bg-[#58A6FF] text-[#0D1117] px-5 py-2 rounded-lg text-sm font-bold transition-all hover:bg-[#79B8FF] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {testRunning ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-3 h-3 border-2 border-[#0D1117] border-t-transparent rounded-full animate-spin" />
+                  Running...
+                </span>
+              ) : (
+                `Run ${selectedProfiles.length || 'All'} Agent${selectedProfiles.length === 1 ? '' : 's'}`
+              )}
+            </button>
+          </div>
+
+          {/* Profile Selection */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mb-4">
+            {testProfiles.map((p) => (
+              <div
+                key={p.id}
+                onClick={() => toggleProfile(p.id)}
+                className={`p-3 rounded-lg cursor-pointer border transition-all ${
+                  selectedProfiles.includes(p.id) || selectedProfiles.length === 0
+                    ? 'bg-[#0D1117] border-[#58A6FF]'
+                    : 'bg-[#0D1117] border-[#30363D] opacity-50'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg">{p.emoji}</span>
+                  <span className="text-sm font-semibold">{p.name}</span>
+                  <span
+                    className="ml-auto text-[10px] px-2 py-0.5 rounded-full font-mono font-bold"
+                    style={{
+                      background: `${expectedColor[p.expectedScore]}22`,
+                      color: expectedColor[p.expectedScore],
+                    }}
+                  >
+                    {p.expectedScore.toUpperCase()}
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#8B949E] leading-relaxed">{p.description}</p>
+                <div className="text-[10px] text-[#8B949E] font-mono mt-1">
+                  {p.language.toUpperCase()}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Progress / Results */}
+          {testProgress && (
+            <div className={`text-sm font-mono p-3 rounded-lg ${
+              testProgress.startsWith('Error') ? 'bg-[rgba(248,81,73,0.1)] text-[#F85149]' : 'bg-[rgba(88,166,255,0.1)] text-[#58A6FF]'
+            }`}>
+              {testRunning && <span className="inline-block w-2 h-2 bg-[#58A6FF] rounded-full animate-pulse mr-2" />}
+              {testProgress}
+            </div>
+          )}
+
+          {testResults && (
+            <div className="mt-3 space-y-2">
+              {testResults.results?.map((r: any, i: number) => (
+                <div key={i} className="flex items-center gap-3 text-xs">
+                  <span className={`w-2 h-2 rounded-full ${r.success ? 'bg-[#3FB950]' : 'bg-[#F85149]'}`} />
+                  <span className="font-semibold">{r.name}</span>
+                  <span className="text-[#8B949E] font-mono">expected: {r.expectedScore}</span>
+                  {r.success ? (
+                    <span className="text-[#3FB950]">completed</span>
+                  ) : (
+                    <span className="text-[#F85149]">{r.error}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-5 gap-3 mb-8">
@@ -128,7 +295,7 @@ export default function DashboardPage() {
           <div className="text-5xl mb-4">&#128203;</div>
           <h2 className="text-xl text-[#E6EDF3] mb-2">No completed interviews yet</h2>
           <p className="text-sm max-w-md mx-auto leading-relaxed">
-            Share your interview link and completed interviews will appear here.
+            Share your interview link or run test agents to see evaluations here.
           </p>
           <div className="mt-4 bg-[#161B22] border border-[#30363D] rounded-lg px-4 py-2 inline-block font-mono text-xs text-[#58A6FF]">
             {typeof window !== 'undefined' ? window.location.origin : ''}/{slug}/interview
@@ -214,6 +381,23 @@ export default function DashboardPage() {
               <h3 className="text-lg font-semibold">{selectedInterview.candidate_name} — Full Evaluation</h3>
               <button onClick={() => setSelectedInterview(null)} className="text-[#8B949E] hover:text-white text-xl">&times;</button>
             </div>
+
+            {/* Chat Transcript */}
+            {selectedInterview.messages && (selectedInterview.messages as any[]).length > 0 && (
+              <div className="mb-4">
+                <h4 className="text-xs font-mono text-[#58A6FF] mb-2">// TRANSCRIPT</h4>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto bg-[#0D1117] rounded-lg p-3">
+                  {(selectedInterview.messages as any[]).map((msg: any, i: number) => (
+                    <div key={i} className={`text-[11px] leading-relaxed ${msg.role === 'assistant' ? 'text-[#58A6FF]' : 'text-[#E6EDF3]'}`}>
+                      <span className="font-mono font-bold text-[10px] mr-1">{msg.role === 'assistant' ? 'AI:' : 'Candidate:'}</span>
+                      {msg.content.substring(0, 300)}{msg.content.length > 300 ? '...' : ''}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <h4 className="text-xs font-mono text-[#58A6FF] mb-2">// EVALUATION</h4>
             <pre className="bg-[#0D1117] rounded-lg p-4 text-[11px] font-mono overflow-x-auto leading-relaxed text-[#E6EDF3]">
               {JSON.stringify(selectedInterview.evaluation, null, 2)}
             </pre>
