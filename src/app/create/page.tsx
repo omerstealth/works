@@ -140,14 +140,14 @@ export default function CreateProgramPage() {
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] p-6">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">Create Your Program</h1>
-          <p className="text-[#8B949E] text-sm">Set up your AI-powered interview agent in minutes.</p>
+          <h1 className="text-2xl font-bold mb-2">Programınızı Oluşturun</h1>
+          <p className="text-[#8B949E] text-sm">AI destekli mülakat ajanınızı dakikalar içinde kurun.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name */}
           <div>
-            <label className="block text-xs font-mono text-[#8B949E] mb-2">PROGRAM NAME</label>
+            <label className="block text-xs font-mono text-[#8B949E] mb-2">PROGRAM ADI</label>
             <input
               type="text"
               value={name}
@@ -175,11 +175,11 @@ export default function CreateProgramPage() {
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-mono text-[#8B949E] mb-2">DESCRIPTION</label>
+            <label className="block text-xs font-mono text-[#8B949E] mb-2">AÇIKLAMA</label>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
-              placeholder="A short description of your accelerator program..."
+              placeholder="Hızlandırıcı programınızın kısa açıklaması..."
               rows={3}
               className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#58A6FF] placeholder-[#8B949E] resize-none"
             />
@@ -188,8 +188,8 @@ export default function CreateProgramPage() {
           {/* System Prompt */}
           <div>
             <label className="block text-xs font-mono text-[#8B949E] mb-2">
-              INTERVIEW SYSTEM PROMPT
-              <span className="ml-2 text-[#58A6FF]">(customizable)</span>
+              MÜLAKAT SİSTEM KOMUTU
+              <span className="ml-2 text-[#58A6FF]">(özelleştirilebilir)</span>
             </label>
             <textarea
               value={systemPrompt}
@@ -198,7 +198,7 @@ export default function CreateProgramPage() {
               className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-xs font-mono outline-none focus:border-[#58A6FF] placeholder-[#8B949E] resize-y leading-relaxed"
             />
             <p className="text-[10px] text-[#8B949E] mt-1">
-              This prompt defines how the AI interviewer behaves. Customize the phases, questions, and evaluation criteria.
+              Bu komut AI mülakatçının davranışını tanımlar. Aşamaları, soruları ve değerlendirme kriterlerini özelleştirin.
             </p>
           </div>
 
@@ -209,7 +209,7 @@ export default function CreateProgramPage() {
             disabled={loading}
             className="w-full bg-[#58A6FF] text-[#0D1117] py-3.5 rounded-lg font-bold text-sm transition-all hover:bg-[#79B8FF] disabled:opacity-50"
           >
-            {loading ? 'Creating...' : 'Create Program'}
+            {loading ? 'Oluşturuluyor...' : 'Program Oluştur'}
           </button>
         </form>
       </div>

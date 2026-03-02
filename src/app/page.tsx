@@ -22,102 +22,102 @@ export default function HomePage() {
 
   const pipeline: PipelineStage[] = [
     {
-      emoji: '🤖', title: 'AI Interviews', color: '#58A6FF',
-      desc: 'Adaptive conversations with 6 unique AI candidate personas. Multi-language, real-time evaluation.',
+      emoji: '🤖', title: 'AI Mülakatlar', color: '#58A6FF',
+      desc: '6 benzersiz AI aday profili ile adaptif görüşmeler. Çok dilli, gerçek zamanlı değerlendirme.',
       detail: {
-        subtitle: 'Conversational AI that adapts to each candidate',
-        howItWorks: 'Each candidate has a unique AI persona with different backgrounds, expertise levels, and communication styles. The AI interviewer conducts adaptive 10-minute conversations, asking follow-up questions based on responses. Interviews run in parallel — 6 candidates can be evaluated simultaneously.',
-        features: ['Multi-language support (TR/EN)', 'Adaptive questioning based on responses', 'Real-time transcript generation', 'Auto-evaluation with structured scores', 'Step-based API for reliable execution'],
+        subtitle: 'Her adaya uyum sağlayan konuşma yapay zekası',
+        howItWorks: 'Her adayın farklı geçmiş, uzmanlık seviyesi ve iletişim tarzına sahip benzersiz bir AI kişiliği vardır. AI mülakatçı, yanıtlara göre takip soruları sorarak adaptif 10 dakikalık görüşmeler yürütür. Mülakatlar paralel çalışır — 6 aday eş zamanlı değerlendirilebilir.',
+        features: ['Çok dilli destek (TR/EN)', 'Yanıtlara göre adaptif sorular', 'Gerçek zamanlı transkript', 'Yapılandırılmış puanlarla otomatik değerlendirme', 'Güvenilir çalışma için adım bazlı API'],
         agents: [
-          { emoji: '🚀', name: 'Ayşe Demir', role: 'Strong technical founder (DeepMind background)' },
-          { emoji: '💡', name: 'Kerem Yılmaz', role: 'Creative product thinker (design → tech)' },
-          { emoji: '📊', name: 'Mehmet Kaya', role: 'Data-driven business founder' },
-          { emoji: '🌍', name: 'Elif Arslan', role: 'Impact-driven social entrepreneur' },
-          { emoji: '🎯', name: 'Can Öztürk', role: 'Sales-driven hustler' },
-          { emoji: '🔬', name: 'Zeynep Aydın', role: 'Deep-tech researcher' },
+          { emoji: '🚀', name: 'Ayşe Demir', role: 'Güçlü teknik kurucu (DeepMind geçmişi)' },
+          { emoji: '💡', name: 'Kerem Yılmaz', role: 'Yaratıcı ürün düşünürü (tasarım → teknoloji)' },
+          { emoji: '📊', name: 'Mehmet Kaya', role: 'Veri odaklı iş kurucusu' },
+          { emoji: '🌍', name: 'Elif Arslan', role: 'Etki odaklı sosyal girişimci' },
+          { emoji: '🎯', name: 'Can Öztürk', role: 'Satış odaklı girişimci' },
+          { emoji: '🔬', name: 'Zeynep Aydın', role: 'Derin teknoloji araştırmacısı' },
         ],
-        output: 'Structured evaluation with scores across 6 dimensions, recommendation (STRONG_YES → NO), highlights, and red flags',
+        output: '6 boyutta puanlarla yapılandırılmış değerlendirme, öneri (STRONG_YES → NO), öne çıkanlar ve kırmızı bayraklar',
       },
     },
     {
-      emoji: '⚖️', title: 'Expert Jury', color: '#D2A8FF',
-      desc: '3 AI jury members independently evaluate each interview from technical, business, and vision perspectives.',
+      emoji: '⚖️', title: 'Uzman Jüri', color: '#D2A8FF',
+      desc: '3 AI jüri üyesi her mülakatı teknik, iş ve vizyon perspektiflerinden bağımsız değerlendirir.',
       detail: {
-        subtitle: 'Independent expert evaluation from three perspectives',
-        howItWorks: 'Each completed interview is reviewed by 3 AI jury members, each with a distinct evaluation lens. They read the full transcript and produce independent scores — no jury member sees another\'s evaluation at this stage. This prevents groupthink and ensures diverse perspectives.',
-        features: ['Independent evaluation (no cross-contamination)', 'Weighted scoring per jury expertise', 'Structured output with rationale for each score', 'Red flags and highlights identification', 'One-line summary per jury member'],
+        subtitle: 'Üç perspektiften bağımsız uzman değerlendirmesi',
+        howItWorks: 'Tamamlanan her mülakat, farklı değerlendirme perspektifine sahip 3 AI jüri üyesi tarafından incelenir. Tam transkripti okur ve bağımsız puanlar üretirler — bu aşamada hiçbir jüri üyesi diğerinin değerlendirmesini görmez. Bu, grup düşüncesini önler ve çeşitli bakış açıları sağlar.',
+        features: ['Bağımsız değerlendirme (çapraz etki yok)', 'Jüri uzmanlığına göre ağırlıklı puanlama', 'Her puan için gerekçeli yapılandırılmış çıktı', 'Kırmızı bayrak ve öne çıkanların tespiti', 'Jüri üyesi başına tek satır özet'],
         agents: [
           { emoji: '🔬', name: 'Dr. Zeynep Akar', role: 'Technical Evaluator — AI depth, architecture, defensibility' },
           { emoji: '📊', name: 'Ahmet Çelik', role: 'Business Evaluator — market awareness, PMF, traction' },
           { emoji: '🌟', name: 'Selin Yıldırım', role: 'Vision Evaluator — founder energy, ambition, program fit' },
         ],
-        output: '3 independent evaluations per candidate, each with scores, recommendation, key concerns, and highlights',
+        output: 'Aday başına 3 bağımsız değerlendirme, her biri puanlar, öneri, temel endişeler ve öne çıkanlar ile',
       },
     },
     {
-      emoji: '🗣', title: 'Deliberation', color: '#F78166',
-      desc: 'Jury members review each other\'s evaluations, debate, and reach consensus — just like a real selection committee.',
+      emoji: '🗣', title: 'Müzakere', color: '#F78166',
+      desc: 'Jüri üyeleri birbirlerinin değerlendirmelerini inceler, tartışır ve konsensüse ulaşır — tıpkı gerçek bir seçim komitesi gibi.',
       detail: {
-        subtitle: 'AI-powered consensus building',
+        subtitle: 'AI destekli konsensüs oluşturma',
         howItWorks: 'After independent evaluations, each jury member sees the other two members\' assessments. They can change their mind, adjust scores, and provide reasoning for their final position. This mimics real-world selection committee dynamics — sometimes a technical concern raises everyone\'s awareness, sometimes a business insight changes the picture.',
-        features: ['Cross-review of all jury evaluations', 'Score adjustment with reasoning', 'Track "changed mind" decisions', 'Original vs. final score comparison', 'Consensus analysis across jury'],
-        output: 'Deliberation notes per jury member showing original → final scores, whether they changed their mind, and detailed reasoning',
+        features: ['Tüm jüri değerlendirmelerinin çapraz incelemesi', 'Gerekçeli puan düzeltmesi', 'Fikir değişikliği takibi', 'Orijinal vs. nihai puan karşılaştırması', 'Jüri genelinde konsensüs analizi'],
+        output: 'Jüri üyesi başına orijinal → nihai puanları, fikir değişikliği ve detaylı gerekçeyi gösteren müzakere notları',
       },
     },
     {
-      emoji: '✅', title: 'Smart Decisions', color: '#3FB950',
-      desc: 'Data-driven ACCEPT / WAITLIST / REJECT decisions based on deliberated scores and configurable thresholds.',
+      emoji: '✅', title: 'Akıllı Kararlar', color: '#3FB950',
+      desc: 'Müzakere sonrası puanlara ve yapılandırılabilir eşiklere dayalı veri odaklı KABUL / YEDEK / RED kararları.',
       detail: {
-        subtitle: 'Threshold-based decisions with full transparency',
-        howItWorks: 'The decision engine aggregates deliberated final scores (falling back to jury averages if deliberation hasn\'t run). Candidates are sorted by score and classified using configurable thresholds: ≥7 = ACCEPT, 5-6.9 = WAITLIST, <5 = REJECT. Every decision is traceable back to individual jury scores and deliberation notes.',
-        features: ['Configurable score thresholds', 'Uses deliberated scores (post-consensus)', 'Fallback to jury average if needed', 'Full audit trail from interview → decision', 'Batch processing for entire cohort'],
-        output: 'ACCEPT / WAITLIST / REJECT decision per candidate with final score, applied to all evaluated interviews in the program',
+        subtitle: 'Tam şeffaflıkla eşik bazlı kararlar',
+        howItWorks: 'Karar motoru müzakere sonrası nihai puanları toplar (müzakere yapılmamışsa jüri ortalamalarına döner). Adaylar puana göre sıralanır ve yapılandırılabilir eşiklerle sınıflandırılır: ≥7 = KABUL, 5-6.9 = YEDEK, <5 = RED. Her karar, bireysel jüri puanlarına ve müzakere notlarına kadar izlenebilir.',
+        features: ['Yapılandırılabilir puan eşikleri', 'Müzakere sonrası puanları kullanır', 'Gerekirse jüri ortalamasına geri dönüş', 'Mülakattan karara tam denetim izi', 'Tüm kohort için toplu işleme'],
+        output: 'Aday başına nihai puanla KABUL / YEDEK / RED kararı, programdaki tüm değerlendirilen mülakatlar için uygulanır',
       },
     },
     {
-      emoji: '🚀', title: 'Mentor Matching', color: '#58A6FF',
-      desc: '5 specialized mentors auto-matched to founders based on their weakest areas. Personalized 8-week roadmaps.',
+      emoji: '🚀', title: 'Mentor Eşleştirme', color: '#58A6FF',
+      desc: '5 uzman mentor, kurucuların zayıf alanlarına göre otomatik eşleştirilir. Kişiselleştirilmiş 8 haftalık yol haritaları.',
       detail: {
-        subtitle: 'Intelligent mentor-founder matching',
-        howItWorks: 'Each accepted founder is matched with the mentor who best addresses their weakest area (identified from jury evaluations). The mentor then creates a personalized 8-week roadmap with specific milestones, focus areas, and first-week tasks. A Program Manager oversees the matching and provides additional notes.',
-        features: ['Weakness-based matching algorithm', 'Personalized 8-week roadmap per founder', 'First-week task assignments', 'Program Manager oversight', 'Focus area identification'],
+        subtitle: 'Akıllı mentor-kurucu eşleştirmesi',
+        howItWorks: 'Kabul edilen her kurucu, en zayıf alanını (jüri değerlendirmelerinden belirlenen) en iyi ele alan mentorla eşleştirilir. Mentor daha sonra belirli kilometre taşları, odak alanları ve ilk hafta görevleri ile kişiselleştirilmiş 8 haftalık bir yol haritası oluşturur. Program Yöneticisi eşleştirmeyi denetler ve ek notlar sağlar.',
+        features: ['Zayıf alan bazlı eşleştirme algoritması', 'Kurucu başına kişiselleştirilmiş 8 haftalık yol haritası', 'İlk hafta görev atamaları', 'Program Yöneticisi gözetimi', 'Odak alanı belirleme'],
         agents: [
-          { emoji: '🚀', name: 'Aylin Güneş', role: 'AI-native startup co-founder — Technical mentor' },
-          { emoji: '🤖', name: 'Berk Aydın', role: 'AI agent infra co-founder (YC) — Product mentor' },
-          { emoji: '💰', name: 'Canan Korkmaz', role: 'Angel investor (30+ deals) — PMF expert' },
-          { emoji: '📈', name: 'Deniz Ertürk', role: 'VC Partner — Fundraising & growth' },
-          { emoji: '🎓', name: 'Prof. Elif Şahin', role: 'Boğaziçi CS + Fortune 500 — Strategy' },
+          { emoji: '🚀', name: 'Aylin Güneş', role: 'AI-native startup kurucu ortağı — Teknik mentor' },
+          { emoji: '🤖', name: 'Berk Aydın', role: 'AI agent altyapı kurucu ortağı (YC) — Ürün mentoru' },
+          { emoji: '💰', name: 'Canan Korkmaz', role: 'Melek yatırımcı (30+ yatırım) — PMF uzmanı' },
+          { emoji: '📈', name: 'Deniz Ertürk', role: 'VC Partneri — Yatırım & büyüme' },
+          { emoji: '🎓', name: 'Prof. Elif Şahin', role: 'Boğaziçi CS + Fortune 500 — Strateji' },
         ],
-        output: 'Mentor assignment, welcome message, 8-week roadmap, focus areas, and first-week tasks for each accepted founder',
+        output: 'Her kabul edilen kurucu için mentor ataması, hoş geldin mesajı, 8 haftalık yol haritası, odak alanları ve ilk hafta görevleri',
       },
     },
     {
       emoji: '🎤', title: 'Demo Day', color: '#F78166',
-      desc: 'Full program execution from Kickoff to Demo Day. Investor briefs, pitch readiness scores, graduation reports.',
+      desc: "Kickoff'tan Demo Day'e tam program yürütme. Yatırımcı özetleri, pitch hazırlık puanları, mezuniyet raporları.",
       detail: {
-        subtitle: 'From Kickoff to graduation in one click',
-        howItWorks: 'The 8-week program is simulated with three key checkpoints. At Demo Day (Week 8), mentors write investor recommendation letters, assess pitch readiness (1-10), and compile key metrics. The Program Manager determines graduation status: Graduated with Honors, Graduated, or Needs Extension.',
-        features: ['Mentor recommendation letters', 'Pitch readiness scoring (1-10)', 'Investor-ready briefs', 'Key metrics compilation', 'Graduation status determination', 'Post-program next steps'],
+        subtitle: "Kickoff'tan mezuniyete tek tıkla",
+        howItWorks: "8 haftalık program üç ana kontrol noktasıyla simüle edilir. Demo Day'de (Hafta 8) mentorlar yatırımcı tavsiye mektupları yazar, pitch hazırlığını değerlendirir (1-10) ve temel metrikleri derler. Program Yöneticisi mezuniyet durumunu belirler: Onur ile Mezun, Mezun veya Uzatma Gerekli.",
+        features: ['Mentor tavsiye mektupları', 'Pitch hazırlık puanlaması (1-10)', 'Yatırımcıya hazır özetler', 'Temel metrik derleme', 'Mezuniyet durumu belirleme', 'Program sonrası adımlar'],
         agents: [
-          { emoji: '👩‍💼', name: 'İrem Başaran', role: 'Program Director — Oversees all stages' },
+          { emoji: '👩‍💼', name: 'İrem Başaran', role: 'Program Direktörü — Tüm aşamaları yönetir' },
         ],
-        output: 'Demo Day report with mentor recommendation, pitch readiness, investor brief, key metrics, graduation status, and next steps',
+        output: 'Mentor tavsiyesi, pitch hazırlığı, yatırımcı özeti, temel metrikler, mezuniyet durumu ve sonraki adımlarla Demo Day raporu',
       },
     },
   ]
 
   const stats = [
-    { value: '6', label: 'AI Agents', color: '#58A6FF' },
-    { value: '3', label: 'Jury Members', color: '#D2A8FF' },
-    { value: '5', label: 'Mentors', color: '#F78166' },
-    { value: '8', label: 'Week Program', color: '#3FB950' },
+    { value: '6', label: 'AI Ajan', color: '#58A6FF' },
+    { value: '3', label: 'Jüri Üyesi', color: '#D2A8FF' },
+    { value: '5', label: 'Mentor', color: '#F78166' },
+    { value: '8', label: 'Hafta Program', color: '#3FB950' },
   ]
 
   const audiences = [
-    { emoji: '🏢', title: 'Accelerators', desc: 'Automate your entire selection and program execution pipeline' },
-    { emoji: '💰', title: 'VCs & Angels', desc: 'Screen deal flow with AI-powered interviews and expert evaluation' },
-    { emoji: '🎓', title: 'University Incubators', desc: 'Scale your startup program without scaling your team' },
-    { emoji: '🏗', title: 'Corporate Innovation', desc: 'Evaluate internal ventures and intrapreneurs systematically' },
+    { emoji: '🏢', title: 'Hızlandırıcılar', desc: 'Tüm seçim ve program yürütme sürecinizi otomatikleştirin' },
+    { emoji: '💰', title: 'VC & Melekler', desc: 'AI destekli mülakatlar ve uzman değerlendirmesiyle deal flow tarayın' },
+    { emoji: '🎓', title: 'Üniversite Kuluçkaları', desc: 'Ekibinizi büyütmeden startup programınızı ölçeklendirin' },
+    { emoji: '🏗', title: 'Kurumsal İnovasyon', desc: 'İç girişimleri ve iç girişimcileri sistematik olarak değerlendirin' },
   ]
 
   const selected = selectedStage !== null ? pipeline[selectedStage] : null
@@ -134,13 +134,13 @@ export default function HomePage() {
         </div>
         <div className="flex items-center gap-4">
           <Link href="/auth/login" className="text-sm text-[#8B949E] hover:text-[#E6EDF3] transition-colors">
-            Sign In
+            Giriş Yap
           </Link>
           <Link
             href="/create"
             className="text-sm bg-[#58A6FF] text-[#0D1117] px-4 py-2 rounded-lg font-semibold hover:bg-[#79B8FF] transition-colors"
           >
-            Create Program
+            Program Oluştur
           </Link>
         </div>
       </nav>
@@ -152,21 +152,21 @@ export default function HomePage() {
         <div className="relative max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-[rgba(88,166,255,0.1)] border border-[rgba(88,166,255,0.2)] px-4 py-1.5 rounded-full text-xs font-mono text-[#58A6FF] mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-[#3FB950] animate-pulse" />
-            End-to-End AI Pipeline
+            Uçtan Uca AI Pipeline
           </div>
 
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter leading-[1.05] mb-6">
-            The AI Operating System{' '}
+            Startup Hızlandırıcılar{' '}
             <br className="hidden md:block" />
-            for{' '}
+            için{' '}
             <span className="bg-gradient-to-r from-[#58A6FF] via-[#D2A8FF] to-[#F78166] bg-clip-text text-transparent">
-              Startup Accelerators
+              AI İşletim Sistemi
             </span>
           </h1>
 
           <p className="text-lg text-[#8B949E] max-w-2xl mx-auto mb-10 leading-relaxed">
-            From application to Demo Day — every step powered by AI agents.
-            Interviews, jury evaluation, deliberation, decisions, mentoring, and program execution in one platform.
+            Başvurudan Demo Day'e — her adım AI ajanları ile.
+            Mülakatlar, jüri değerlendirmesi, müzakere, kararlar, mentorluk ve program yönetimi tek platformda.
           </p>
 
           <div className="flex items-center justify-center gap-4">
@@ -174,14 +174,14 @@ export default function HomePage() {
               href="/create"
               className="inline-flex items-center gap-2 bg-[#58A6FF] text-[#0D1117] px-8 py-4 rounded-xl text-base font-bold transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#58A6FF]/20"
             >
-              Create Program
+              Program Oluştur
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="#0D1117" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
             </Link>
             <Link
               href="/auth/login?redirect=/my-programs"
               className="inline-flex items-center gap-2 bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-8 py-4 rounded-xl text-base font-semibold transition-all hover:border-[#58A6FF] hover:-translate-y-0.5"
             >
-              ▶️ Launch Demo
+              ▶️ Demo Başlat
             </Link>
           </div>
         </div>
@@ -202,12 +202,12 @@ export default function HomePage() {
       {/* Pipeline */}
       <div className="max-w-5xl mx-auto px-6 py-20">
         <div className="text-center mb-14">
-          <div className="text-xs font-mono text-[#58A6FF] mb-3 tracking-wider">{'// THE PIPELINE'}</div>
+          <div className="text-xs font-mono text-[#58A6FF] mb-3 tracking-wider">{'// PIPELINE'}</div>
           <h2 className="text-3xl md:text-4xl font-bold">
-            Six AI-powered stages.{' '}
-            <span className="text-[#8B949E]">Zero manual work.</span>
+            Altı AI destekli aşama.{' '}
+            <span className="text-[#8B949E]">Sıfır manuel iş.</span>
           </h2>
-          <p className="text-sm text-[#484F58] mt-3 font-mono">Click any stage to explore</p>
+          <p className="text-sm text-[#484F58] mt-3 font-mono">Detay için tıklayın</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -270,7 +270,7 @@ export default function HomePage() {
             <div className="px-6 pb-6 overflow-y-auto max-h-[calc(85vh-140px)] space-y-5" style={{ scrollbarWidth: 'thin', scrollbarColor: '#30363D transparent' }}>
               {/* How It Works */}
               <div>
-                <div className="text-[10px] font-mono text-[#8B949E] mb-2 tracking-wider">HOW IT WORKS</div>
+                <div className="text-[10px] font-mono text-[#8B949E] mb-2 tracking-wider">NASIL ÇALIŞIR</div>
                 <p className="text-sm text-[#E6EDF3] leading-relaxed">{selected.detail.howItWorks}</p>
               </div>
 
@@ -278,7 +278,7 @@ export default function HomePage() {
               {selected.detail.agents && selected.detail.agents.length > 0 && (
                 <div>
                   <div className="text-[10px] font-mono text-[#8B949E] mb-2 tracking-wider">
-                    {selectedStage === 0 ? 'AI CANDIDATE PERSONAS' : selectedStage === 1 ? 'JURY MEMBERS' : selectedStage === 4 ? 'MENTOR PANEL' : 'AGENTS'}
+                    {selectedStage === 0 ? 'AI ADAY PROFİLLERİ' : selectedStage === 1 ? 'JÜRİ ÜYELERİ' : selectedStage === 4 ? 'MENTOR PANELİ' : 'AJANLAR'}
                   </div>
                   <div className="space-y-1.5">
                     {selected.detail.agents.map(agent => (
@@ -296,7 +296,7 @@ export default function HomePage() {
 
               {/* Features */}
               <div>
-                <div className="text-[10px] font-mono text-[#8B949E] mb-2 tracking-wider">KEY FEATURES</div>
+                <div className="text-[10px] font-mono text-[#8B949E] mb-2 tracking-wider">TEMEL ÖZELLİKLER</div>
                 <div className="flex flex-wrap gap-1.5">
                   {selected.detail.features.map(f => (
                     <span
@@ -312,7 +312,7 @@ export default function HomePage() {
 
               {/* Output */}
               <div>
-                <div className="text-[10px] font-mono text-[#8B949E] mb-2 tracking-wider">OUTPUT</div>
+                <div className="text-[10px] font-mono text-[#8B949E] mb-2 tracking-wider">ÇIKTI</div>
                 <div className="bg-[#0D1117] rounded-lg px-4 py-3 text-sm text-[#8B949E] leading-relaxed border-l-2" style={{ borderColor: selected.color }}>
                   {selected.detail.output}
                 </div>
@@ -352,9 +352,9 @@ export default function HomePage() {
       <div className="bg-[#161B22] py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <div className="text-xs font-mono text-[#F78166] mb-3 tracking-wider">{'// BUILT FOR'}</div>
+            <div className="text-xs font-mono text-[#F78166] mb-3 tracking-wider">{'// KİMLER İÇİN'}</div>
             <h2 className="text-3xl md:text-4xl font-bold">
-              Who uses StealthWorks?
+              StealthWorks kimler için?
             </h2>
           </div>
 
@@ -374,14 +374,14 @@ export default function HomePage() {
 
       {/* How It Works */}
       <div className="max-w-3xl mx-auto px-6 py-20">
-        <div className="text-xs font-mono text-[#3FB950] mb-3 tracking-wider">{'// HOW IT WORKS'}</div>
-        <h2 className="text-3xl font-bold mb-12">Three steps to launch</h2>
+        <div className="text-xs font-mono text-[#3FB950] mb-3 tracking-wider">{'// NASIL ÇALIŞIR'}</div>
+        <h2 className="text-3xl font-bold mb-12">Üç adımda başlayın</h2>
 
         <div className="space-y-8">
           {[
-            { num: '01', title: 'Create Your Program', desc: 'Sign up, name your accelerator, customize the AI interviewer prompt and evaluation criteria. Takes 5 minutes.', color: '#58A6FF' },
-            { num: '02', title: 'Run the Simulation', desc: 'Hit "Demo" to run the full pipeline — AI candidates, jury evaluation, deliberation, decisions, mentoring, and Demo Day — all in one click.', color: '#F78166' },
-            { num: '03', title: 'Review Results', desc: 'Explore cohort analytics, mentor reports, pitch readiness scores, and investor briefs. Export data or share the dashboard with your team.', color: '#3FB950' },
+            { num: '01', title: 'Programınızı Oluşturun', desc: 'Kaydolun, hızlandırıcınızı adlandırın, AI mülakatçı komutunu ve değerlendirme kriterlerini özelleştirin. 5 dakika sürer.', color: '#58A6FF' },
+            { num: '02', title: 'Simülasyonu Çalıştırın', desc: "Tam pipeline'ı çalıştırmak için Demo'ya tıklayın — AI adaylar, jüri değerlendirmesi, müzakere, kararlar, mentorluk ve Demo Day — tek tıkla.", color: '#F78166' },
+            { num: '03', title: 'Sonuçları İnceleyin', desc: 'Kohort analitiği, mentor raporları, pitch hazırlık puanları ve yatırımcı özetlerini keşfedin. Verileri dışa aktarın veya panoyu ekibinizle paylaşın.', color: '#3FB950' },
           ].map((step) => (
             <div key={step.num} className="flex gap-5">
               <div
@@ -405,19 +405,19 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_80%,rgba(88,166,255,0.08)_0%,transparent_50%)]" />
         <div className="relative">
           <h2 className="text-3xl md:text-4xl font-extrabold mb-3">
-            Ready to see the{' '}
+            Tam{' '}
             <span className="bg-gradient-to-r from-[#58A6FF] to-[#F78166] bg-clip-text text-transparent">
-              full pipeline
+              pipeline'ı
             </span>
-            {' '}in action?
+            {' '}çalışırken görmeye hazır mısınız?
           </h2>
-          <p className="text-[#8B949E] mb-8 max-w-md mx-auto">Create a program and run the one-click demo. From application to Demo Day in 5 minutes.</p>
+          <p className="text-[#8B949E] mb-8 max-w-md mx-auto">Bir program oluşturun ve tek tıkla demoyu çalıştırın. Başvurudan Demo Day'e 5 dakikada.</p>
           <div className="flex items-center justify-center gap-4">
             <Link
               href="/create"
               className="inline-flex items-center gap-2 bg-[#58A6FF] text-[#0D1117] px-8 py-4 rounded-xl text-base font-bold transition-all hover:-translate-y-0.5"
             >
-              Get Started Free
+              Ücretsiz Başlayın
             </Link>
           </div>
         </div>
@@ -425,7 +425,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="text-center py-10 border-t border-[#30363D] text-[#8B949E] text-xs font-mono">
-        StealthWorks 2026 &mdash; AI Operating System for Startup Accelerators
+        StealthWorks 2026 &mdash; AI Operating System for AI İşletim Sistemi
       </footer>
     </div>
   )

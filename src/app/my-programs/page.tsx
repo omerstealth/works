@@ -49,7 +49,7 @@ export default function MyProgramsPage() {
       <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-[#58A6FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-[#8B949E] text-sm font-mono">Loading your programs...</p>
+          <p className="text-[#8B949E] text-sm font-mono">Programlarınız yükleniyor...</p>
         </div>
       </div>
     )
@@ -64,28 +64,28 @@ export default function MyProgramsPage() {
               S
             </div>
             <div>
-              <h1 className="text-lg font-semibold">My Programs</h1>
-              <span className="text-xs text-[#8B949E] font-mono">Select a program to continue</span>
+              <h1 className="text-lg font-semibold">Programlarım</h1>
+              <span className="text-xs text-[#8B949E] font-mono">Devam etmek için bir program seçin</span>
             </div>
           </div>
           <Link
             href="/create"
             className="text-sm bg-[#58A6FF] text-[#0D1117] px-4 py-2 rounded-lg font-semibold hover:bg-[#79B8FF] transition-colors"
           >
-            + New Program
+            + Yeni Program
           </Link>
         </header>
 
         {programs.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-5xl mb-4">🚀</div>
-            <h2 className="text-xl font-bold mb-2">No programs yet</h2>
-            <p className="text-sm text-[#8B949E] mb-6">Create your first accelerator program to get started.</p>
+            <h2 className="text-xl font-bold mb-2">Henüz program yok</h2>
+            <p className="text-sm text-[#8B949E] mb-6">Başlamak için ilk hızlandırıcı programınızı oluşturun.</p>
             <Link
               href="/create"
               className="inline-flex bg-[#58A6FF] text-[#0D1117] px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#79B8FF] transition-colors"
             >
-              Create Your First Program
+              İlk Programınızı Oluşturun
             </Link>
           </div>
         ) : (

@@ -36,7 +36,7 @@ function LoginForm() {
         window.location.href = redirect
       } else {
         // Email confirmation enabled — need to verify
-        setMessage('Check your email for a confirmation link!')
+        setMessage('Onay linki için e-postanızı kontrol edin!')
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
@@ -61,7 +61,7 @@ function LoginForm() {
           S
         </div>
         <h1 className="text-xl font-bold">StealthWorks</h1>
-        <p className="text-sm text-[#8B949E] mt-1">{isSignUp ? 'Create your account' : 'Sign in to your account'}</p>
+        <p className="text-sm text-[#8B949E] mt-1">{isSignUp ? 'Hesabınızı oluşturun' : 'Hesabınıza giriş yapın'}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,7 +69,7 @@ function LoginForm() {
           type="email"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          placeholder="Email"
+          placeholder="E-posta"
           required
           className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#58A6FF] placeholder-[#8B949E] transition-colors"
         />
@@ -77,7 +77,7 @@ function LoginForm() {
           type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          placeholder="Password"
+          placeholder="Şifre"
           required
           minLength={6}
           className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#58A6FF] placeholder-[#8B949E] transition-colors"
@@ -87,13 +87,13 @@ function LoginForm() {
           disabled={loading}
           className="w-full bg-[#58A6FF] text-[#0D1117] py-3 rounded-lg font-semibold text-sm transition-all hover:bg-[#79B8FF] disabled:opacity-50"
         >
-          {loading ? '...' : isSignUp ? 'Sign Up' : 'Sign In'}
+          {loading ? '...' : isSignUp ? 'Kayıt Ol' : 'Giriş Yap'}
         </button>
       </form>
 
       <div className="my-4 flex items-center gap-4">
         <div className="flex-1 h-px bg-[#30363D]" />
-        <span className="text-xs text-[#8B949E]">or</span>
+        <span className="text-xs text-[#8B949E]">veya</span>
         <div className="flex-1 h-px bg-[#30363D]" />
       </div>
 
@@ -101,16 +101,16 @@ function LoginForm() {
         onClick={handleGoogleLogin}
         className="w-full bg-[#161B22] border border-[#30363D] text-[#E6EDF3] py-3 rounded-lg font-medium text-sm hover:border-[#58A6FF] transition-colors"
       >
-        Continue with Google
+        Google ile Devam Et
       </button>
 
       <p className="text-center text-xs text-[#8B949E] mt-6">
-        {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+        {isSignUp ? 'Zaten hesabınız var mı?' : 'Hesabınız yok mu?'}
         <button
           onClick={() => { setIsSignUp(!isSignUp); setError(null); setMessage(null) }}
           className="text-[#58A6FF] ml-1 hover:underline"
         >
-          {isSignUp ? 'Sign In' : 'Sign Up'}
+          {isSignUp ? 'Giriş Yap' : 'Kayıt Ol'}
         </button>
       </p>
 

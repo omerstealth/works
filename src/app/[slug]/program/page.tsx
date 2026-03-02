@@ -93,7 +93,7 @@ export default function ProgramPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] flex items-center justify-center">
-        <div className="text-[#8B949E] font-mono text-sm">Loading program...</div>
+        <div className="text-[#8B949E] font-mono text-sm">Program yükleniyor...</div>
       </div>
     )
   }
@@ -153,14 +153,14 @@ export default function ProgramPage() {
           </div>
           <div>
             <h1 className="text-xl font-semibold">{program?.name}</h1>
-            <span className="text-xs text-[#8B949E] font-mono">Program Execution — 8 Week Accelerator</span>
+            <span className="text-xs text-[#8B949E] font-mono">Program Yürütme — 8 Haftalık Hızlandırıcı</span>
           </div>
           <div className="ml-auto flex gap-2">
             <button
               onClick={() => router.push(`/${slug}/results`)}
               className="bg-[#161B22] border border-[#30363D] text-[#8B949E] px-3.5 py-1.5 rounded-md text-xs hover:border-[#58A6FF] hover:text-[#58A6FF] transition-colors"
             >
-              📊 Results
+              📊 Sonuçlar
             </button>
             <button
               onClick={() => router.push(`/${slug}/dashboard`)}
@@ -180,13 +180,13 @@ export default function ProgramPage() {
             <div className="font-semibold text-sm">{PROGRAM_MANAGER.name}</div>
             <div className="text-[10px] text-[#8B949E] font-mono">{PROGRAM_MANAGER.title}</div>
           </div>
-          <div className="ml-auto text-xs text-[#8B949E]">{interviews.length} accepted founders</div>
+          <div className="ml-auto text-xs text-[#8B949E]">{interviews.length} kabul edilen kurucu</div>
         </div>
       </div>
 
       {/* Timeline */}
       <div className="mb-8">
-        <h2 className="text-sm font-mono text-[#8B949E] mb-4">PROGRAM TIMELINE</h2>
+        <h2 className="text-sm font-mono text-[#8B949E] mb-4">PROGRAM TAKVİMİ</h2>
         <div className="relative">
           {/* Progress bar background */}
           <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-[#30363D]" />
@@ -227,8 +227,8 @@ export default function ProgramPage() {
           className="bg-[#161B22] border border-[#30363D] rounded-xl p-4 text-center hover:border-[#3FB950] transition-colors disabled:opacity-40"
         >
           <div className="text-2xl mb-2">🚀</div>
-          <div className="text-sm font-semibold text-[#3FB950]">Run Kickoff</div>
-          <div className="text-[10px] text-[#8B949E] font-mono mt-1">Week 1 • Mentor Match</div>
+          <div className="text-sm font-semibold text-[#3FB950]">Başlangıç Çalıştır</div>
+          <div className="text-[10px] text-[#8B949E] font-mono mt-1">Hafta 1 • Mentor Eşleştirme</div>
         </button>
         <button
           onClick={() => runStage('midterm')}
@@ -236,8 +236,8 @@ export default function ProgramPage() {
           className="bg-[#161B22] border border-[#30363D] rounded-xl p-4 text-center hover:border-[#58A6FF] transition-colors disabled:opacity-40"
         >
           <div className="text-2xl mb-2">📋</div>
-          <div className="text-sm font-semibold text-[#58A6FF]">Run Midterm</div>
-          <div className="text-[10px] text-[#8B949E] font-mono mt-1">Week 4 • Progress Check</div>
+          <div className="text-sm font-semibold text-[#58A6FF]">Ara Değerlendirme</div>
+          <div className="text-[10px] text-[#8B949E] font-mono mt-1">Hafta 4 • İlerleme Kontrolü</div>
         </button>
         <button
           onClick={() => runStage('demoday')}
@@ -245,8 +245,8 @@ export default function ProgramPage() {
           className="bg-[#161B22] border border-[#30363D] rounded-xl p-4 text-center hover:border-[#F78166] transition-colors disabled:opacity-40"
         >
           <div className="text-2xl mb-2">🎤</div>
-          <div className="text-sm font-semibold text-[#F78166]">Run Demo Day</div>
-          <div className="text-[10px] text-[#8B949E] font-mono mt-1">Week 8 • Final Reports</div>
+          <div className="text-sm font-semibold text-[#F78166]">Demo Day Çalıştır</div>
+          <div className="text-[10px] text-[#8B949E] font-mono mt-1">Hafta 8 • Final Raporları</div>
         </button>
       </div>
 
@@ -259,7 +259,7 @@ export default function ProgramPage() {
 
       {/* Mentors Overview */}
       <div className="mb-8">
-        <h2 className="text-sm font-mono text-[#8B949E] mb-3">MENTOR PANEL</h2>
+        <h2 className="text-sm font-mono text-[#8B949E] mb-3">MENTOR PANELİ</h2>
         <div className="grid grid-cols-5 gap-2">
           {MENTOR_PROFILES.map(m => {
             const menteeCount = interviews.filter(iv => (iv as any).mentor_id === m.id).length
@@ -269,7 +269,7 @@ export default function ProgramPage() {
                 <div className="text-xs font-semibold truncate">{m.name}</div>
                 <div className="text-[9px] text-[#8B949E] font-mono mt-0.5">{m.focus.toUpperCase()}</div>
                 {menteeCount > 0 && (
-                  <div className="text-[10px] text-[#58A6FF] font-mono mt-1">{menteeCount} mentee{menteeCount > 1 ? 's' : ''}</div>
+                  <div className="text-[10px] text-[#58A6FF] font-mono mt-1">{menteeCount} öğrenci{menteeCount > 1 ? 's' : ''}</div>
                 )}
               </div>
             )
@@ -281,19 +281,19 @@ export default function ProgramPage() {
       {interviews.length === 0 ? (
         <div className="text-center py-20 text-[#8B949E]">
           <div className="text-5xl mb-4">🎓</div>
-          <h2 className="text-xl text-[#E6EDF3] mb-2">No accepted candidates</h2>
-          <p className="text-sm">Run the full pipeline first: Interview → Jury → Deliberate → Decide</p>
+          <h2 className="text-xl text-[#E6EDF3] mb-2">Kabul edilen aday yok</h2>
+          <p className="text-sm">Önce tam pipeline'ı çalıştırın: Mülakat → Jüri → Tartışma → Karar</p>
         </div>
       ) : (
         <div>
-          <h2 className="text-sm font-mono text-[#8B949E] mb-3">COHORT ({interviews.length} founders)</h2>
+          <h2 className="text-sm font-mono text-[#8B949E] mb-3">KOHORT ({interviews.length} kurucu)</h2>
           <div className="space-y-2">
             {interviews.map(iv => {
               const kickoff = (iv as any).kickoff_notes
               const midterm = (iv as any).midterm_review
               const demoday = (iv as any).demoday_report
               const mentorEmoji = kickoff?.mentor_emoji || '—'
-              const mentorName = kickoff?.mentor_name || 'Unassigned'
+              const mentorName = kickoff?.mentor_name || 'Atanmadı'
 
               return (
                 <div
@@ -330,7 +330,7 @@ export default function ProgramPage() {
                     <div className="text-lg font-bold font-mono" style={{ color: '#58A6FF' }}>
                       {(iv as any).decision_score || '—'}
                     </div>
-                    <div className="text-[10px] text-[#8B949E] font-mono">score</div>
+                    <div className="text-[10px] text-[#8B949E] font-mono">puan</div>
                   </div>
                 </div>
               )
@@ -363,12 +363,12 @@ export default function ProgramPage() {
               {/* Kickoff */}
               {kickoff && (
                 <div className="mb-6">
-                  <h4 className="text-xs font-mono text-[#3FB950] mb-3">🚀 KICKOFF — Week 1</h4>
+                  <h4 className="text-xs font-mono text-[#3FB950] mb-3">🚀 BAŞLANGIÇ — Hafta 1</h4>
                   <div className="bg-[#0D1117] rounded-lg p-4 space-y-3">
                     <p className="text-sm text-[#E6EDF3] italic">&ldquo;{kickoff.welcome_message}&rdquo;</p>
 
                     <div>
-                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">FOCUS AREAS</div>
+                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">ODAK ALANLARI</div>
                       <div className="flex flex-wrap gap-1">
                         {kickoff.focus_areas?.map((f: string, i: number) => (
                           <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-[rgba(63,185,80,0.1)] text-[#3FB950]">{f}</span>
@@ -377,7 +377,7 @@ export default function ProgramPage() {
                     </div>
 
                     <div>
-                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">8-WEEK ROADMAP</div>
+                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">8 HAFTALIK YOL HARİTASI</div>
                       <div className="space-y-1">
                         {kickoff.roadmap?.map((r: string, i: number) => (
                           <div key={i} className="text-[11px] text-[#8B949E] flex gap-2">
@@ -389,14 +389,14 @@ export default function ProgramPage() {
                     </div>
 
                     <div>
-                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">FIRST WEEK TASKS</div>
+                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">İLK HAFTA GÖREVLERİ</div>
                       {kickoff.first_week_tasks?.map((t: string, i: number) => (
                         <div key={i} className="text-[11px] text-[#E6EDF3]">• {t}</div>
                       ))}
                     </div>
 
                     <div className="border-t border-[#30363D] pt-2 mt-2">
-                      <div className="text-[10px] text-[#8B949E] font-mono">👩‍💼 PM NOTE</div>
+                      <div className="text-[10px] text-[#8B949E] font-mono">👩‍💼 PM NOTU</div>
                       <p className="text-[11px] text-[#8B949E] mt-1">{kickoff.pm_welcome}</p>
                     </div>
                   </div>
@@ -406,7 +406,7 @@ export default function ProgramPage() {
               {/* Midterm */}
               {midterm && (
                 <div className="mb-6">
-                  <h4 className="text-xs font-mono text-[#58A6FF] mb-3">📋 MIDTERM — Week 4</h4>
+                  <h4 className="text-xs font-mono text-[#58A6FF] mb-3">📋 ARA DEĞERLENDİRME — Hafta 4</h4>
                   <div className="bg-[#0D1117] rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-2">
                       <span
@@ -417,7 +417,7 @@ export default function ProgramPage() {
                       </span>
                       {midterm.intervention_needed && (
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(248,81,73,0.1)] text-[#F85149] font-mono">
-                          Intervention needed
+                          Müdahale gerekli
                         </span>
                       )}
                     </div>
@@ -426,13 +426,13 @@ export default function ProgramPage() {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <div className="text-[10px] text-[#3FB950] font-mono mb-1">STRENGTHS</div>
+                        <div className="text-[10px] text-[#3FB950] font-mono mb-1">GÜÇLÜ YANLAR</div>
                         {midterm.strengths?.map((s: string, i: number) => (
                           <div key={i} className="text-[10px] text-[#8B949E]">+ {s}</div>
                         ))}
                       </div>
                       <div>
-                        <div className="text-[10px] text-[#F78166] font-mono mb-1">IMPROVE</div>
+                        <div className="text-[10px] text-[#F78166] font-mono mb-1">GELİŞTİRİLMELİ</div>
                         {midterm.areas_to_improve?.map((a: string, i: number) => (
                           <div key={i} className="text-[10px] text-[#8B949E]">→ {a}</div>
                         ))}
@@ -440,7 +440,7 @@ export default function ProgramPage() {
                     </div>
 
                     <div className="border-t border-[#30363D] pt-2 mt-2">
-                      <div className="text-[10px] text-[#8B949E] font-mono">👩‍💼 PM ASSESSMENT</div>
+                      <div className="text-[10px] text-[#8B949E] font-mono">👩‍💼 PM DEĞERLENDİRMESİ</div>
                       <p className="text-[11px] text-[#8B949E] mt-1">{midterm.pm_notes}</p>
                     </div>
                   </div>
@@ -450,7 +450,7 @@ export default function ProgramPage() {
               {/* Demo Day */}
               {demoday && (
                 <div className="mb-6">
-                  <h4 className="text-xs font-mono text-[#F78166] mb-3">🎤 DEMO DAY — Week 8</h4>
+                  <h4 className="text-xs font-mono text-[#F78166] mb-3">🎤 DEMO DAY — Hafta 8</h4>
                   <div className="bg-[#0D1117] rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-3">
                       <span
@@ -465,24 +465,24 @@ export default function ProgramPage() {
                     </div>
 
                     <div>
-                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">INVESTOR BRIEF</div>
+                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">YATIRIMCI ÖZETİ</div>
                       <p className="text-[11px] text-[#E6EDF3] leading-relaxed">{demoday.investor_brief}</p>
                     </div>
 
                     <div>
-                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">MENTOR RECOMMENDATION</div>
+                      <div className="text-[10px] text-[#8B949E] font-mono mb-1">MENTOR ÖNERİSİ</div>
                       <p className="text-[11px] text-[#8B949E] leading-relaxed">{demoday.mentor_recommendation}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <div className="text-[10px] text-[#58A6FF] font-mono mb-1">KEY METRICS</div>
+                        <div className="text-[10px] text-[#58A6FF] font-mono mb-1">TEMEL METRİKLER</div>
                         {demoday.key_metrics?.map((m: string, i: number) => (
                           <div key={i} className="text-[10px] text-[#8B949E]">📊 {m}</div>
                         ))}
                       </div>
                       <div>
-                        <div className="text-[10px] text-[#3FB950] font-mono mb-1">NEXT STEPS</div>
+                        <div className="text-[10px] text-[#3FB950] font-mono mb-1">SONRAKİ ADIMLAR</div>
                         {demoday.next_steps?.map((s: string, i: number) => (
                           <div key={i} className="text-[10px] text-[#8B949E]">→ {s}</div>
                         ))}
@@ -498,7 +498,7 @@ export default function ProgramPage() {
                     )}
 
                     <div className="border-t border-[#30363D] pt-2 mt-2">
-                      <div className="text-[10px] text-[#8B949E] font-mono">👩‍💼 FINAL PM NOTES</div>
+                      <div className="text-[10px] text-[#8B949E] font-mono">👩‍💼 FİNAL PM NOTLARI</div>
                       <p className="text-[11px] text-[#8B949E] mt-1">{demoday.pm_final_notes}</p>
                     </div>
                   </div>

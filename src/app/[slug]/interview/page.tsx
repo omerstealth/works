@@ -41,7 +41,7 @@ export default function InterviewPage() {
       if (data) {
         setProgram(data as Program)
       } else {
-        setError('Program not found')
+        setError('Program Bulunamadı')
       }
     }
     loadProgram()
@@ -57,7 +57,7 @@ export default function InterviewPage() {
   // Phase tracking
   const messageCount = messages.filter(m => m.role === 'user').length
   useEffect(() => {
-    const phases = ['Phase 1: Welcome', 'Phase 1: Welcome', 'Phase 2: The Idea', 'Phase 3: AI-Native Depth', 'Phase 3: AI-Native Depth', 'Phase 4: Market', 'Phase 5: Vision', 'Phase 5: Closing']
+    const phases = ['Aşama 1: Karşılama', 'Aşama 1: Karşılama', 'Aşama 2: Fikir', 'Aşama 3: AI Derinliği', 'Aşama 3: AI Derinliği', 'Aşama 4: Pazar', 'Aşama 5: Vizyon', 'Aşama 5: Kapanış']
     setPhase(phases[Math.min(messageCount, phases.length - 1)])
   }, [messageCount])
 
@@ -65,7 +65,7 @@ export default function InterviewPage() {
     if (!program) return
     setIsStarted(true)
     setIsProcessing(true)
-    setPhase('Phase 1: Welcome')
+    setPhase('Aşama 1: Karşılama')
 
     try {
       const res = await fetch('/api/interview/start', {
@@ -83,7 +83,7 @@ export default function InterviewPage() {
       setInterviewId(data.interview_id)
       setMessages([{ role: 'assistant', content: data.message }])
     } catch (err) {
-      setError('Failed to start interview. Please try again.')
+      setError('Mülakat başlatılamadı. Lütfen tekrar deneyin.')
     } finally {
       setIsProcessing(false)
     }
@@ -114,10 +114,10 @@ export default function InterviewPage() {
 
       if (data.evaluation) {
         setEvaluation(data.evaluation)
-        setPhase('Interview Complete')
+        setPhase('Mülakat Tamamlandı')
       }
     } catch (err) {
-      setError('Failed to send message. Please try again.')
+      setError('Mesaj gönderilemedi. Lütfen tekrar deneyin.')
     } finally {
       setIsProcessing(false)
       inputRef.current?.focus()
@@ -144,8 +144,8 @@ export default function InterviewPage() {
     return (
       <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Program Not Found</h1>
-          <p className="text-[#8B949E]">The program &quot;{slug}&quot; doesn&apos;t exist.</p>
+          <h1 className="text-2xl font-bold mb-4">Program Bulunamadı</h1>
+          <p className="text-[#8B949E]">&quot;{slug}&quot; programı bulunamadı.</p>
         </div>
       </div>
     )
@@ -162,8 +162,8 @@ export default function InterviewPage() {
           {program?.name?.[0] || 'S'}
         </div>
         <div>
-          <h1 className="text-base font-semibold tracking-wide">{program?.name || 'Loading...'}</h1>
-          <span className="text-[11px] text-[#8B949E] font-mono">{program?.description || 'Interview Agent'}</span>
+          <h1 className="text-base font-semibold tracking-wide">{program?.name || 'Yükleniyor...'}</h1>
+          <span className="text-[11px] text-[#8B949E] font-mono">{program?.description || 'Mülakat Ajanı'}</span>
         </div>
         <div className="ml-auto flex items-center gap-2 bg-[rgba(63,185,80,0.15)] text-[#3FB950] px-3 py-1 rounded-full text-[11px] font-medium">
           <span className="w-1.5 h-1.5 rounded-full bg-[#3FB950] animate-pulse" />
@@ -180,16 +180,16 @@ export default function InterviewPage() {
           >
             {program?.name?.[0] || 'S'}
           </div>
-          <h2 className="text-2xl font-semibold text-center">{program?.name} Interview</h2>
+          <h2 className="text-2xl font-semibold text-center">{program?.name} Mülakatı</h2>
           <p className="text-[#8B949E] text-center max-w-md leading-relaxed">
-            Welcome to the AI-powered interview. The interview takes about 10 minutes.
+            AI destekli mülakata hoş geldiniz. Mülakat yaklaşık 10 dakika sürer.
           </p>
           <button
             onClick={startInterview}
             className="px-8 py-3 rounded-[10px] text-[15px] font-semibold transition-all hover:scale-[1.03]"
             style={{ background: colors.accent, color: colors.bg }}
           >
-            Start Interview
+            Mülakatı Başlat
           </button>
         </div>
       )}
@@ -261,7 +261,7 @@ export default function InterviewPage() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your answer..."
+              placeholder="Cevabınızı yazın..."
               rows={1}
               className="flex-1 bg-[#0D1117] border border-[#30363D] rounded-xl px-4 py-3 text-sm text-[#E6EDF3] resize-none outline-none max-h-[120px] focus:border-[#58A6FF] placeholder-[#8B949E] transition-colors"
               style={{ minHeight: '44px' }}
@@ -312,7 +312,7 @@ function EvaluationCard({ evaluation, colors }: { evaluation: Evaluation; colors
 
   return (
     <div className="bg-[#161B22] border border-[#58A6FF] rounded-xl p-5 max-w-[680px] self-start animate-fadeIn">
-      <h3 className="text-sm font-mono text-[#58A6FF] mb-3">{'// EVALUATION REPORT'}</h3>
+      <h3 className="text-sm font-mono text-[#58A6FF] mb-3">{'// DEĞERLENDİRME RAPORU'}</h3>
 
       <div className="flex justify-between items-center mb-4">
         <div>
@@ -360,13 +360,13 @@ function EvaluationCard({ evaluation, colors }: { evaluation: Evaluation; colors
 
       <div className="flex gap-4 mb-3">
         <div className="flex-1">
-          <div className="text-[10px] text-[#3FB950] font-mono mb-1">&#10003; HIGHLIGHTS</div>
+          <div className="text-[10px] text-[#3FB950] font-mono mb-1">&#10003; ÖNE ÇIKANLAR</div>
           {evaluation.highlights?.map((h, i) => (
             <div key={i} className="text-[11px] text-[#C9D1D9] mb-0.5">&bull; {h}</div>
           ))}
         </div>
         <div className="flex-1">
-          <div className="text-[10px] text-[#F78166] font-mono mb-1">&#9888; RED FLAGS</div>
+          <div className="text-[10px] text-[#F78166] font-mono mb-1">&#9888; UYARI İŞARETLERİ</div>
           {evaluation.red_flags?.map((r, i) => (
             <div key={i} className="text-[11px] text-[#C9D1D9] mb-0.5">&bull; {r}</div>
           ))}
@@ -380,7 +380,7 @@ function EvaluationCard({ evaluation, colors }: { evaluation: Evaluation; colors
         >
           {evaluation.overall_score}
         </div>
-        <div className="text-[10px] text-[#8B949E] font-mono">OVERALL SCORE (ai_nativeness 2x weighted)</div>
+        <div className="text-[10px] text-[#8B949E] font-mono">GENEL PUAN (ai_nativeness 2x ağırlıklı)</div>
       </div>
     </div>
   )

@@ -13,11 +13,11 @@ interface StageConfig {
 }
 
 const STAGES: StageConfig[] = [
-  { id: 'interviews', emoji: '🤖', name: 'AI Interviews', color: '#58A6FF' },
-  { id: 'jury', emoji: '⚖️', name: 'Jury Evaluation', color: '#D2A8FF' },
-  { id: 'deliberation', emoji: '🗣', name: 'Deliberation', color: '#F78166' },
-  { id: 'decision', emoji: '✅', name: 'Decisions', color: '#3FB950' },
-  { id: 'kickoff', emoji: '🚀', name: 'Kickoff', color: '#58A6FF' },
+  { id: 'interviews', emoji: '🤖', name: 'AI Mülakatlar', color: '#58A6FF' },
+  { id: 'jury', emoji: '⚖️', name: 'Jüri Değerlendirmesi', color: '#D2A8FF' },
+  { id: 'deliberation', emoji: '🗣', name: 'Müzakere', color: '#F78166' },
+  { id: 'decision', emoji: '✅', name: 'Kararlar', color: '#3FB950' },
+  { id: 'kickoff', emoji: '🚀', name: 'Başlangıç', color: '#58A6FF' },
   { id: 'demoday', emoji: '🎤', name: 'Demo Day', color: '#F78166' },
 ]
 
@@ -85,7 +85,7 @@ export default function DemoPage() {
     const stageIdx_interviews = 0
     setCurrentStage(stageIdx_interviews)
     setStageStatus(stageIdx_interviews, 'running')
-    addLog('🤖 Starting AI Interviews...')
+    addLog('🤖 AI Mülakatlar başlatılıyor...')
 
     // Get test profiles
     const profilesRes = await fetch(`/api/test-agents/run`)
@@ -95,7 +95,7 @@ export default function DemoPage() {
     const interviewIds: string[] = []
 
     for (const profile of profiles) {
-      addLog(`Starting interview: ${profile.emoji} ${profile.name}`)
+      addLog(`Mülakat başlatılıyor: ${profile.emoji} ${profile.name}`)
 
       try {
         // Start interview
@@ -105,7 +105,7 @@ export default function DemoPage() {
           body: JSON.stringify({ program_id: program.id, profile_id: profile.id, action: 'start' }),
         })
         const startData = await startRes.json()
-        if (!startRes.ok) { addLog(`  ⚠ Failed to start: ${startData.error}`); continue }
+        if (!startRes.ok) { addLog(`  ⚠ Başlatma hatası: ${startData.error}`); continue }
 
         const ivId = startData.interview_id
         interviewIds.push(ivId)
@@ -123,10 +123,10 @@ export default function DemoPage() {
           if (!turnRes.ok) { addLog(`  ⚠ Turn error: ${turnData.error}`); break }
           status = turnData.status
           turn = turnData.turn || turn + 1
-          addLog(`  Turn ${turn} complete ${status === 'completed' ? '✓' : ''}`)
+          addLog(`  Tur ${turn} tamamlandı ${status === 'completed' ? '✓' : ''}`)
         }
 
-        addLog(`  ✅ ${profile.name} interview done (${turn} turns)`)
+        addLog(`  ✅ ${profile.name} mülakat tamamlandı (${turn} turns)`)
       } catch (err: any) {
         addLog(`  ❌ Error: ${err.message}`)
       }
@@ -134,13 +134,13 @@ export default function DemoPage() {
 
     setStats(prev => ({ ...prev, interviews: interviewIds.length }))
     setStageStatus(stageIdx_interviews, 'done')
-    addLog(`🤖 Interviews complete: ${interviewIds.length} candidates\n`)
+    addLog(`🤖 Mülakatlar tamamlandı: ${interviewIds.length} candidates\n`)
 
     // ========== STAGE 2: JURY EVALUATION ==========
     const stageIdx_jury = 1
     setCurrentStage(stageIdx_jury)
     setStageStatus(stageIdx_jury, 'running')
-    addLog('⚖️ Starting Jury Evaluation...')
+    addLog('⚖️ Jüri Değerlendirmesi başlatılıyor...')
 
     // Re-fetch interviews to get completed ones
     const { data: allInterviews } = await supabase
@@ -170,7 +170,7 @@ export default function DemoPage() {
             addLog(`  ${juryId === 'technical-jury' ? '🔬' : juryId === 'business-jury' ? '📊' : '🌟'} Evaluated ${(iv as any).candidate_name || 'Unknown'}`)
           } else {
             const err = await res.json()
-            addLog(`  ⚠ ${juryId} failed for ${(iv as any).candidate_name}: ${err.error}`)
+            addLog(`  ⚠ ${juryId} başarısız: ${(iv as any).candidate_name}: ${err.error}`)
           }
         } catch (err: any) {
           addLog(`  ❌ Error: ${err.message}`)
@@ -179,13 +179,13 @@ export default function DemoPage() {
     }
 
     setStageStatus(stageIdx_jury, 'done')
-    addLog('⚖️ Jury evaluation complete\n')
+    addLog('⚖️ Jüri değerlendirmesi tamamlandı\n')
 
     // ========== STAGE 3: DELIBERATION ==========
     const stageIdx_delib = 2
     setCurrentStage(stageIdx_delib)
     setStageStatus(stageIdx_delib, 'running')
-    addLog('🗣 Starting Deliberation...')
+    addLog('🗣 Müzakere başlatılıyor...')
 
     // Re-fetch to get jury evaluations
     const { data: juryInterviews } = await supabase
@@ -217,13 +217,13 @@ export default function DemoPage() {
     }
 
     setStageStatus(stageIdx_delib, 'done')
-    addLog('🗣 Deliberation complete\n')
+    addLog('🗣 Müzakere tamamlandı\n')
 
     // ========== STAGE 4: DECISION ==========
     const stageIdx_decide = 3
     setCurrentStage(stageIdx_decide)
     setStageStatus(stageIdx_decide, 'running')
-    addLog('✅ Running Decision Engine...')
+    addLog('✅ Karar Motoru çalıştırılıyor...')
 
     try {
       const res = await fetch('/api/program/decide', {
@@ -246,13 +246,13 @@ export default function DemoPage() {
     }
 
     setStageStatus(stageIdx_decide, 'done')
-    addLog('✅ Decisions complete\n')
+    addLog('✅ Kararlar tamamlandı\n')
 
     // ========== STAGE 5: KICKOFF ==========
     const stageIdx_kickoff = 4
     setCurrentStage(stageIdx_kickoff)
     setStageStatus(stageIdx_kickoff, 'running')
-    addLog('🚀 Running Kickoff (accepted candidates)...')
+    addLog('🚀 Başlangıç çalıştırılıyor (kabul edilen adaylar)...')
 
     // Re-fetch to get decisions
     const { data: decidedInterviews } = await supabase
@@ -285,13 +285,13 @@ export default function DemoPage() {
 
     setStats(prev => ({ ...prev, mentored: mentoredCount }))
     setStageStatus(stageIdx_kickoff, 'done')
-    addLog('🚀 Kickoff complete\n')
+    addLog('🚀 Başlangıç tamamlandı\n')
 
     // ========== STAGE 6: DEMO DAY ==========
     const stageIdx_demoday = 5
     setCurrentStage(stageIdx_demoday)
     setStageStatus(stageIdx_demoday, 'running')
-    addLog('🎤 Running Demo Day (final reports)...')
+    addLog('🎤 Demo Day çalıştırılıyor (final raporları)...')
 
     // Re-fetch for kickoff data
     const { data: kickoffInterviews } = await supabase
@@ -320,12 +320,12 @@ export default function DemoPage() {
     }
 
     setStageStatus(stageIdx_demoday, 'done')
-    addLog('🎤 Demo Day complete\n')
+    addLog('🎤 Demo Day tamamlandı\n')
 
     // ========== DONE ==========
     setCurrentStage(6)
     addLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-    addLog('🎉 FULL SIMULATION COMPLETE')
+    addLog('🎉 TAM SİMÜLASYON TAMAMLANDI')
     addLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━')
     setRunning(false)
     setCompleted(true)
@@ -334,7 +334,7 @@ export default function DemoPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] flex items-center justify-center">
-        <div className="text-[#8B949E] font-mono text-sm animate-pulse">Loading demo...</div>
+        <div className="text-[#8B949E] font-mono text-sm animate-pulse">Demo yükleniyor...</div>
       </div>
     )
   }
@@ -355,7 +355,7 @@ export default function DemoPage() {
             onClick={() => router.push(`/${slug}/dashboard`)}
             className="text-xs text-[#8B949E] hover:text-[#58A6FF] transition-colors"
           >
-            ← Dashboard
+            ← Kontrol Paneli
           </button>
         </div>
       </header>
@@ -405,7 +405,7 @@ export default function DemoPage() {
             <div className="text-6xl mb-6">▶️</div>
             <h2 className="text-2xl font-bold mb-2">
               <span className="bg-gradient-to-r from-[#58A6FF] to-[#F78166] bg-clip-text text-transparent">
-                Run Full Pipeline Demo
+                Tam Pipeline Demosu Çalıştır
               </span>
             </h2>
             <p className="text-[#8B949E] text-sm mb-8 max-w-md mx-auto">
@@ -415,9 +415,9 @@ export default function DemoPage() {
               onClick={runFullDemo}
               className="bg-[#58A6FF] text-[#0D1117] px-8 py-3 rounded-xl font-semibold text-sm hover:bg-[#79B8FF] transition-all hover:-translate-y-0.5 active:translate-y-0"
             >
-              Start Full Simulation
+              Tam Simülasyonu Başlat
             </button>
-            <p className="text-[10px] text-[#484F58] font-mono mt-4">Estimated time: 5-8 minutes</p>
+            <p className="text-[10px] text-[#484F58] font-mono mt-4">Tahmini süre: 5-8 dakika</p>
           </div>
         )}
 
@@ -426,15 +426,15 @@ export default function DemoPage() {
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-5 text-center">
               <div className="text-3xl font-bold font-mono text-[#58A6FF]">{stats.interviews}</div>
-              <div className="text-xs text-[#8B949E] mt-1">Interviews Completed</div>
+              <div className="text-xs text-[#8B949E] mt-1">Tamamlanan Mülakatlar</div>
             </div>
             <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-5 text-center">
               <div className="text-3xl font-bold font-mono text-[#3FB950]">{stats.accepted}</div>
-              <div className="text-xs text-[#8B949E] mt-1">Founders Accepted</div>
+              <div className="text-xs text-[#8B949E] mt-1">Kabul Edilen Kurucular</div>
             </div>
             <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-5 text-center">
               <div className="text-3xl font-bold font-mono text-[#F78166]">{stats.mentored}</div>
-              <div className="text-xs text-[#8B949E] mt-1">Mentors Assigned</div>
+              <div className="text-xs text-[#8B949E] mt-1">Atanan Mentorlar</div>
             </div>
           </div>
         )}
@@ -446,13 +446,13 @@ export default function DemoPage() {
               onClick={() => router.push(`/${slug}/dashboard`)}
               className="bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-5 py-2.5 rounded-lg text-sm hover:border-[#58A6FF] transition-colors"
             >
-              📋 Dashboard
+              📋 Kontrol Paneli
             </button>
             <button
               onClick={() => router.push(`/${slug}/results`)}
               className="bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-5 py-2.5 rounded-lg text-sm hover:border-[#3FB950] transition-colors"
             >
-              📊 Results
+              📊 Sonuçlar
             </button>
             <button
               onClick={() => router.push(`/${slug}/program`)}
@@ -464,7 +464,7 @@ export default function DemoPage() {
               onClick={() => { setCompleted(false); setCurrentStage(-1); setStageStatuses(STAGES.map(() => 'pending')); setLogs([]) }}
               className="bg-[#161B22] border border-[#30363D] text-[#8B949E] px-5 py-2.5 rounded-lg text-sm hover:border-[#8B949E] transition-colors"
             >
-              🔄 Run Again
+              🔄 Tekrar Çalıştır
             </button>
           </div>
         )}
@@ -477,7 +477,7 @@ export default function DemoPage() {
               <div className="w-3 h-3 rounded-full bg-[#F78166]" />
               <div className="w-3 h-3 rounded-full bg-[#3FB950]" />
               <span className="text-[10px] text-[#8B949E] font-mono ml-2">pipeline.log</span>
-              {running && <span className="text-[10px] text-[#3FB950] font-mono ml-auto animate-pulse">● RUNNING</span>}
+              {running && <span className="text-[10px] text-[#3FB950] font-mono ml-auto animate-pulse">● ÇALIŞIYOR</span>}
             </div>
             <div
               ref={logRef}

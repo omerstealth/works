@@ -48,7 +48,7 @@ export default function ResultsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] flex items-center justify-center">
-        <div className="text-[#8B949E] font-mono text-sm">Loading results...</div>
+        <div className="text-[#8B949E] font-mono text-sm">Sonuçlar yükleniyor...</div>
       </div>
     )
   }
@@ -106,7 +106,7 @@ export default function ResultsPage() {
                 </span>
               ))}
               {notes.some(n => n.changed_mind) && (
-                <span className="text-[10px] text-[#F78166] font-mono ml-1">*mind changed</span>
+                <span className="text-[10px] text-[#F78166] font-mono ml-1">*fikir değişti</span>
               )}
             </div>
           )}
@@ -134,7 +134,7 @@ export default function ResultsPage() {
           </div>
           <div>
             <h1 className="text-xl font-semibold">{program?.name}</h1>
-            <span className="text-xs text-[#8B949E] font-mono">Program Results — Cohort Selection</span>
+            <span className="text-xs text-[#8B949E] font-mono">Program Sonuçları — Kohort Seçimi</span>
           </div>
           <button
             onClick={() => router.push(`/${slug}/dashboard`)}
@@ -148,10 +148,10 @@ export default function ResultsPage() {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-3 mb-8">
         {[
-          { n: totalDecided, label: 'Evaluated', color: '#E6EDF3' },
-          { n: `${acceptRate}%`, label: 'Accept Rate', color: '#3FB950' },
-          { n: avgScore, label: 'Avg Score', color: '#58A6FF' },
-          { n: `${agreementRate}%`, label: 'Jury Agreement', color: '#F78166' },
+          { n: totalDecided, label: 'Değerlendirilen', color: '#E6EDF3' },
+          { n: `${acceptRate}%`, label: 'Kabul Oranı', color: '#3FB950' },
+          { n: avgScore, label: 'Ort. Puan', color: '#58A6FF' },
+          { n: `${agreementRate}%`, label: 'Jüri Uzlaşması', color: '#F78166' },
         ].map(stat => (
           <div key={stat.label} className="bg-[#161B22] border border-[#30363D] rounded-xl p-4 text-center">
             <div className="text-[26px] font-bold font-mono" style={{ color: stat.color }}>{stat.n}</div>
@@ -163,8 +163,8 @@ export default function ResultsPage() {
       {decided.length === 0 ? (
         <div className="text-center py-20 text-[#8B949E]">
           <div className="text-5xl mb-4">⚖️</div>
-          <h2 className="text-xl text-[#E6EDF3] mb-2">No decisions made yet</h2>
-          <p className="text-sm">Run the full pipeline from the dashboard: Interview → Jury → Deliberate → Decide</p>
+          <h2 className="text-xl text-[#E6EDF3] mb-2">Henüz karar verilmedi</h2>
+          <p className="text-sm">Dashboard'dan tam pipeline'ı çalıştırın: Mülakat → Jüri → Tartışma → Karar</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -173,7 +173,7 @@ export default function ResultsPage() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-3 h-3 rounded-full bg-[#3FB950]" />
-                <h2 className="text-sm font-semibold text-[#3FB950] font-mono">ACCEPTED ({accepted.length})</h2>
+                <h2 className="text-sm font-semibold text-[#3FB950] font-mono">KABUL ({accepted.length})</h2>
               </div>
               <div className="space-y-2">
                 {accepted.map((iv, i) => <CandidateRow key={iv.id} iv={iv} rank={i + 1} />)}
@@ -186,7 +186,7 @@ export default function ResultsPage() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-3 h-3 rounded-full bg-[#F78166]" />
-                <h2 className="text-sm font-semibold text-[#F78166] font-mono">WAITLIST ({waitlisted.length})</h2>
+                <h2 className="text-sm font-semibold text-[#F78166] font-mono">BEKLEME LİSTESİ ({waitlisted.length})</h2>
               </div>
               <div className="space-y-2">
                 {waitlisted.map(iv => <CandidateRow key={iv.id} iv={iv} />)}
@@ -199,7 +199,7 @@ export default function ResultsPage() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-3 h-3 rounded-full bg-[#F85149]" />
-                <h2 className="text-sm font-semibold text-[#F85149] font-mono">REJECTED ({rejected.length})</h2>
+                <h2 className="text-sm font-semibold text-[#F85149] font-mono">REDDEDİLEN ({rejected.length})</h2>
               </div>
               <div className="space-y-2 opacity-70">
                 {rejected.map(iv => <CandidateRow key={iv.id} iv={iv} />)}
@@ -242,7 +242,7 @@ export default function ResultsPage() {
               {/* Jury Evaluations */}
               {juryEvals.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="text-xs font-mono text-[#DA7756] mb-3">⚖️ JURY EVALUATIONS</h4>
+                  <h4 className="text-xs font-mono text-[#DA7756] mb-3">⚖️ JÜRİ DEĞERLENDİRMELERİ</h4>
                   <div className="grid grid-cols-3 gap-3">
                     {juryEvals.map(je => (
                       <div key={je.jury_id} className="bg-[#0D1117] rounded-lg p-3">
@@ -266,7 +266,7 @@ export default function ResultsPage() {
               {/* Deliberation */}
               {notes.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="text-xs font-mono text-[#58A6FF] mb-3">🗣 DELIBERATION</h4>
+                  <h4 className="text-xs font-mono text-[#58A6FF] mb-3">🗣 TARTIŞMA</h4>
                   <div className="space-y-2">
                     {notes.map(n => (
                       <div key={n.jury_id} className="bg-[#0D1117] rounded-lg p-3">
@@ -275,11 +275,11 @@ export default function ResultsPage() {
                           <span className="text-xs font-semibold">{n.jury_name}</span>
                           {n.changed_mind ? (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(247,129,102,0.1)] text-[#F78166] font-mono ml-auto">
-                              Changed: {n.original_score} → {n.final_score}
+                              Değişti: {n.original_score} → {n.final_score}
                             </span>
                           ) : (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(63,185,80,0.1)] text-[#3FB950] font-mono ml-auto">
-                              Maintained: {n.final_score}
+                              Korudu: {n.final_score}
                             </span>
                           )}
                         </div>
