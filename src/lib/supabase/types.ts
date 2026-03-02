@@ -128,11 +128,57 @@ export interface DeliberationNote {
 
 // Helper type for program with computed fields
 export type Program = Database['public']['Tables']['programs']['Row']
+export interface KickoffNotes {
+  welcome_message: string
+  mentor_id: string
+  mentor_name: string
+  mentor_emoji: string
+  roadmap: string[]
+  focus_areas: string[]
+  first_week_tasks: string[]
+  pm_welcome: string
+  mentor_match_reasoning: string
+}
+
+export interface MidtermReview {
+  mentor_id: string
+  mentor_name: string
+  mentor_emoji: string
+  mentor_feedback: string
+  progress_status: 'ON_TRACK' | 'AT_RISK' | 'BEHIND'
+  strengths: string[]
+  areas_to_improve: string[]
+  revised_goals: string[]
+  pm_notes: string
+  intervention_needed: boolean
+  intervention_reason: string
+}
+
+export interface DemoDayReport {
+  mentor_id: string
+  mentor_name: string
+  mentor_emoji: string
+  mentor_recommendation: string
+  pitch_readiness: number
+  investor_brief: string
+  key_metrics: string[]
+  next_steps: string[]
+  pm_final_notes: string
+  program_outcome: 'GRADUATED_WITH_HONORS' | 'GRADUATED' | 'NEEDS_EXTENSION'
+  ready_for: string[]
+}
+
 export type Interview = Database['public']['Tables']['interviews']['Row'] & {
   jury_evaluations?: JuryEvaluation[]
   jury_avg_score?: number
   deliberation_notes?: DeliberationNote[]
   decision?: 'ACCEPT' | 'WAITLIST' | 'REJECT' | null
   decision_score?: number | null
+  mentor_id?: string | null
+  mentor_name?: string | null
+  kickoff_notes?: KickoffNotes | null
+  midterm_review?: MidtermReview | null
+  demoday_report?: DemoDayReport | null
+  program_stage?: string | null
 }
 export type ProgramMember = Database['public']['Tables']['program_members']['Row']

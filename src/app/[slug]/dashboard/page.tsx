@@ -409,6 +409,12 @@ export default function DashboardPage() {
             📊 Results
           </button>
           <button
+            onClick={() => router.push(`/${slug}/program`)}
+            className="bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-3.5 py-1.5 rounded-md text-xs font-medium hover:border-[#F78166] hover:text-[#F78166] transition-colors"
+          >
+            🎓 Program
+          </button>
+          <button
             onClick={exportJSON}
             className="bg-[#161B22] border border-[#30363D] text-[#8B949E] px-3.5 py-1.5 rounded-md text-xs hover:border-[#58A6FF] hover:text-[#58A6FF] transition-colors"
           >
