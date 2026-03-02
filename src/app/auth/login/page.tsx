@@ -3,6 +3,7 @@
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguage, LanguageToggle } from '@/lib/i18n'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -16,6 +17,7 @@ function LoginForm() {
   const redirect = searchParams.get('redirect') || '/'
 
   const supabase = createClient()
+  const { t } = useLanguage()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -36,7 +38,7 @@ function LoginForm() {
         window.location.href = redirect
       } else {
         // Email confirmation enabled — need to verify
-        setMessage('Onay linki için e-postanızı kontrol edin!')
+        setMessage(t('auth.checkEmail'))
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
@@ -61,7 +63,7 @@ function LoginForm() {
           S
         </div>
         <h1 className="text-xl font-bold">StealthWorks</h1>
-        <p className="text-sm text-[#8B949E] mt-1">{isSignUp ? 'Hesabınızı oluşturun' : 'Hesabınıza giriş yapın'}</p>
+        <p className="text-sm text-[#8B949E] mt-1">{isSignUp ? t('auth.signup') : t('auth.login')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,7 +71,7 @@ function LoginForm() {
           type="email"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          placeholder="E-posta"
+          placeholder={t('auth.email')}
           required
           className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#58A6FF] placeholder-[#8B949E] transition-colors"
         />
@@ -77,7 +79,7 @@ function LoginForm() {
           type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          placeholder="Şifre"
+          placeholder={t('auth.password')}
           required
           minLength={6}
           className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#58A6FF] placeholder-[#8B949E] transition-colors"
@@ -87,13 +89,13 @@ function LoginForm() {
           disabled={loading}
           className="w-full bg-[#58A6FF] text-[#0D1117] py-3 rounded-lg font-semibold text-sm transition-all hover:bg-[#79B8FF] disabled:opacity-50"
         >
-          {loading ? '...' : isSignUp ? 'Kayıt Ol' : 'Giriş Yap'}
+          {loading ? '...' : isSignUp ? t('auth.signupBtn') : t('auth.loginBtn')}
         </button>
       </form>
 
       <div className="my-4 flex items-center gap-4">
         <div className="flex-1 h-px bg-[#30363D]" />
-        <span className="text-xs text-[#8B949E]">veya</span>
+        <span className="text-xs text-[#8B949E]">or</span>
         <div className="flex-1 h-px bg-[#30363D]" />
       </div>
 
@@ -101,16 +103,16 @@ function LoginForm() {
         onClick={handleGoogleLogin}
         className="w-full bg-[#161B22] border border-[#30363D] text-[#E6EDF3] py-3 rounded-lg font-medium text-sm hover:border-[#58A6FF] transition-colors"
       >
-        Google ile Devam Et
+        {t('auth.googleBtn')}
       </button>
 
       <p className="text-center text-xs text-[#8B949E] mt-6">
-        {isSignUp ? 'Zaten hesabınız var mı?' : 'Hesabınız yok mu?'}
+        {isSignUp ? t('auth.switchToLogin') : t('auth.switchToSignup')}
         <button
           onClick={() => { setIsSignUp(!isSignUp); setError(null); setMessage(null) }}
           className="text-[#58A6FF] ml-1 hover:underline"
         >
-          {isSignUp ? 'Giriş Yap' : 'Kayıt Ol'}
+          {isSignUp ? t('auth.login') : t('auth.signup')}
         </button>
       </p>
 
@@ -123,6 +125,9 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] flex items-center justify-center p-6">
+      <div className="absolute top-6 right-6">
+        <LanguageToggle />
+      </div>
       <Suspense fallback={
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-[#58A6FF] border-t-transparent rounded-full animate-spin mx-auto mb-4" />

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguage, LanguageToggle } from '@/lib/i18n'
 import type { Program, Interview, Evaluation, JuryEvaluation, DeliberationNote } from '@/lib/supabase/types'
 
 interface TestAgentProfile {
@@ -25,6 +26,7 @@ interface JuryMember {
 export default function DashboardPage() {
   const params = useParams()
   const router = useRouter()
+  const { t } = useLanguage()
   const slug = params.slug as string
 
   const [program, setProgram] = useState<Program | null>(null)
@@ -113,7 +115,7 @@ export default function DashboardPage() {
 
     for (let i = 0; i < profilesToRun.length; i++) {
       const profile = profilesToRun[i]
-      setTestProgress(`[${i + 1}/${profilesToRun.length}] Mülakat başlatılıyor: ${profile.emoji} ${profile.name}...`)
+      setTestProgress(`[${i + 1}/${profilesToRun.length}] ${t('dashboard.interviewStarting')}: ${profile.emoji} ${profile.name}...`)
 
       try {
         const startRes = await fetch('/api/test-agents/run', {
@@ -132,7 +134,7 @@ export default function DashboardPage() {
         let turn = 0
 
         while (status === 'in_progress' && turn < 15) {
-          setTestProgress(`[${i + 1}/${profilesToRun.length}] ${profile.emoji} ${profile.name} — Tur ${turn + 1}...`)
+          setTestProgress(`[${i + 1}/${profilesToRun.length}] ${profile.emoji} ${profile.name} — ${t('dashboard.turn')} ${turn + 1}...`)
           const turnRes = await fetch('/api/test-agents/run', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -159,7 +161,7 @@ export default function DashboardPage() {
     }
 
     const successCount = results.filter(r => r.success).length
-    setTestProgress(`Tamamlandı! ${successCount}/${profilesToRun.length} mülakat tamamlandı.`)
+    setTestProgress(`${t('dashboard.completed')}! ${successCount}/${profilesToRun.length} ${t('dashboard.interviewsDone')}`)
     setTestResults({ results, total: profilesToRun.length, successful: successCount })
 
     const { data: ints } = await supabase
@@ -174,7 +176,7 @@ export default function DashboardPage() {
   async function runJuryForAll() {
     if (!program || juryRunning) return
     setJuryRunning(true)
-    setJuryProgress('Jüri değerlendirmesi başlatılıyor...')
+    setJuryProgress(t('dashboard.juryStarting'))
 
     const interviewsWithMessages = interviews.filter(iv =>
       (iv.messages as any[])?.length >= 4
@@ -202,7 +204,7 @@ export default function DashboardPage() {
       }
     }
 
-    setJuryProgress(`Tamamlandı! ${total} jüri değerlendirmesi tamamlandı.`)
+    setJuryProgress(`${t('dashboard.completed')}! ${total} ${t('dashboard.juryDone')}`)
 
     // Reload interviews
     const { data: ints } = await supabase
@@ -323,7 +325,7 @@ export default function DashboardPage() {
   if (!authChecked || loading) {
     return (
       <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] flex items-center justify-center">
-        <div className="text-[#8B949E] font-mono text-sm">Dashboard yükleniyor...</div>
+        <div className="text-[#8B949E] font-mono text-sm">{t('dashboard.loading')}</div>
       </div>
     )
   }
@@ -368,9 +370,10 @@ export default function DashboardPage() {
         </div>
         <div>
           <h1 className="text-lg font-semibold">{program?.name}</h1>
-          <span className="text-xs text-[#8B949E] font-mono">Jüri Paneli — Mülakat Değerlendirmeleri</span>
+          <span className="text-xs text-[#8B949E] font-mono">{t('dashboard.subtitle')}</span>
         </div>
         <div className="ml-auto flex gap-2 flex-wrap justify-end">
+          <LanguageToggle />
           <button
             onClick={() => setShowTestPanel(!showTestPanel)}
             className={`border px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
@@ -379,52 +382,52 @@ export default function DashboardPage() {
                 : 'bg-[#161B22] border-[#30363D] text-[#8B949E] hover:border-[#58A6FF] hover:text-[#58A6FF]'
             }`}
           >
-            🤖 Test Ajanları
+            🤖 {t('dashboard.testAgents')}
           </button>
           <button
             onClick={runJuryForAll}
             disabled={juryRunning || withMessages.length === 0}
             className="bg-[#DA7756] text-white px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#E08B6D] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {juryRunning ? '⚖️ Jüri...' : `⚖️ Jüri (${withMessages.length})`}
+            {juryRunning ? `⚖️ ${t('dashboard.jury')}...` : `⚖️ ${t('dashboard.jury')} (${withMessages.length})`}
           </button>
           <button
             onClick={runDeliberation}
             disabled={deliberating || interviews.filter(iv => ((iv as any).jury_evaluations)?.length >= 2).length === 0}
             className="bg-[#8B5CF6] text-white px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#A78BFA] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {deliberating ? '🗣 Tartışılıyor...' : '🗣 Tartışma'}
+            {deliberating ? `🗣 ${t('dashboard.deliberating')}...` : `🗣 ${t('dashboard.deliberate')}`}
           </button>
           <button
             onClick={runDecisions}
             disabled={deciding}
             className="bg-[#3FB950] text-[#0D1117] px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#56D364] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {deciding ? '✅ Karar Veriliyor...' : '✅ Karar Ver'}
+            {deciding ? `✅ ${t('dashboard.deciding')}...` : `✅ ${t('dashboard.decide')}`}
           </button>
           <button
             onClick={() => router.push(`/${slug}/results`)}
             className="bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-3.5 py-1.5 rounded-md text-xs font-medium hover:border-[#3FB950] hover:text-[#3FB950] transition-colors"
           >
-            📊 Sonuçlar
+            📊 {t('common.results')}
           </button>
           <button
             onClick={() => router.push(`/${slug}/program`)}
             className="bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-3.5 py-1.5 rounded-md text-xs font-medium hover:border-[#F78166] hover:text-[#F78166] transition-colors"
           >
-            🎓 Program
+            🎓 {t('common.program')}
           </button>
           <button
             onClick={() => router.push(`/${slug}/demo`)}
             className="bg-gradient-to-r from-[#58A6FF] to-[#F78166] text-[#0D1117] px-3.5 py-1.5 rounded-md text-xs font-bold hover:opacity-90 transition-opacity"
           >
-            ▶️ Demo
+            ▶️ {t('common.demo')}
           </button>
           <button
             onClick={exportJSON}
             className="bg-[#161B22] border border-[#30363D] text-[#8B949E] px-3.5 py-1.5 rounded-md text-xs hover:border-[#58A6FF] hover:text-[#58A6FF] transition-colors"
           >
-            JSON İndir
+            {t('common.exportJson')}
           </button>
         </div>
       </header>
@@ -457,10 +460,10 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-base font-semibold flex items-center gap-2">
-                🤖 AI Test Ajanları
+                🤖 {t('dashboard.testAgentsTitle')}
               </h2>
               <p className="text-xs text-[#8B949E] mt-1">
-                Değerlendirme sisteminizi test etmek için AI destekli aday profilleriyle mülakat simülasyonu yapın.
+                {t('dashboard.testAgentsDesc')}
               </p>
             </div>
             <button
@@ -471,10 +474,10 @@ export default function DashboardPage() {
               {testRunning ? (
                 <span className="flex items-center gap-2">
                   <span className="w-3 h-3 border-2 border-[#0D1117] border-t-transparent rounded-full animate-spin" />
-                  Çalışıyor...
+                  {t('dashboard.running')}
                 </span>
               ) : (
-                `Çalıştır ${selectedProfiles.length || 'Tümü'} Ajan${selectedProfiles.length === 1 ? '' : ''}`
+                `${t('dashboard.runAgents')} ${selectedProfiles.length || t('dashboard.allAgents')}`
               )}
             </button>
           </div>
@@ -521,9 +524,9 @@ export default function DashboardPage() {
                 <div key={i} className="flex items-center gap-3 text-xs">
                   <span className={`w-2 h-2 rounded-full ${r.success ? 'bg-[#3FB950]' : 'bg-[#F85149]'}`} />
                   <span className="font-semibold">{r.name}</span>
-                  <span className="text-[#8B949E] font-mono">beklenen: {r.expectedScore}</span>
+                  <span className="text-[#8B949E] font-mono">${t('dashboard.expected')}: {r.expectedScore}</span>
                   {r.success ? (
-                    <span className="text-[#3FB950]">tamamlandı</span>
+                    <span className="text-[#3FB950]">{t('dashboard.completed')}</span>
                   ) : (
                     <span className="text-[#F85149]">{r.error}</span>
                   )}
@@ -537,11 +540,11 @@ export default function DashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-5 gap-3 mb-8">
         {[
-          { n: interviews.length, label: 'Toplam', color: '#E6EDF3' },
-          { n: strongYes, label: 'Kesin Evet', color: '#3FB950' },
-          { n: yes, label: 'Evet', color: '#58A6FF' },
-          { n: maybe, label: 'Belki', color: '#F78166' },
-          { n: avgScore, label: 'Ort. Puan', color: '#E6EDF3' },
+          { n: interviews.length, label: t('dashboard.total'), color: '#E6EDF3' },
+          { n: strongYes, label: t('dashboard.strongYes'), color: '#3FB950' },
+          { n: yes, label: t('dashboard.yes'), color: '#58A6FF' },
+          { n: maybe, label: t('dashboard.maybe'), color: '#F78166' },
+          { n: avgScore, label: t('dashboard.avgScore'), color: '#E6EDF3' },
         ].map((stat) => (
           <div key={stat.label} className="bg-[#161B22] border border-[#30363D] rounded-[10px] p-4 text-center">
             <div className="text-[28px] font-bold font-mono" style={{ color: stat.color }}>{stat.n}</div>
@@ -554,9 +557,9 @@ export default function DashboardPage() {
       {sorted.length === 0 ? (
         <div className="text-center py-20 text-[#8B949E]">
           <div className="text-5xl mb-4">&#128203;</div>
-          <h2 className="text-xl text-[#E6EDF3] mb-2">Henüz mülakat yok</h2>
+          <h2 className="text-xl text-[#E6EDF3] mb-2">{t('dashboard.noInterviews')}</h2>
           <p className="text-sm max-w-md mx-auto leading-relaxed">
-            Değerlendirmeleri görmek için mülakat linkinizi paylaşın veya test ajanlarını çalıştırın.
+            {t('dashboard.noInterviewsDesc')}
           </p>
           <div className="mt-4 bg-[#161B22] border border-[#30363D] rounded-lg px-4 py-2 inline-block font-mono text-xs text-[#58A6FF]">
             {typeof window !== 'undefined' ? window.location.origin : ''}/{slug}/interview
@@ -635,7 +638,7 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-xs text-[#8B949E] mb-3 font-mono">Henüz değerlendirme yok</div>
+                  <div className="text-xs text-[#8B949E] mb-3 font-mono">{t('dashboard.noEval')}</div>
                 )}
 
                 {/* Summary from jury or eval */}
@@ -679,7 +682,7 @@ export default function DashboardPage() {
               onClick={e => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">{selectedInterview.candidate_name} — Tam Değerlendirme</h3>
+                <h3 className="text-lg font-semibold">{selectedInterview.candidate_name} — {t('dashboard.fullEval')}</h3>
                 <div className="flex items-center gap-2">
                   {!hasJury && (
                     <button
@@ -687,7 +690,7 @@ export default function DashboardPage() {
                       disabled={juryRunning}
                       className="bg-[#DA7756] text-white px-3 py-1 rounded-md text-xs font-medium hover:bg-[#E08B6D] disabled:opacity-50"
                     >
-                      {juryRunning ? 'Değerlendiriliyor...' : '⚖️ Jüri Çalıştır'}
+                      {juryRunning ? t('dashboard.evaluating') : `⚖️ ${t('dashboard.runJury')}`}
                     </button>
                   )}
                   <button onClick={() => setSelectedInterview(null)} className="text-[#8B949E] hover:text-white text-xl">&times;</button>
@@ -697,7 +700,7 @@ export default function DashboardPage() {
               {/* Jury Evaluations */}
               {hasJury && (
                 <div className="mb-6">
-                  <h4 className="text-xs font-mono text-[#DA7756] mb-3">⚖️ JÜRİ DEĞERLENDİRMELERİ</h4>
+                  <h4 className="text-xs font-mono text-[#DA7756] mb-3">⚖️ {t('dashboard.juryEvals')}</h4>
                   <div className="grid grid-cols-3 gap-3">
                     {juryEvals!.map((je) => (
                       <div key={je.jury_id} className="bg-[#0D1117] rounded-lg p-4">
@@ -754,11 +757,11 @@ export default function DashboardPage() {
               {/* Chat Transcript */}
               {selectedInterview.messages && (selectedInterview.messages as any[]).length > 0 && (
                 <div className="mb-4">
-                  <h4 className="text-xs font-mono text-[#58A6FF] mb-2">// TRANSKRIPT</h4>
+                  <h4 className="text-xs font-mono text-[#58A6FF] mb-2">// {t('dashboard.transcript')}</h4>
                   <div className="space-y-2 max-h-[300px] overflow-y-auto bg-[#0D1117] rounded-lg p-3">
                     {(selectedInterview.messages as any[]).map((msg: any, i: number) => (
                       <div key={i} className={`text-[11px] leading-relaxed ${msg.role === 'assistant' ? 'text-[#58A6FF]' : 'text-[#E6EDF3]'}`}>
-                        <span className="font-mono font-bold text-[10px] mr-1">{msg.role === 'assistant' ? 'AI:' : 'Aday:'}</span>
+                        <span className="font-mono font-bold text-[10px] mr-1">{msg.role === 'assistant' ? 'AI:' : `${t('dashboard.candidate')}:`}</span>
                         {msg.content.substring(0, 300)}{msg.content.length > 300 ? '...' : ''}
                       </div>
                     ))}
@@ -772,7 +775,7 @@ export default function DashboardPage() {
                 if (!deliberationNotes || deliberationNotes.length === 0) return null
                 return (
                   <div className="mb-4">
-                    <h4 className="text-xs font-mono text-[#8B5CF6] mb-2">🗣 TARTIŞMA</h4>
+                    <h4 className="text-xs font-mono text-[#8B5CF6] mb-2">🗣 {t('dashboard.deliberation')}</h4>
                     <div className="space-y-2">
                       {deliberationNotes.map((n: DeliberationNote) => (
                         <div key={n.jury_id} className="bg-[#0D1117] rounded-lg p-3">
@@ -781,11 +784,11 @@ export default function DashboardPage() {
                             <span className="text-xs font-semibold">{n.jury_name}</span>
                             {n.changed_mind ? (
                               <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(247,129,102,0.1)] text-[#F78166] font-mono ml-auto">
-                                Değişti: {n.original_score} → {n.final_score}
+                                {t('dashboard.changed')}: {n.original_score} → {n.final_score}
                               </span>
                             ) : (
                               <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(63,185,80,0.1)] text-[#3FB950] font-mono ml-auto">
-                                Korudu: {n.final_score}
+                                {t('dashboard.maintained')}: {n.final_score}
                               </span>
                             )}
                           </div>
@@ -810,16 +813,16 @@ export default function DashboardPage() {
                       color: (selectedInterview as any).decision === 'ACCEPT' ? '#3FB950'
                         : (selectedInterview as any).decision === 'WAITLIST' ? '#F78166' : '#F85149'
                     }}>
-                      Sonuç: {(selectedInterview as any).decision}
+                      {t('dashboard.final')}: {(selectedInterview as any).decision}
                     </span>
-                    <span className="text-sm font-mono">Puan: {(selectedInterview as any).decision_score}</span>
+                    <span className="text-sm font-mono">{t('common.score').charAt(0).toUpperCase() + t('common.score').slice(1)}: {(selectedInterview as any).decision_score}</span>
                   </div>
                 </div>
               )}
 
               {eval_ && (
                 <>
-                  <h4 className="text-xs font-mono text-[#58A6FF] mb-2">// MÜLAKATÇI DEĞERLENDİRMESİ</h4>
+                  <h4 className="text-xs font-mono text-[#58A6FF] mb-2">// {t('dashboard.interviewerEval')}</h4>
                   <pre className="bg-[#0D1117] rounded-lg p-4 text-[11px] font-mono overflow-x-auto leading-relaxed text-[#E6EDF3]">
                     {JSON.stringify(eval_, null, 2)}
                   </pre>

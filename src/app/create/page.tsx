@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguage, LanguageToggle } from '@/lib/i18n'
 
 const DEFAULT_SYSTEM_PROMPT = `You are an AI Interview Agent for an accelerator program. Your role is to conduct structured yet adaptive interviews with startup founders.
 
@@ -63,6 +64,7 @@ After completing all phases, output evaluation as JSON:
 export default function CreateProgramPage() {
   const router = useRouter()
   const supabase = createClient()
+  const { t } = useLanguage()
 
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
@@ -139,20 +141,23 @@ export default function CreateProgramPage() {
   return (
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] p-6">
       <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">Programınızı Oluşturun</h1>
-          <p className="text-[#8B949E] text-sm">AI destekli mülakat ajanınızı dakikalar içinde kurun.</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">{t('create.title')}</h1>
+            <p className="text-[#8B949E] text-sm">AI destekli mülakat ajanınızı dakikalar içinde kurun.</p>
+          </div>
+          <LanguageToggle />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name */}
           <div>
-            <label className="block text-xs font-mono text-[#8B949E] mb-2">PROGRAM ADI</label>
+            <label className="block text-xs font-mono text-[#8B949E] mb-2">{t('create.nameLabel').toUpperCase()}</label>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="e.g. ARDVENTURE, TechStars Istanbul"
+              placeholder={t('create.namePlaceholder')}
               required
               className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#58A6FF] placeholder-[#8B949E]"
             />
@@ -175,11 +180,11 @@ export default function CreateProgramPage() {
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-mono text-[#8B949E] mb-2">AÇIKLAMA</label>
+            <label className="block text-xs font-mono text-[#8B949E] mb-2">{t('create.descLabel').toUpperCase()}</label>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
-              placeholder="Hızlandırıcı programınızın kısa açıklaması..."
+              placeholder={t('create.descPlaceholder')}
               rows={3}
               className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#58A6FF] placeholder-[#8B949E] resize-none"
             />
@@ -188,7 +193,7 @@ export default function CreateProgramPage() {
           {/* System Prompt */}
           <div>
             <label className="block text-xs font-mono text-[#8B949E] mb-2">
-              MÜLAKAT SİSTEM KOMUTU
+              {t('create.promptLabel').toUpperCase()}
               <span className="ml-2 text-[#58A6FF]">(özelleştirilebilir)</span>
             </label>
             <textarea
@@ -209,7 +214,7 @@ export default function CreateProgramPage() {
             disabled={loading}
             className="w-full bg-[#58A6FF] text-[#0D1117] py-3.5 rounded-lg font-bold text-sm transition-all hover:bg-[#79B8FF] disabled:opacity-50"
           >
-            {loading ? 'Oluşturuluyor...' : 'Program Oluştur'}
+            {loading ? t('create.creating') : t('create.submitBtn')}
           </button>
         </form>
       </div>

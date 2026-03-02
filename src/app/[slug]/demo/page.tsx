@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguage, LanguageToggle } from '@/lib/i18n'
 import type { Program } from '@/lib/supabase/types'
 
 interface StageConfig {
@@ -12,14 +13,14 @@ interface StageConfig {
   color: string
 }
 
-const STAGES: StageConfig[] = [
-  { id: 'interviews', emoji: '🤖', name: 'AI Mülakatlar', color: '#58A6FF' },
-  { id: 'jury', emoji: '⚖️', name: 'Jüri Değerlendirmesi', color: '#D2A8FF' },
-  { id: 'deliberation', emoji: '🗣', name: 'Müzakere', color: '#F78166' },
-  { id: 'decision', emoji: '✅', name: 'Kararlar', color: '#3FB950' },
-  { id: 'kickoff', emoji: '🚀', name: 'Başlangıç', color: '#58A6FF' },
-  { id: 'demoday', emoji: '🎤', name: 'Demo Day', color: '#F78166' },
-]
+const STAGES_CONFIG = [
+  { id: 'interviews', emoji: '🤖', nameKey: 'demo.stage1', color: '#58A6FF' },
+  { id: 'jury', emoji: '⚖️', nameKey: 'demo.stage2', color: '#D2A8FF' },
+  { id: 'deliberation', emoji: '🗣', nameKey: 'demo.stage3', color: '#F78166' },
+  { id: 'decision', emoji: '✅', nameKey: 'demo.stage4', color: '#3FB950' },
+  { id: 'kickoff', emoji: '🚀', nameKey: 'demo.stage5', color: '#58A6FF' },
+  { id: 'demoday', emoji: '🎤', nameKey: 'demo.stage6', color: '#F78166' },
+] as const
 
 type StageStatus = 'pending' | 'running' | 'done' | 'error'
 
@@ -27,13 +28,14 @@ export default function DemoPage() {
   const params = useParams()
   const router = useRouter()
   const slug = params.slug as string
+  const { t } = useLanguage()
 
   const [program, setProgram] = useState<Program | null>(null)
   const [loading, setLoading] = useState(true)
   const [running, setRunning] = useState(false)
   const [completed, setCompleted] = useState(false)
   const [currentStage, setCurrentStage] = useState(-1)
-  const [stageStatuses, setStageStatuses] = useState<StageStatus[]>(STAGES.map(() => 'pending'))
+  const [stageStatuses, setStageStatuses] = useState<StageStatus[]>(STAGES_CONFIG.map(() => 'pending'))
   const [logs, setLogs] = useState<string[]>([])
   const [stats, setStats] = useState({ interviews: 0, accepted: 0, mentored: 0 })
   const logRef = useRef<HTMLDivElement>(null)
@@ -78,7 +80,7 @@ export default function DemoPage() {
     setRunning(true)
     setCompleted(false)
     setLogs([])
-    setStageStatuses(STAGES.map(() => 'pending'))
+    setStageStatuses(STAGES_CONFIG.map(() => 'pending'))
     setStats({ interviews: 0, accepted: 0, mentored: 0 })
 
     // ========== STAGE 1: AI INTERVIEWS ==========
@@ -334,7 +336,7 @@ export default function DemoPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] flex items-center justify-center">
-        <div className="text-[#8B949E] font-mono text-sm animate-pulse">Demo yükleniyor...</div>
+        <div className="text-[#8B949E] font-mono text-sm animate-pulse">{t('demo.loading')}</div>
       </div>
     )
   }
@@ -351,19 +353,22 @@ export default function DemoPage() {
             <h1 className="text-sm font-semibold">{program?.name}</h1>
             <span className="text-[10px] text-[#8B949E] font-mono">Full Pipeline Demo</span>
           </div>
-          <button
-            onClick={() => router.push(`/${slug}/dashboard`)}
-            className="text-xs text-[#8B949E] hover:text-[#58A6FF] transition-colors"
-          >
-            ← Kontrol Paneli
-          </button>
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
+            <button
+              onClick={() => router.push(`/${slug}/dashboard`)}
+              className="text-xs text-[#8B949E] hover:text-[#58A6FF] transition-colors"
+            >
+              ← {t('common.dashboard')}
+            </button>
+          </div>
         </div>
       </header>
 
       <div className="max-w-5xl mx-auto p-6">
         {/* Progress Bar */}
         <div className="flex items-center justify-between mb-10 px-4">
-          {STAGES.map((stage, i) => {
+          {STAGES_CONFIG.map((stage, i) => {
             const status = stageStatuses[i]
             const isActive = currentStage === i
             const isDone = status === 'done'
@@ -386,10 +391,10 @@ export default function DemoPage() {
                   <span className={`text-[10px] font-mono mt-2 transition-colors ${
                     isDone ? 'text-[#3FB950]' : isActive ? 'text-[#E6EDF3]' : 'text-[#484F58]'
                   }`}>
-                    {stage.name}
+                    {t(stage.nameKey)}
                   </span>
                 </div>
-                {i < STAGES.length - 1 && (
+                {i < STAGES_CONFIG.length - 1 && (
                   <div className={`flex-1 h-0.5 mx-2 mt-[-16px] transition-colors duration-500 ${
                     stageStatuses[i] === 'done' ? 'bg-[#3FB950]' : 'bg-[#30363D]'
                   }`} />
@@ -405,19 +410,19 @@ export default function DemoPage() {
             <div className="text-6xl mb-6">▶️</div>
             <h2 className="text-2xl font-bold mb-2">
               <span className="bg-gradient-to-r from-[#58A6FF] to-[#F78166] bg-clip-text text-transparent">
-                Tam Pipeline Demosu Çalıştır
+                {t('demo.title')}
               </span>
             </h2>
             <p className="text-[#8B949E] text-sm mb-8 max-w-md mx-auto">
-              6 AI aday mülakatı → Jüri değerlendirmesi → Deliberasyon → Karar → Mentor eşleştirme → Demo Day raporları
+              {t('demo.subtitle')}
             </p>
             <button
               onClick={runFullDemo}
               className="bg-[#58A6FF] text-[#0D1117] px-8 py-3 rounded-xl font-semibold text-sm hover:bg-[#79B8FF] transition-all hover:-translate-y-0.5 active:translate-y-0"
             >
-              Tam Simülasyonu Başlat
+              {t('demo.start')}
             </button>
-            <p className="text-[10px] text-[#484F58] font-mono mt-4">Tahmini süre: 5-8 dakika</p>
+            <p className="text-[10px] text-[#484F58] font-mono mt-4">{t('demo.estimatedTime')}</p>
           </div>
         )}
 
@@ -426,15 +431,15 @@ export default function DemoPage() {
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-5 text-center">
               <div className="text-3xl font-bold font-mono text-[#58A6FF]">{stats.interviews}</div>
-              <div className="text-xs text-[#8B949E] mt-1">Tamamlanan Mülakatlar</div>
+              <div className="text-xs text-[#8B949E] mt-1">{t('demo.completedInterviews')}</div>
             </div>
             <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-5 text-center">
               <div className="text-3xl font-bold font-mono text-[#3FB950]">{stats.accepted}</div>
-              <div className="text-xs text-[#8B949E] mt-1">Kabul Edilen Kurucular</div>
+              <div className="text-xs text-[#8B949E] mt-1">{t('demo.acceptedFounders')}</div>
             </div>
             <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-5 text-center">
               <div className="text-3xl font-bold font-mono text-[#F78166]">{stats.mentored}</div>
-              <div className="text-xs text-[#8B949E] mt-1">Atanan Mentorlar</div>
+              <div className="text-xs text-[#8B949E] mt-1">{t('demo.assignedMentors')}</div>
             </div>
           </div>
         )}
@@ -446,25 +451,25 @@ export default function DemoPage() {
               onClick={() => router.push(`/${slug}/dashboard`)}
               className="bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-5 py-2.5 rounded-lg text-sm hover:border-[#58A6FF] transition-colors"
             >
-              📋 Kontrol Paneli
+              📋 {t('common.dashboard')}
             </button>
             <button
               onClick={() => router.push(`/${slug}/results`)}
               className="bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-5 py-2.5 rounded-lg text-sm hover:border-[#3FB950] transition-colors"
             >
-              📊 Sonuçlar
+              📊 {t('common.results')}
             </button>
             <button
               onClick={() => router.push(`/${slug}/program`)}
               className="bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-5 py-2.5 rounded-lg text-sm hover:border-[#F78166] transition-colors"
             >
-              🎓 Program
+              🎓 {t('common.program')}
             </button>
             <button
-              onClick={() => { setCompleted(false); setCurrentStage(-1); setStageStatuses(STAGES.map(() => 'pending')); setLogs([]) }}
+              onClick={() => { setCompleted(false); setCurrentStage(-1); setStageStatuses(STAGES_CONFIG.map(() => 'pending')); setLogs([]) }}
               className="bg-[#161B22] border border-[#30363D] text-[#8B949E] px-5 py-2.5 rounded-lg text-sm hover:border-[#8B949E] transition-colors"
             >
-              🔄 Tekrar Çalıştır
+              🔄 {t('demo.runAgain')}
             </button>
           </div>
         )}
@@ -487,7 +492,7 @@ export default function DemoPage() {
               {logs.map((log, i) => (
                 <div key={i} className={`${
                   log.includes('❌') ? 'text-[#F85149]' :
-                  log.includes('✅') || log.includes('COMPLETE') ? 'text-[#3FB950]' :
+                  log.includes('✅') || log.includes('COMPLETE') || log.includes('TAMAMLANDI') ? 'text-[#3FB950]' :
                   log.includes('⚠') ? 'text-[#F78166]' :
                   log.includes('Starting') || log.includes('Running') ? 'text-[#58A6FF]' :
                   log.startsWith('━') ? 'text-[#D2A8FF]' :
