@@ -53,6 +53,10 @@ export default function DashboardPage() {
   const [deciding, setDeciding] = useState(false)
   const [pipelineProgress, setPipelineProgress] = useState('')
 
+  // Delete state
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
   const supabase = createClient()
 
   useEffect(() => {
@@ -361,6 +365,28 @@ export default function DashboardPage() {
     URL.revokeObjectURL(url)
   }
 
+  async function deleteProgram() {
+    if (!program || deleting) return
+    setDeleting(true)
+    try {
+      const res = await fetch('/api/program/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ program_id: program.id }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        router.push('/my-programs')
+      } else {
+        alert(data.error || 'Failed to delete')
+        setDeleting(false)
+      }
+    } catch (err: any) {
+      alert(err.message)
+      setDeleting(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3] p-6">
       {/* Header */}
@@ -429,8 +455,44 @@ export default function DashboardPage() {
           >
             {t('common.exportJson')}
           </button>
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="bg-[#161B22] border border-[#30363D] text-[#F85149] px-3.5 py-1.5 rounded-md text-xs hover:border-[#F85149] hover:bg-[rgba(248,81,73,0.1)] transition-colors"
+          >
+            🗑 {t('dashboard.deleteProgram')}
+          </button>
         </div>
       </header>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => !deleting && setShowDeleteModal(false)}>
+          <div className="bg-[#161B22] border border-[#F85149] rounded-xl p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <div className="text-center">
+              <div className="text-4xl mb-3">⚠️</div>
+              <h3 className="text-lg font-semibold text-[#F85149] mb-2">{t('dashboard.deleteConfirmTitle')}</h3>
+              <p className="text-sm text-[#8B949E] mb-1">{program?.name}</p>
+              <p className="text-xs text-[#8B949E] mb-6">{t('dashboard.deleteConfirmDesc')}</p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deleting}
+                  className="px-5 py-2 rounded-lg text-sm font-medium bg-[#0D1117] border border-[#30363D] text-[#E6EDF3] hover:border-[#58A6FF] transition-colors disabled:opacity-50"
+                >
+                  {t('dashboard.deleteCancel')}
+                </button>
+                <button
+                  onClick={deleteProgram}
+                  disabled={deleting}
+                  className="px-5 py-2 rounded-lg text-sm font-bold bg-[#F85149] text-white hover:bg-[#FF6B61] transition-colors disabled:opacity-50"
+                >
+                  {deleting ? t('dashboard.deleting') : t('dashboard.deleteConfirm')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Jury Progress */}
       {juryProgress && (

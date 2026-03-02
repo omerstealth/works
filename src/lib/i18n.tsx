@@ -313,6 +313,12 @@ const translations = {
     'dashboard.interviewStarting': 'Mülakat başlatılıyor',
     'dashboard.turn': 'Tur',
     'dashboard.interviewsDone': 'mülakat tamamlandı.',
+    'dashboard.deleteProgram': 'Programı Sil',
+    'dashboard.deleteConfirmTitle': 'Programı Silmek İstediğinize Emin misiniz?',
+    'dashboard.deleteConfirmDesc': 'Bu işlem geri alınamaz. Program ve tüm mülakatlar kalıcı olarak silinecektir.',
+    'dashboard.deleteConfirm': 'Evet, Sil',
+    'dashboard.deleteCancel': 'İptal',
+    'dashboard.deleting': 'Siliniyor...',
 
     // ── Demo ──
     'demo.title': 'Tam Pipeline Demo',
@@ -623,6 +629,12 @@ const translations = {
     'dashboard.interviewStarting': 'Starting interview with',
     'dashboard.turn': 'Turn',
     'dashboard.interviewsDone': 'interviews completed.',
+    'dashboard.deleteProgram': 'Delete Program',
+    'dashboard.deleteConfirmTitle': 'Are You Sure You Want to Delete This Program?',
+    'dashboard.deleteConfirmDesc': 'This action cannot be undone. The program and all interviews will be permanently deleted.',
+    'dashboard.deleteConfirm': 'Yes, Delete',
+    'dashboard.deleteCancel': 'Cancel',
+    'dashboard.deleting': 'Deleting...',
 
     // ── Demo ──
     'demo.title': 'Full Pipeline Demo',
