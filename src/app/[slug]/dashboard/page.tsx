@@ -79,39 +79,86 @@ export default function DashboardPage() {
     if (!program || testRunning) return
     setTestRunning(true)
     setTestResults(null)
-    setTestProgress(`Running ${selectedProfiles.length || testProfiles.length} test interviews...`)
 
-    try {
-      const res = await fetch('/api/test-agents/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          program_id: program.id,
-          profile_ids: selectedProfiles.length > 0 ? selectedProfiles : undefined,
-        }),
-      })
+    const profilesToRun = selectedProfiles.length > 0
+      ? testProfiles.filter(p => selectedProfiles.includes(p.id))
+      : testProfiles
 
-      const data = await res.json()
-      if (data.error) {
-        setTestProgress(`Error: ${data.error}`)
-      } else {
-        setTestResults(data)
-        setTestProgress(`Done! ${data.successful}/${data.total} interviews completed.`)
+    const results: any[] = []
 
-        // Reload interviews
-        const { data: ints } = await supabase
-          .from('interviews')
-          .select('*')
-          .eq('program_id', program.id)
-          .order('started_at', { ascending: false })
+    for (let i = 0; i < profilesToRun.length; i++) {
+      const profile = profilesToRun[i]
+      setTestProgress(`[${i + 1}/${profilesToRun.length}] Starting interview with ${profile.emoji} ${profile.name}...`)
 
-        setInterviews((ints || []) as Interview[])
+      try {
+        // Step 1: Start the interview
+        const startRes = await fetch('/api/test-agents/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            program_id: program.id,
+            profile_id: profile.id,
+            action: 'start',
+          }),
+        })
+        const startData = await startRes.json()
+        if (startData.error) {
+          results.push({ name: profile.name, expectedScore: profile.expectedScore, success: false, error: startData.error })
+          continue
+        }
+
+        const interviewId = startData.interview_id
+        let status = startData.status
+        let turn = 0
+
+        // Step 2: Run turns until complete
+        while (status === 'in_progress' && turn < 15) {
+          setTestProgress(`[${i + 1}/${profilesToRun.length}] ${profile.emoji} ${profile.name} — Turn ${turn + 1}...`)
+
+          const turnRes = await fetch('/api/test-agents/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              program_id: program.id,
+              profile_id: profile.id,
+              action: 'turn',
+              interview_id: interviewId,
+            }),
+          })
+          const turnData = await turnRes.json()
+          if (turnData.error) {
+            results.push({ name: profile.name, expectedScore: profile.expectedScore, success: false, error: turnData.error })
+            status = 'error'
+            break
+          }
+          status = turnData.status
+          turn = turnData.turn
+        }
+
+        if (status === 'completed') {
+          results.push({ name: profile.name, expectedScore: profile.expectedScore, success: true })
+        }
+      } catch (err: any) {
+        results.push({ name: profile.name, expectedScore: profile.expectedScore, success: false, error: err.message })
       }
-    } catch (err: any) {
-      setTestProgress(`Error: ${err.message}`)
-    } finally {
-      setTestRunning(false)
+
+      // Update results in real-time
+      setTestResults({ results: [...results], total: profilesToRun.length, successful: results.filter(r => r.success).length })
     }
+
+    const successCount = results.filter(r => r.success).length
+    setTestProgress(`Done! ${successCount}/${profilesToRun.length} interviews completed.`)
+    setTestResults({ results, total: profilesToRun.length, successful: successCount })
+
+    // Reload interviews
+    const { data: ints } = await supabase
+      .from('interviews')
+      .select('*')
+      .eq('program_id', program.id)
+      .order('started_at', { ascending: false })
+
+    setInterviews((ints || []) as Interview[])
+    setTestRunning(false)
   }
 
   function toggleProfile(id: string) {
