@@ -210,7 +210,7 @@ export default function DashboardPage() {
   }
 
   async function runJuryForOne(interviewId: string) {
-    if (juryRunning) return
+    if (!program || juryRunning) return
     setJuryRunning(true)
 
     for (const jury of juryMembers) {
