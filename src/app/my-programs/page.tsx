@@ -106,7 +106,7 @@ export default function MyProgramsPage() {
                       <p className="text-xs text-[#8B949E] mt-0.5 line-clamp-1">{prog.description}</p>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap justify-end">
                     <button
                       onClick={e => { e.stopPropagation(); router.push(`/${prog.slug}/demo`) }}
                       className="bg-gradient-to-r from-[#58A6FF] to-[#F78166] text-[#0D1117] px-3 py-1.5 rounded-md text-xs font-bold hover:opacity-90 transition-opacity"
@@ -117,7 +117,19 @@ export default function MyProgramsPage() {
                       onClick={e => { e.stopPropagation(); router.push(`/${prog.slug}/dashboard`) }}
                       className="bg-[#0D1117] border border-[#30363D] text-[#8B949E] px-3 py-1.5 rounded-md text-xs hover:border-[#58A6FF] hover:text-[#58A6FF] transition-colors"
                     >
-                      Dashboard →
+                      📋 Dashboard
+                    </button>
+                    <button
+                      onClick={e => { e.stopPropagation(); router.push(`/${prog.slug}/results`) }}
+                      className="bg-[#0D1117] border border-[#30363D] text-[#8B949E] px-3 py-1.5 rounded-md text-xs hover:border-[#3FB950] hover:text-[#3FB950] transition-colors"
+                    >
+                      📊 Results
+                    </button>
+                    <button
+                      onClick={e => { e.stopPropagation(); router.push(`/${prog.slug}/program`) }}
+                      className="bg-[#0D1117] border border-[#30363D] text-[#8B949E] px-3 py-1.5 rounded-md text-xs hover:border-[#F78166] hover:text-[#F78166] transition-colors"
+                    >
+                      🎓 Program
                     </button>
                   </div>
                 </div>
