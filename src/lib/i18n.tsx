@@ -115,8 +115,36 @@ const translations = {
     'hero.title2': 'için',
     'hero.title3': 'AI İşletim Sistemi',
     'hero.subtitle': "Başvurudan Demo Day'e — her adım AI ajanları ile. Mülakatlar, jüri değerlendirmesi, müzakere, kararlar, mentorluk ve program yönetimi tek platformda.",
-    'hero.cta': 'Program Oluştur',
-    'hero.demo': 'Demo Başlat',
+    'hero.cta': 'Ücretsiz Deneyin',
+    'hero.demo': 'Demoyu İzle',
+    'hero.socialProof': 'Hızlandırıcılar, VC\'ler ve üniversite kuluçkaları tarafından kullanılıyor',
+
+    // ── Landing / Problem ──
+    'problem.section': '// SORUN',
+    'problem.title': 'Seçim süreçleri hâlâ %90 manuel',
+    'problem.subtitle': 'Çoğu hızlandırıcı hâlâ başvuruları spreadsheet\'lerle yönetiyor. Ölçeklenmiyor.',
+    'problem.item1.title': 'Saatler süren mülakatlar',
+    'problem.item1.desc': 'Her aday için 30-60 dk görüşme, koordinasyon, not alma',
+    'problem.item2.title': 'Tutarsız değerlendirme',
+    'problem.item2.desc': 'Her jüri üyesi farklı kriterlerle değerlendiriyor',
+    'problem.item3.title': 'Ölçeklenemeyen süreç',
+    'problem.item3.desc': '100+ başvuruyu adil ve hızlı değerlendirmek imkansız',
+
+    // ── Landing / Solution ──
+    'solution.section': '// ÇÖZÜM',
+    'solution.title': 'Uçtan uca AI ile',
+    'solution.titleHighlight': 'dakikalar içinde',
+    'solution.subtitle': '6 AI ajan, tüm pipeline\'ı otomatikleştirir — mülakatlardan Demo Day\'e.',
+
+    // ── Landing / Numbers ──
+    'numbers.time': '~5 dk',
+    'numbers.timeLabel': 'Tam pipeline çalışma süresi',
+    'numbers.interviews': '6',
+    'numbers.interviewsLabel': 'Paralel AI mülakat',
+    'numbers.jury': '3',
+    'numbers.juryLabel': 'Bağımsız jüri değerlendirmesi',
+    'numbers.coverage': '%100',
+    'numbers.coverageLabel': 'Otomatik — sıfır manuel iş',
 
     // ── Landing / Stats ──
     'stats.agents': 'AI Ajan',
@@ -455,8 +483,36 @@ const translations = {
     'hero.title2': 'for',
     'hero.title3': 'Startup Accelerators',
     'hero.subtitle': 'From application to Demo Day — every step powered by AI agents. Interviews, jury evaluation, deliberation, decisions, mentoring and program management in one platform.',
-    'hero.cta': 'Create Program',
-    'hero.demo': 'Launch Demo',
+    'hero.cta': 'Try Free',
+    'hero.demo': 'Watch Demo',
+    'hero.socialProof': 'Used by accelerators, VCs and university incubators',
+
+    // ── Landing / Problem ──
+    'problem.section': '// THE PROBLEM',
+    'problem.title': 'Selection processes are still 90% manual',
+    'problem.subtitle': 'Most accelerators still manage applications with spreadsheets. It doesn\'t scale.',
+    'problem.item1.title': 'Hours of interviews',
+    'problem.item1.desc': '30-60 min per candidate — scheduling, conducting, note-taking',
+    'problem.item2.title': 'Inconsistent evaluation',
+    'problem.item2.desc': 'Each jury member evaluates with different criteria',
+    'problem.item3.title': 'Unscalable process',
+    'problem.item3.desc': 'Fairly evaluating 100+ applications quickly is impossible',
+
+    // ── Landing / Solution ──
+    'solution.section': '// THE SOLUTION',
+    'solution.title': 'End-to-end with AI in',
+    'solution.titleHighlight': 'minutes',
+    'solution.subtitle': '6 AI agents automate the entire pipeline — from interviews to Demo Day.',
+
+    // ── Landing / Numbers ──
+    'numbers.time': '~5 min',
+    'numbers.timeLabel': 'Full pipeline run time',
+    'numbers.interviews': '6',
+    'numbers.interviewsLabel': 'Parallel AI interviews',
+    'numbers.jury': '3',
+    'numbers.juryLabel': 'Independent jury evaluations',
+    'numbers.coverage': '100%',
+    'numbers.coverageLabel': 'Automated — zero manual work',
 
     // ── Landing / Stats ──
     'stats.agents': 'AI Agents',

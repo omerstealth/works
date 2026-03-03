@@ -48,13 +48,6 @@ export default function HomePage() {
     },
   }))
 
-  const stats = [
-    { value: '6', label: t('stats.agents'), color: '#58A6FF' },
-    { value: '3', label: t('stats.jury'), color: '#D2A8FF' },
-    { value: '5', label: t('stats.mentors'), color: '#F78166' },
-    { value: '8', label: t('stats.weeks'), color: '#3FB950' },
-  ]
-
   const audiences = [
     { emoji: '🏢', title: t('audience.0.title'), desc: t('audience.0.desc') },
     { emoji: '💰', title: t('audience.1.title'), desc: t('audience.1.desc') },
@@ -81,17 +74,21 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3]">
       <Navbar />
 
-      {/* Hero */}
-      <div className="relative text-center py-28 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(88,166,255,0.15)_0%,transparent_60%)]" />
+      {/* ═══════ HERO ═══════ */}
+      <div className="relative text-center pt-20 pb-24 sm:pt-28 sm:pb-32 px-6 overflow-hidden">
+        {/* Background gradients */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-10%,rgba(88,166,255,0.18)_0%,transparent_55%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_50%,rgba(247,129,102,0.08)_0%,transparent_50%)]" />
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
+
         <div className="relative max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-[rgba(88,166,255,0.1)] border border-[rgba(88,166,255,0.2)] px-4 py-1.5 rounded-full text-xs font-mono text-[#58A6FF] mb-8">
+          <div className="inline-flex items-center gap-2 bg-[rgba(88,166,255,0.08)] border border-[rgba(88,166,255,0.2)] px-4 py-1.5 rounded-full text-xs font-mono text-[#58A6FF] mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-[#3FB950] animate-pulse" />
             {t('hero.badge')}
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter leading-[1.05] mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tighter leading-[1.05] mb-6">
             {t('hero.title1')}{' '}
             <br className="hidden md:block" />
             {t('hero.title2')}{' '}
@@ -100,59 +97,105 @@ export default function HomePage() {
             </span>
           </h1>
 
-          <p className="text-lg text-[#8B949E] max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-base sm:text-lg text-[#8B949E] max-w-2xl mx-auto mb-10 leading-relaxed">
             {t('hero.subtitle')}
           </p>
 
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-10">
             <Link
               href="/create"
-              className="inline-flex items-center gap-2 bg-[#58A6FF] text-[#0D1117] px-8 py-4 rounded-xl text-base font-bold transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#58A6FF]/20"
+              className="inline-flex items-center gap-2 bg-[#58A6FF] text-[#0D1117] px-7 py-3.5 sm:px-8 sm:py-4 rounded-xl text-sm sm:text-base font-bold transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#58A6FF]/20"
             >
               {t('hero.cta')}
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="#0D1117" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
             </Link>
             <Link
               href="/auth/login?redirect=/my-programs"
-              className="inline-flex items-center gap-2 bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-8 py-4 rounded-xl text-base font-semibold transition-all hover:border-[#58A6FF] hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-7 py-3.5 sm:px-8 sm:py-4 rounded-xl text-sm sm:text-base font-semibold transition-all hover:border-[#58A6FF] hover:-translate-y-0.5"
             >
-              ▶️ {t('hero.demo')}
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+              {t('hero.demo')}
             </Link>
           </div>
+
+          {/* Social proof line */}
+          <p className="text-xs text-[#484F58] font-mono tracking-wide">
+            {t('hero.socialProof')}
+          </p>
         </div>
       </div>
 
-      {/* Stats Bar */}
+      {/* ═══════ NUMBERS BAR ═══════ */}
       <div className="border-y border-[#30363D] bg-[#161B22]/50">
-        <div className="max-w-4xl mx-auto px-6 py-8 flex justify-around">
-          {stats.map(s => (
+        <div className="max-w-4xl mx-auto px-6 py-8 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-0">
+          {[
+            { value: t('numbers.time'), label: t('numbers.timeLabel'), color: '#58A6FF' },
+            { value: t('numbers.interviews'), label: t('numbers.interviewsLabel'), color: '#D2A8FF' },
+            { value: t('numbers.jury'), label: t('numbers.juryLabel'), color: '#F78166' },
+            { value: t('numbers.coverage'), label: t('numbers.coverageLabel'), color: '#3FB950' },
+          ].map(s => (
             <div key={s.label} className="text-center">
-              <div className="text-3xl md:text-4xl font-extrabold font-mono" style={{ color: s.color }}>{s.value}</div>
-              <div className="text-xs text-[#8B949E] mt-1 font-mono">{s.label}</div>
+              <div className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-mono" style={{ color: s.color }}>{s.value}</div>
+              <div className="text-[11px] text-[#8B949E] mt-1 font-mono leading-tight">{s.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Pipeline */}
-      <div className="max-w-5xl mx-auto px-6 py-20">
-        <div className="text-center mb-14">
-          <div className="text-xs font-mono text-[#58A6FF] mb-3 tracking-wider">{t('pipeline.section')}</div>
-          <h2 className="text-3xl md:text-4xl font-bold">
-            {t('pipeline.title')}{' '}
-            <span className="text-[#8B949E]">{t('pipeline.titleGray')}</span>
-          </h2>
-          <p className="text-sm text-[#484F58] mt-3 font-mono">{t('pipeline.clickHint')}</p>
+      {/* ═══════ PROBLEM ═══════ */}
+      <div className="max-w-4xl mx-auto px-6 py-20">
+        <div className="text-center mb-12">
+          <div className="text-xs font-mono text-[#F85149] mb-3 tracking-wider">{t('problem.section')}</div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">{t('problem.title')}</h2>
+          <p className="text-sm text-[#8B949E] max-w-xl mx-auto">{t('problem.subtitle')}</p>
         </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { icon: '⏱', title: t('problem.item1.title'), desc: t('problem.item1.desc'), color: '#F85149' },
+            { icon: '📋', title: t('problem.item2.title'), desc: t('problem.item2.desc'), color: '#F78166' },
+            { icon: '📈', title: t('problem.item3.title'), desc: t('problem.item3.desc'), color: '#D29922' },
+          ].map(item => (
+            <div key={item.title} className="bg-[#161B22] border border-[#30363D] rounded-xl p-5 text-center hover:border-[#F85149]/30 transition-colors">
+              <div className="text-2xl mb-3">{item.icon}</div>
+              <h3 className="text-sm font-semibold mb-1.5" style={{ color: item.color }}>{item.title}</h3>
+              <p className="text-xs text-[#8B949E] leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══════ SOLUTION TRANSITION ═══════ */}
+      <div className="text-center px-6 py-4">
+        <div className="inline-flex items-center gap-3 text-[#3FB950]">
+          <div className="w-8 h-[1px] bg-[#30363D]" />
+          <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12l7 7 7-7" /></svg>
+          <div className="w-8 h-[1px] bg-[#30363D]" />
+        </div>
+      </div>
+
+      {/* ═══════ PIPELINE ═══════ */}
+      <div className="max-w-5xl mx-auto px-6 py-16">
+        <div className="text-center mb-14">
+          <div className="text-xs font-mono text-[#58A6FF] mb-3 tracking-wider">{t('solution.section')}</div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
+            {t('solution.title')}{' '}
+            <span className="bg-gradient-to-r from-[#58A6FF] to-[#3FB950] bg-clip-text text-transparent">{t('solution.titleHighlight')}</span>
+          </h2>
+          <p className="text-sm text-[#8B949E] max-w-lg mx-auto mt-3">{t('solution.subtitle')}</p>
+          <p className="text-[11px] text-[#484F58] mt-4 font-mono">{t('pipeline.clickHint')}</p>
+        </div>
+
+        {/* Pipeline flow: connected cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {pipeline.map((step, i) => (
             <div
               key={step.title}
               onClick={() => setSelectedStage(i)}
-              className="group bg-[#161B22] border border-[#30363D] rounded-xl p-6 cursor-pointer transition-all hover:-translate-y-0.5"
+              className="group bg-[#161B22] border border-[#30363D] rounded-xl p-5 cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20 relative"
               style={{ borderColor: selectedStage === i ? step.color : undefined }}
             >
+              {/* Step number badge */}
               <div className="flex items-center gap-3 mb-3">
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-mono font-bold"
@@ -170,7 +213,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Stage Detail Modal */}
+      {/* ═══════ Stage Detail Modal ═══════ */}
       {selected && selectedStage !== null && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setSelectedStage(null)}>
           <div
@@ -283,19 +326,49 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Who It's For */}
-      <div className="bg-[#161B22] py-20 px-6">
+      {/* ═══════ HOW IT WORKS ═══════ */}
+      <div className="bg-[#161B22]/50 py-20 px-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-xs font-mono text-[#3FB950] mb-3 tracking-wider">{t('howItWorks.section')}</div>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-12">{t('howItWorks.title')}</h2>
+
+          <div className="space-y-6">
+            {howSteps.map((step, i) => (
+              <div key={step.num} className="flex gap-5 items-start">
+                <div className="flex flex-col items-center">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center font-mono font-bold text-lg shrink-0"
+                    style={{ background: step.color, color: '#0D1117' }}
+                  >
+                    {step.num}
+                  </div>
+                  {i < howSteps.length - 1 && (
+                    <div className="w-[2px] h-6 bg-[#30363D] mt-2" />
+                  )}
+                </div>
+                <div className="pt-1">
+                  <h3 className="text-base font-semibold mb-1">{step.title}</h3>
+                  <p className="text-sm text-[#8B949E] leading-relaxed">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════ WHO IT'S FOR ═══════ */}
+      <div className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
             <div className="text-xs font-mono text-[#F78166] mb-3 tracking-wider">{t('audience.section')}</div>
-            <h2 className="text-3xl md:text-4xl font-bold">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
               {t('audience.title')}
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {audiences.map(a => (
-              <div key={a.title} className="flex items-start gap-4 bg-[#0D1117] border border-[#30363D] rounded-xl p-5 hover:border-[#F78166] transition-colors">
+              <div key={a.title} className="flex items-start gap-4 bg-[#161B22] border border-[#30363D] rounded-xl p-5 hover:border-[#F78166]/40 transition-colors">
                 <span className="text-2xl mt-0.5">{a.emoji}</span>
                 <div>
                   <h3 className="font-semibold mb-1">{a.title}</h3>
@@ -307,56 +380,45 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* How It Works */}
-      <div className="max-w-3xl mx-auto px-6 py-20">
-        <div className="text-xs font-mono text-[#3FB950] mb-3 tracking-wider">{t('howItWorks.section')}</div>
-        <h2 className="text-3xl font-bold mb-12">{t('howItWorks.title')}</h2>
-
-        <div className="space-y-8">
-          {howSteps.map((step) => (
-            <div key={step.num} className="flex gap-5">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center font-mono font-bold text-lg shrink-0"
-                style={{ background: step.color, color: '#0D1117' }}
-              >
-                {step.num}
-              </div>
-              <div>
-                <h3 className="text-base font-semibold mb-1">{step.title}</h3>
-                <p className="text-sm text-[#8B949E] leading-relaxed">{step.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* CTA */}
+      {/* ═══════ CTA ═══════ */}
       <div className="text-center py-24 px-6 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_80%,rgba(247,129,102,0.12)_0%,transparent_60%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_80%,rgba(88,166,255,0.08)_0%,transparent_50%)]" />
-        <div className="relative">
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-3">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_80%,rgba(88,166,255,0.12)_0%,transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_80%,rgba(247,129,102,0.08)_0%,transparent_50%)]" />
+        <div className="relative max-w-xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-3">
             {t('cta.title1')}{' '}
             <span className="bg-gradient-to-r from-[#58A6FF] to-[#F78166] bg-clip-text text-transparent">
               {t('cta.title2')}
             </span>
             {' '}{t('cta.title3')}
           </h2>
-          <p className="text-[#8B949E] mb-8 max-w-md mx-auto">{t('cta.subtitle')}</p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <p className="text-[#8B949E] mb-8 max-w-md mx-auto text-sm sm:text-base">{t('cta.subtitle')}</p>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             <Link
               href="/create"
-              className="inline-flex items-center gap-2 bg-[#58A6FF] text-[#0D1117] px-8 py-4 rounded-xl text-base font-bold transition-all hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 bg-[#58A6FF] text-[#0D1117] px-8 py-4 rounded-xl text-sm sm:text-base font-bold transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#58A6FF]/20"
             >
               {t('cta.button')}
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="#0D1117" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="text-center py-10 border-t border-[#30363D] text-[#8B949E] text-xs font-mono">
-        {t('footer.text')}
+      {/* ═══════ FOOTER ═══════ */}
+      <footer className="border-t border-[#30363D] px-6 py-10">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-gradient-to-br from-[#58A6FF] to-[#F78166] rounded-md flex items-center justify-center font-mono font-bold text-[9px] text-[#0D1117]">
+              S
+            </div>
+            <span className="text-xs text-[#8B949E] font-mono">{t('footer.text')}</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/auth/login" className="text-xs text-[#484F58] hover:text-[#8B949E] transition-colors">{t('nav.login')}</Link>
+            <Link href="/create" className="text-xs text-[#484F58] hover:text-[#8B949E] transition-colors">{t('nav.create')}</Link>
+          </div>
+        </div>
       </footer>
     </div>
   )
