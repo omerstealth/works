@@ -145,7 +145,14 @@ export default function DashboardPage() {
       const res = await fetch(`/api/program/members?program_id=${pid}`)
       if (res.ok) {
         const data = await res.json()
-        setHumanMembers((data.members || []).filter((m: any) => m.role !== 'owner'))
+        // Filter out owners; normalize roles (support both old 'role' and new 'roles' field)
+        setHumanMembers((data.members || []).filter((m: any) => {
+          const roles = m.roles || [m.role || 'viewer']
+          return !roles.includes('owner')
+        }).map((m: any) => ({
+          ...m,
+          roles: m.roles || [m.role || 'viewer'],
+        })))
       }
     } catch {}
   }
@@ -717,19 +724,21 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Human Members (jury + mentor together) */}
+        {/* Human Members — each person shown once with all their role badges */}
         {humanMembers.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {humanMembers.map(m => (
               <div key={m.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs group">
-                <span>{m.role === 'mentor' ? '🧑‍🏫' : '👤'}</span>
+                <span>{(m.roles || []).includes('mentor') ? '🧑‍🏫' : '👤'}</span>
                 <span className="font-medium">{m.display_name}</span>
                 <span className="text-[10px] text-[#3FB950] bg-[#3FB950]/10 px-1.5 py-0.5 rounded">{t('dashboard.humanLabel')}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                  m.role === 'jury' ? 'text-[#58A6FF] bg-[#58A6FF]/10' : 'text-[#D2A8FF] bg-[#D2A8FF]/10'
-                }`}>
-                  {m.role === 'jury' ? 'Jüri' : 'Mentor'}
-                </span>
+                {(m.roles || []).map((r: string) => (
+                  <span key={r} className={`text-[10px] px-1.5 py-0.5 rounded ${
+                    r === 'jury' ? 'text-[#58A6FF] bg-[#58A6FF]/10' : 'text-[#D2A8FF] bg-[#D2A8FF]/10'
+                  }`}>
+                    {r === 'jury' ? 'Jüri' : 'Mentor'}
+                  </span>
+                ))}
                 <button onClick={() => removeMember(m.id)} className="text-[#F85149] opacity-0 group-hover:opacity-100 transition-opacity ml-1">×</button>
               </div>
             ))}

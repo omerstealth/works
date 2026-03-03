@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST: Add a member (jury or mentor)
+// POST: Add a member (jury or mentor) — if same person exists, add role to their roles array
 export async function POST(request: NextRequest) {
   try {
     const { program_id, role, display_name, email } = await request.json()
@@ -66,10 +66,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Only program owner can add members' }, { status: 403 })
     }
 
-    // For invited members, user_id is null until they sign up and claim their seat
+    // Check if this person already exists in this program (by email or display_name)
+    let existingMember = null
+    if (email) {
+      const { data } = await admin
+        .from('program_members')
+        .select('*')
+        .eq('program_id', program_id)
+        .eq('email', email)
+        .single()
+      existingMember = data
+    }
+
+    if (existingMember) {
+      // Person already exists — add the new role to their roles array
+      const currentRoles: string[] = existingMember.roles || [existingMember.role || 'viewer']
+      if (currentRoles.includes(role)) {
+        return NextResponse.json({ error: 'Bu kişi zaten bu rolde / This person already has this role' }, { status: 400 })
+      }
+      const newRoles = [...currentRoles, role]
+
+      const { data: updated, error } = await admin
+        .from('program_members')
+        .update({ roles: newRoles })
+        .eq('id', existingMember.id)
+        .select()
+        .single()
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true, member: updated, merged: true })
+    }
+
+    // New member — create with roles array
     const insertData: any = {
       program_id,
-      role,
+      roles: [role],
       display_name,
       email: email || null,
     }
@@ -99,11 +133,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// DELETE: Remove a member
+// DELETE: Remove a member (or remove a specific role)
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const memberId = searchParams.get('member_id')
+    const removeRole = searchParams.get('role') // optional: remove just one role
 
     if (!memberId) {
       return NextResponse.json({ error: 'member_id required' }, { status: 400 })
@@ -120,7 +155,7 @@ export async function DELETE(request: NextRequest) {
     // Get member to find program_id
     const { data: member } = await admin
       .from('program_members')
-      .select('program_id, role')
+      .select('*')
       .eq('id', memberId)
       .single()
 
@@ -129,25 +164,36 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Can't delete owners
-    if (member.role === 'owner') {
+    const roles: string[] = member.roles || [member.role || 'viewer']
+    if (roles.includes('owner')) {
       return NextResponse.json({ error: 'Cannot remove program owner' }, { status: 403 })
     }
 
     // Verify caller is program owner
-    const { data: program } = await admin
+    const { data: prog } = await admin
       .from('programs')
       .select('created_by')
       .eq('id', member.program_id)
       .single()
 
-    if (!program || program.created_by !== user.id) {
+    if (!prog || prog.created_by !== user.id) {
       return NextResponse.json({ error: 'Only program owner can remove members' }, { status: 403 })
     }
 
-    await admin
-      .from('program_members')
-      .delete()
-      .eq('id', memberId)
+    if (removeRole && roles.length > 1) {
+      // Remove just one role, keep the member
+      const newRoles = roles.filter((r: string) => r !== removeRole)
+      await admin
+        .from('program_members')
+        .update({ roles: newRoles })
+        .eq('id', memberId)
+    } else {
+      // Remove the entire member
+      await admin
+        .from('program_members')
+        .delete()
+        .eq('id', memberId)
+    }
 
     return NextResponse.json({ success: true })
   } catch (err: any) {
