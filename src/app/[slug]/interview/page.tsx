@@ -196,7 +196,7 @@ export default function InterviewPage() {
           {messages.map((msg, i) => (
             <div
               key={i}
-              className={`max-w-[680px] flex gap-3 animate-fadeIn ${
+              className={`max-w-[680px] w-full px-4 flex gap-3 animate-fadeIn ${
                 msg.role === 'assistant'
                   ? 'self-start'
                   : 'self-end flex-row-reverse'
@@ -226,7 +226,7 @@ export default function InterviewPage() {
 
           {/* Typing indicator */}
           {isProcessing && (
-            <div className="max-w-[680px] flex gap-3 self-start animate-fadeIn">
+            <div className="max-w-[680px] w-full px-4 flex gap-3 self-start animate-fadeIn">
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0"
                 style={{ background: `linear-gradient(135deg, ${colors.accent}, #7C3AED)`, color: 'white' }}
@@ -251,7 +251,7 @@ export default function InterviewPage() {
       {/* Input Area */}
       {isStarted && !evaluation && (
         <div className="bg-[#161B22] border-t border-[#30363D] p-4 shrink-0">
-          <div className="max-w-[720px] mx-auto flex gap-3 items-end">
+          <div className="max-w-[720px] w-full px-4 mx-auto flex gap-3 items-end">
             <textarea
               ref={inputRef}
               value={input}
@@ -334,7 +334,7 @@ function EvaluationCard({ evaluation, colors }: { evaluation: Evaluation; colors
         &ldquo;{evaluation.one_line_summary}&rdquo;
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
         {Object.entries(evaluation.scores).map(([key, val]) => (
           <div key={key} className="bg-[#0D1117] p-2.5 rounded-md">
             <div className="flex justify-between mb-1">
@@ -356,7 +356,7 @@ function EvaluationCard({ evaluation, colors }: { evaluation: Evaluation; colors
         ))}
       </div>
 
-      <div className="flex gap-4 mb-3">
+      <div className="flex flex-col sm:flex-row gap-4 mb-3">
         <div className="flex-1">
           <div className="text-[10px] text-[#3FB950] font-mono mb-1">&#10003; {t('interview.highlights')}</div>
           {evaluation.highlights?.map((h, i) => (

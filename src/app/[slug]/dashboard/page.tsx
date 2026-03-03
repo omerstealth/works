@@ -414,68 +414,56 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
-        <div className="ml-auto flex gap-2 flex-wrap justify-end">
-          <button
-            onClick={() => setShowTestPanel(!showTestPanel)}
-            className={`border px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              showTestPanel
-                ? 'bg-[#58A6FF] border-[#58A6FF] text-[#0D1117]'
-                : 'bg-[#161B22] border-[#30363D] text-[#8B949E] hover:border-[#58A6FF] hover:text-[#58A6FF]'
-            }`}
-          >
-            🤖 {t('dashboard.testAgents')}
-          </button>
-          <button
-            onClick={runJuryForAll}
-            disabled={juryRunning || withMessages.length === 0}
-            className="bg-[#DA7756] text-white px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#E08B6D] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {juryRunning ? `⚖️ ${t('dashboard.jury')}...` : `⚖️ ${t('dashboard.jury')} (${withMessages.length})`}
-          </button>
-          <button
-            onClick={runDeliberation}
-            disabled={deliberating || interviews.filter(iv => ((iv as any).jury_evaluations)?.length >= 2).length === 0}
-            className="bg-[#8B5CF6] text-white px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#A78BFA] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {deliberating ? `🗣 ${t('dashboard.deliberating')}...` : `🗣 ${t('dashboard.deliberate')}`}
-          </button>
-          <button
-            onClick={runDecisions}
-            disabled={deciding}
-            className="bg-[#3FB950] text-[#0D1117] px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#56D364] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {deciding ? `✅ ${t('dashboard.deciding')}...` : `✅ ${t('dashboard.decide')}`}
-          </button>
-          <button
-            onClick={() => router.push(`/${slug}/results`)}
-            className="bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-3.5 py-1.5 rounded-md text-xs font-medium hover:border-[#3FB950] hover:text-[#3FB950] transition-colors"
-          >
-            📊 {t('common.results')}
-          </button>
-          <button
-            onClick={() => router.push(`/${slug}/program`)}
-            className="bg-[#161B22] border border-[#30363D] text-[#E6EDF3] px-3.5 py-1.5 rounded-md text-xs font-medium hover:border-[#F78166] hover:text-[#F78166] transition-colors"
-          >
-            🎓 {t('common.program')}
-          </button>
-          <button
-            onClick={() => router.push(`/${slug}/demo`)}
-            className="bg-gradient-to-r from-[#58A6FF] to-[#F78166] text-[#0D1117] px-3.5 py-1.5 rounded-md text-xs font-bold hover:opacity-90 transition-opacity"
-          >
-            ▶️ {t('common.demo')}
-          </button>
-          <button
-            onClick={exportJSON}
-            className="bg-[#161B22] border border-[#30363D] text-[#8B949E] px-3.5 py-1.5 rounded-md text-xs hover:border-[#58A6FF] hover:text-[#58A6FF] transition-colors"
-          >
-            {t('common.exportJson')}
-          </button>
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="bg-[#161B22] border border-[#30363D] text-[#F85149] px-3.5 py-1.5 rounded-md text-xs hover:border-[#F85149] hover:bg-[rgba(248,81,73,0.1)] transition-colors"
-          >
-            🗑 {t('dashboard.deleteProgram')}
-          </button>
+        <div className="ml-auto flex flex-col sm:flex-row gap-2 items-end sm:items-center">
+          {/* Pipeline actions */}
+          <div className="flex gap-1.5 flex-wrap justify-end">
+            <button
+              onClick={() => setShowTestPanel(!showTestPanel)}
+              className={`border px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                showTestPanel
+                  ? 'bg-[#58A6FF] border-[#58A6FF] text-[#0D1117]'
+                  : 'bg-[#161B22] border-[#30363D] text-[#8B949E] hover:border-[#58A6FF] hover:text-[#58A6FF]'
+              }`}
+            >
+              🤖 {t('dashboard.testAgents')}
+            </button>
+            <button
+              onClick={runJuryForAll}
+              disabled={juryRunning || withMessages.length === 0}
+              className="bg-[#DA7756] text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#E08B6D] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {juryRunning ? `⚖️ ${t('dashboard.jury')}...` : `⚖️ ${t('dashboard.jury')} (${withMessages.length})`}
+            </button>
+            <button
+              onClick={runDeliberation}
+              disabled={deliberating || interviews.filter(iv => ((iv as any).jury_evaluations)?.length >= 2).length === 0}
+              className="bg-[#8B5CF6] text-white px-3 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#A78BFA] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {deliberating ? `🗣 ${t('dashboard.deliberating')}...` : `🗣 ${t('dashboard.deliberate')}`}
+            </button>
+            <button
+              onClick={runDecisions}
+              disabled={deciding}
+              className="bg-[#3FB950] text-[#0D1117] px-3 py-1.5 rounded-md text-xs font-medium transition-colors hover:bg-[#56D364] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {deciding ? `✅ ${t('dashboard.deciding')}...` : `✅ ${t('dashboard.decide')}`}
+            </button>
+          </div>
+          {/* Utilities */}
+          <div className="flex gap-1.5">
+            <button
+              onClick={exportJSON}
+              className="bg-[#161B22] border border-[#30363D] text-[#8B949E] px-3 py-1.5 rounded-md text-xs hover:border-[#58A6FF] hover:text-[#58A6FF] transition-colors"
+            >
+              {t('common.exportJson')}
+            </button>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="bg-[#161B22] border border-[#30363D] text-[#F85149] px-3 py-1.5 rounded-md text-xs hover:border-[#F85149] hover:bg-[rgba(248,81,73,0.1)] transition-colors"
+            >
+              🗑
+            </button>
+          </div>
         </div>
       </header>
 
@@ -615,7 +603,7 @@ export default function DashboardPage() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-5 gap-3 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
         {[
           { n: interviews.length, label: t('dashboard.total'), color: '#E6EDF3' },
           { n: strongYes, label: t('dashboard.strongYes'), color: '#3FB950' },

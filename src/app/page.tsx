@@ -343,7 +343,7 @@ export default function HomePage() {
             {' '}{t('cta.title3')}
           </h2>
           <p className="text-[#8B949E] mb-8 max-w-md mx-auto">{t('cta.subtitle')}</p>
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/create"
               className="inline-flex items-center gap-2 bg-[#58A6FF] text-[#0D1117] px-8 py-4 rounded-xl text-base font-bold transition-all hover:-translate-y-0.5"

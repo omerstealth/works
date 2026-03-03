@@ -107,6 +107,7 @@ const translations = {
     'nav.dashboard': 'Dashboard',
     'nav.results': 'Sonuçlar',
     'nav.program': 'Program',
+    'nav.menu': 'Menü',
 
     // ── Landing / Hero ──
     'hero.badge': 'Uçtan Uca AI Pipeline',
@@ -428,6 +429,7 @@ const translations = {
     'nav.dashboard': 'Dashboard',
     'nav.results': 'Results',
     'nav.program': 'Program',
+    'nav.menu': 'Menu',
 
     // ── Landing / Hero ──
     'hero.badge': 'End-to-End AI Pipeline',

@@ -198,7 +198,7 @@ export default function ProgramPage() {
       </div>
 
       {/* Action Buttons */}
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
         <button
           onClick={() => runStage('kickoff')}
           disabled={!!running || interviews.length === 0}
@@ -238,7 +238,7 @@ export default function ProgramPage() {
       {/* Mentors Overview */}
       <div className="mb-8">
         <h2 className="text-sm font-mono text-[#8B949E] mb-3">{t('program.mentorPanel')}</h2>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           {MENTOR_PROFILES.map(m => {
             const menteeCount = interviews.filter(iv => (iv as any).mentor_id === m.id).length
             return (
