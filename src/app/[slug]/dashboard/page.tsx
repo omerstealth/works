@@ -24,6 +24,15 @@ interface JuryMember {
   description: string
 }
 
+interface AIMentor {
+  id: string
+  name: string
+  emoji: string
+  title: string
+  description: string
+  expertise: string[]
+}
+
 export default function DashboardPage() {
   const params = useParams()
   const router = useRouter()
@@ -46,6 +55,7 @@ export default function DashboardPage() {
 
   // Jury state
   const [juryMembers, setJuryMembers] = useState<JuryMember[]>([])
+  const [aiMentors, setAiMentors] = useState<AIMentor[]>([])
   const [juryRunning, setJuryRunning] = useState(false)
   const [juryProgress, setJuryProgress] = useState('')
 
@@ -117,6 +127,7 @@ export default function DashboardPage() {
       if (juryRes.ok) {
         const data = await juryRes.json()
         setJuryMembers(data.jury || [])
+        setAiMentors(data.mentors || [])
       }
 
       // Load human members (jury + mentor)
@@ -703,34 +714,10 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Human Mentors */}
-        {humanMembers.filter(m => m.role === 'mentor').length > 0 && (
-          <div className="border-t border-[#30363D] pt-3 mt-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[#8B949E] font-mono">{t('dashboard.mentorsLabel')}</span>
-              <button
-                onClick={() => { setInviteRole('mentor'); setShowInviteModal(true) }}
-                className="text-[10px] text-[#58A6FF] hover:text-[#79B8FF]"
-              >
-                + {t('dashboard.addMentor')}
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {humanMembers.filter(m => m.role === 'mentor').map(m => (
-                <div key={m.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs group">
-                  <span>🧑‍🏫</span>
-                  <span className="font-medium">{m.display_name}</span>
-                  <span className="text-[10px] text-[#D2A8FF] bg-[#D2A8FF]/10 px-1.5 py-0.5 rounded">Mentor</span>
-                  <button onClick={() => removeMember(m.id)} className="text-[#F85149] opacity-0 group-hover:opacity-100 transition-opacity ml-1">×</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {humanMembers.filter(m => m.role === 'mentor').length === 0 && (
-          <div className="border-t border-[#30363D] pt-3 mt-3 flex items-center justify-between">
-            <span className="text-xs text-[#484F58]">{t('dashboard.noMentorsYet')}</span>
+        {/* Mentors Section */}
+        <div className="border-t border-[#30363D] pt-3 mt-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-[#8B949E] font-mono">{t('dashboard.mentorsLabel')}</span>
             <button
               onClick={() => { setInviteRole('mentor'); setShowInviteModal(true) }}
               className="text-[10px] text-[#58A6FF] hover:text-[#79B8FF]"
@@ -738,7 +725,26 @@ export default function DashboardPage() {
               + {t('dashboard.addMentor')}
             </button>
           </div>
-        )}
+          <div className="flex flex-wrap gap-2">
+            {/* AI Mentors */}
+            {aiMentors.map(m => (
+              <div key={m.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs">
+                <span>{m.emoji}</span>
+                <span className="font-medium">{m.name}</span>
+                <span className="text-[10px] text-[#8B949E] bg-[#30363D] px-1.5 py-0.5 rounded">AI</span>
+              </div>
+            ))}
+            {/* Human Mentors */}
+            {humanMembers.filter(m => m.role === 'mentor').map(m => (
+              <div key={m.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs group">
+                <span>🧑‍🏫</span>
+                <span className="font-medium">{m.display_name}</span>
+                <span className="text-[10px] text-[#3FB950] bg-[#3FB950]/10 px-1.5 py-0.5 rounded">{t('dashboard.humanLabel')}</span>
+                <button onClick={() => removeMember(m.id)} className="text-[#F85149] opacity-0 group-hover:opacity-100 transition-opacity ml-1">×</button>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Invite Modal */}

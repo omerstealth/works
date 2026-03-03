@@ -112,8 +112,41 @@ IMPORTANT: Output ONLY the JSON, no other text.`,
   },
 ]
 
+// AI Mentor Profiles — mentors provide feedback and guidance (not scoring)
+export interface MentorProfile {
+  id: string
+  name: string
+  emoji: string
+  title: string
+  description: string
+  expertise: string[]
+}
+
+export const MENTOR_PROFILES: MentorProfile[] = [
+  {
+    id: 'growth-mentor',
+    name: 'Elif Kara',
+    emoji: '🚀',
+    title: 'Growth & GTM Mentor',
+    description: 'Ex-head of growth at Getir. Expert in go-to-market strategy, growth loops, and product-led growth for AI products.',
+    expertise: ['Go-to-Market', 'Growth Hacking', 'PLG', 'User Acquisition'],
+  },
+  {
+    id: 'product-mentor',
+    name: 'Can Demirci',
+    emoji: '🎯',
+    title: 'Product & UX Mentor',
+    description: '15+ years in product management. Former PM at Meta and Spotify. Specializes in AI-first product design and user experience.',
+    expertise: ['Product Strategy', 'UX Design', 'AI Product Design', 'User Research'],
+  },
+]
+
 export function getJuryById(id: string): JuryProfile | undefined {
   return JURY_PROFILES.find(p => p.id === id)
+}
+
+export function getMentorById(id: string): MentorProfile | undefined {
+  return MENTOR_PROFILES.find(p => p.id === id)
 }
 
 export function getDeliberationPrompt(juryProfile: JuryProfile): string {
