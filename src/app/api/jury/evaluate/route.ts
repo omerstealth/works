@@ -7,18 +7,85 @@ import type { JuryEvaluation } from '@/lib/jury-agents'
 // Each call evaluates ONE interview with ONE jury member (stays within timeout)
 export async function POST(request: NextRequest) {
   try {
-    const { interview_id, jury_id } = await request.json()
+    const body = await request.json()
+    const { interview_id, jury_id } = body
 
     if (!interview_id || !jury_id) {
       return NextResponse.json({ error: 'interview_id and jury_id are required' }, { status: 400 })
     }
 
+    const supabase = await createServerSupabase()
+
+    // ─── HUMAN JURY EVALUATION ───
+    if (jury_id.startsWith('human-')) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+
+      // Validate required fields for human evaluation
+      const { scores, overall_score, recommendation, one_line_summary, red_flags, highlights, key_concern, jury_name, jury_emoji } = body
+      if (!scores || overall_score === undefined || !recommendation || !one_line_summary) {
+        return NextResponse.json({ error: 'Human evaluation requires scores, overall_score, recommendation, one_line_summary' }, { status: 400 })
+      }
+
+      const evaluation: JuryEvaluation & { is_human: boolean } = {
+        jury_id,
+        jury_name: jury_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Human Juror',
+        jury_emoji: jury_emoji || '👤',
+        is_human: true,
+        scores,
+        overall_score,
+        recommendation,
+        one_line_summary,
+        red_flags: red_flags || [],
+        highlights: highlights || [],
+        key_concern: key_concern || '',
+      }
+
+      // Get interview
+      const { data: interview, error: intError } = await supabase
+        .from('interviews')
+        .select('*')
+        .eq('id', interview_id)
+        .single()
+
+      if (intError || !interview) {
+        return NextResponse.json({ error: 'Interview not found' }, { status: 404 })
+      }
+
+      // Save
+      const existingJuryEvals = (interview as any).jury_evaluations || []
+      const filtered = existingJuryEvals.filter((e: JuryEvaluation) => e.jury_id !== jury_id)
+      const updatedJuryEvals = [...filtered, evaluation]
+
+      const avgJuryScore = Math.round(
+        updatedJuryEvals.reduce((s: number, e: JuryEvaluation) => s + e.overall_score, 0) / updatedJuryEvals.length * 10
+      ) / 10
+
+      await supabase
+        .from('interviews')
+        .update({
+          jury_evaluations: updatedJuryEvals,
+          jury_avg_score: avgJuryScore,
+        })
+        .eq('id', interview_id)
+
+      return NextResponse.json({
+        success: true,
+        jury_id,
+        jury_name: evaluation.jury_name,
+        evaluation,
+        total_jury_evals: updatedJuryEvals.length,
+        avg_jury_score: avgJuryScore,
+      })
+    }
+
+    // ─── AI JURY EVALUATION ───
     const jury = getJuryById(jury_id)
     if (!jury) {
       return NextResponse.json({ error: 'Jury member not found' }, { status: 404 })
     }
-
-    const supabase = await createServerSupabase()
 
     // Get interview with transcript
     const { data: interview, error: intError } = await supabase
@@ -37,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Format transcript for jury review
-    const transcript = messages.map((m, i) => {
+    const transcript = messages.map((m) => {
       const speaker = m.role === 'assistant' ? 'INTERVIEWER' : (interview.candidate_name || 'CANDIDATE')
       return `[${speaker}]: ${m.content}`
     }).join('\n\n')
@@ -62,7 +129,6 @@ export async function POST(request: NextRequest) {
     // Parse evaluation JSON
     let evaluation: JuryEvaluation | null = null
     try {
-      // Try to extract JSON from response
       const jsonMatch = responseText.match(/\{[\s\S]*"scores"[\s\S]*\}/)
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0])
@@ -89,11 +155,9 @@ export async function POST(request: NextRequest) {
 
     // Save jury evaluation to interview record
     const existingJuryEvals = (interview as any).jury_evaluations || []
-    // Replace if this jury already evaluated, otherwise append
     const filtered = existingJuryEvals.filter((e: JuryEvaluation) => e.jury_id !== jury.id)
     const updatedJuryEvals = [...filtered, evaluation]
 
-    // Calculate average jury score
     const avgJuryScore = Math.round(
       updatedJuryEvals.reduce((s: number, e: JuryEvaluation) => s + e.overall_score, 0) / updatedJuryEvals.length * 10
     ) / 10

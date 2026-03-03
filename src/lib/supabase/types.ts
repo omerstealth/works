@@ -46,7 +46,9 @@ export interface Database {
           id: string
           program_id: string
           user_id: string
-          role: 'owner' | 'jury' | 'viewer'
+          role: 'owner' | 'jury' | 'mentor' | 'viewer'
+          display_name: string | null
+          email: string | null
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['program_members']['Row'], 'id' | 'created_at'> & {
@@ -105,6 +107,7 @@ export interface JuryEvaluation {
   jury_id: string
   jury_name: string
   jury_emoji: string
+  is_human?: boolean
   scores: Record<string, EvalScore>
   overall_score: number
   recommendation: 'STRONG_YES' | 'YES' | 'MAYBE' | 'NO'

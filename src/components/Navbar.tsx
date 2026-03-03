@@ -41,6 +41,7 @@ export default function Navbar({ slug, minimal }: NavbarProps) {
 
   const programLinks = slug && !minimal ? [
     { href: `/${slug}/dashboard`, label: t('nav.dashboard') },
+    { href: `/${slug}/evaluate`, label: t('nav.evaluate') },
     { href: `/${slug}/results`, label: t('nav.results') },
     { href: `/${slug}/program`, label: t('nav.program') },
     { href: `/${slug}/demo`, label: 'Demo' },

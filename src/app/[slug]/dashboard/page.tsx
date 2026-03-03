@@ -62,6 +62,14 @@ export default function DashboardPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
+  // Jury/Mentor members state
+  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [inviteRole, setInviteRole] = useState<'jury' | 'mentor'>('jury')
+  const [inviteName, setInviteName] = useState('')
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [humanMembers, setHumanMembers] = useState<any[]>([])
+  const [inviting, setInviting] = useState(false)
+
   const supabase = createClient()
 
   useEffect(() => {
@@ -109,9 +117,55 @@ export default function DashboardPage() {
         const data = await juryRes.json()
         setJuryMembers(data.jury || [])
       }
+
+      // Load human members (jury + mentor)
+      loadMembers(prog.id)
     }
     init()
   }, [slug])
+
+  async function loadMembers(progId?: string) {
+    const pid = progId || program?.id
+    if (!pid) return
+    try {
+      const res = await fetch(`/api/program/members?program_id=${pid}`)
+      if (res.ok) {
+        const data = await res.json()
+        setHumanMembers((data.members || []).filter((m: any) => m.role !== 'owner'))
+      }
+    } catch {}
+  }
+
+  async function inviteMember() {
+    if (!program || !inviteName || inviting) return
+    setInviting(true)
+    try {
+      const res = await fetch('/api/program/members', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          program_id: program.id,
+          role: inviteRole,
+          display_name: inviteName,
+          email: inviteEmail || null,
+        }),
+      })
+      if (res.ok) {
+        await loadMembers()
+        setInviteName('')
+        setInviteEmail('')
+        setShowInviteModal(false)
+      }
+    } catch {}
+    setInviting(false)
+  }
+
+  async function removeMember(memberId: string) {
+    try {
+      await fetch(`/api/program/members?member_id=${memberId}`, { method: 'DELETE' })
+      await loadMembers()
+    } catch {}
+  }
 
   async function runTestAgents() {
     if (!program || testRunning) return
@@ -599,6 +653,128 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Jury & Mentor Panel */}
+      <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-5 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold flex items-center gap-2">
+            ⚖️ {t('dashboard.juryPanel')}
+          </h2>
+          <button
+            onClick={() => { setInviteRole('jury'); setShowInviteModal(true) }}
+            className="text-xs font-medium text-[#58A6FF] hover:text-[#79B8FF] transition-colors"
+          >
+            + {t('dashboard.inviteMember')}
+          </button>
+        </div>
+
+        {/* AI Jury */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          {juryMembers.map(j => (
+            <div key={j.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs">
+              <span>{j.emoji}</span>
+              <span className="font-medium">{j.name}</span>
+              <span className="text-[10px] text-[#8B949E] bg-[#30363D] px-1.5 py-0.5 rounded">AI</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Human Members */}
+        {humanMembers.filter(m => m.role === 'jury').length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {humanMembers.filter(m => m.role === 'jury').map(m => (
+              <div key={m.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs group">
+                <span>👤</span>
+                <span className="font-medium">{m.display_name}</span>
+                <span className="text-[10px] text-[#3FB950] bg-[#3FB950]/10 px-1.5 py-0.5 rounded">{t('dashboard.humanLabel')}</span>
+                <button onClick={() => removeMember(m.id)} className="text-[#F85149] opacity-0 group-hover:opacity-100 transition-opacity ml-1">×</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Human Mentors */}
+        {humanMembers.filter(m => m.role === 'mentor').length > 0 && (
+          <div className="border-t border-[#30363D] pt-3 mt-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-[#8B949E] font-mono">{t('dashboard.mentorsLabel')}</span>
+              <button
+                onClick={() => { setInviteRole('mentor'); setShowInviteModal(true) }}
+                className="text-[10px] text-[#58A6FF] hover:text-[#79B8FF]"
+              >
+                + {t('dashboard.addMentor')}
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {humanMembers.filter(m => m.role === 'mentor').map(m => (
+                <div key={m.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs group">
+                  <span>🧑‍🏫</span>
+                  <span className="font-medium">{m.display_name}</span>
+                  <span className="text-[10px] text-[#D2A8FF] bg-[#D2A8FF]/10 px-1.5 py-0.5 rounded">Mentor</span>
+                  <button onClick={() => removeMember(m.id)} className="text-[#F85149] opacity-0 group-hover:opacity-100 transition-opacity ml-1">×</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {humanMembers.filter(m => m.role === 'mentor').length === 0 && (
+          <div className="border-t border-[#30363D] pt-3 mt-3 flex items-center justify-between">
+            <span className="text-xs text-[#484F58]">{t('dashboard.noMentorsYet')}</span>
+            <button
+              onClick={() => { setInviteRole('mentor'); setShowInviteModal(true) }}
+              className="text-[10px] text-[#58A6FF] hover:text-[#79B8FF]"
+            >
+              + {t('dashboard.addMentor')}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Invite Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setShowInviteModal(false)}>
+          <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+            <h3 className="text-base font-semibold mb-4">
+              {inviteRole === 'jury' ? t('dashboard.inviteJury') : t('dashboard.inviteMentor')}
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-[#8B949E] mb-1 block">{t('dashboard.memberName')} *</label>
+                <input
+                  type="text"
+                  value={inviteName}
+                  onChange={e => setInviteName(e.target.value)}
+                  placeholder={inviteRole === 'jury' ? 'Dr. Ayşe Yılmaz' : 'Mehmet Kaya'}
+                  className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-3 py-2 text-sm text-[#E6EDF3] placeholder-[#484F58] focus:outline-none focus:border-[#58A6FF]"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-[#8B949E] mb-1 block">{t('dashboard.memberEmail')}</label>
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={e => setInviteEmail(e.target.value)}
+                  placeholder="email@example.com"
+                  className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-3 py-2 text-sm text-[#E6EDF3] placeholder-[#484F58] focus:outline-none focus:border-[#58A6FF]"
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button onClick={() => setShowInviteModal(false)} className="flex-1 py-2 rounded-lg text-xs font-medium border border-[#30363D] text-[#8B949E] hover:border-[#58A6FF] transition-colors">
+                  {t('dashboard.deleteCancel')}
+                </button>
+                <button
+                  onClick={inviteMember}
+                  disabled={!inviteName || inviting}
+                  className="flex-1 py-2 rounded-lg text-xs font-bold bg-[#58A6FF] text-[#0D1117] hover:bg-[#79B8FF] disabled:opacity-50 transition-colors"
+                >
+                  {inviting ? '...' : t('dashboard.inviteBtn')}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

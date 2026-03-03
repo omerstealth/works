@@ -107,6 +107,7 @@ const translations = {
     'nav.dashboard': 'Dashboard',
     'nav.results': 'Sonuçlar',
     'nav.program': 'Program',
+    'nav.evaluate': 'Değerlendir',
     'nav.menu': 'Menü',
 
     // ── Landing / Hero ──
@@ -175,7 +176,7 @@ const translations = {
     'stage.0.agents': '🚀|Ayşe Demir|Güçlü teknik kurucu (DeepMind geçmişi);;💡|Kerem Yılmaz|Yaratıcı ürün düşünürü (tasarım → teknoloji);;📊|Mehmet Kaya|Veri odaklı iş kurucusu;;🌍|Elif Arslan|Etki odaklı sosyal girişimci;;🎯|Can Öztürk|Satış odaklı girişimci;;🔬|Zeynep Aydın|Derin teknoloji araştırmacısı',
 
     'stage.1.title': 'Uzman Jüri',
-    'stage.1.desc': '3 AI jüri üyesi her mülakatı teknik, iş ve vizyon perspektiflerinden bağımsız değerlendirir.',
+    'stage.1.desc': 'AI + insan jüri üyeleri her mülakatı teknik, iş ve vizyon perspektiflerinden bağımsız değerlendirir.',
     'stage.1.subtitle': 'Üç perspektiften bağımsız uzman değerlendirmesi',
     'stage.1.howItWorks': 'Tamamlanan her mülakat, farklı değerlendirme perspektifine sahip 3 AI jüri üyesi tarafından incelenir. Tam transkripti okur ve bağımsız puanlar üretirler — bu aşamada hiçbir jüri üyesi diğerinin değerlendirmesini görmez. Bu, grup düşüncesini önler ve çeşitli bakış açıları sağlar.',
     'stage.1.features': 'Bağımsız değerlendirme (çapraz etki yok)|Jüri uzmanlığına göre ağırlıklı puanlama|Her puan için gerekçeli yapılandırılmış çıktı|Kırmızı bayrak ve öne çıkanların tespiti|Jüri üyesi başına tek satır özet',
@@ -197,7 +198,7 @@ const translations = {
     'stage.3.output': 'Aday başına nihai puanla KABUL / YEDEK / RED kararı, programdaki tüm değerlendirilen mülakatlar için uygulanır',
 
     'stage.4.title': 'Mentor Eşleştirme',
-    'stage.4.desc': '5 uzman mentor, kurucuların zayıf alanlarına göre otomatik eşleştirilir. Kişiselleştirilmiş 8 haftalık yol haritaları.',
+    'stage.4.desc': 'AI + insan mentorlar, kurucuların zayıf alanlarına göre eşleştirilir. Kişiselleştirilmiş 8 haftalık yol haritaları.',
     'stage.4.subtitle': 'Akıllı mentor-kurucu eşleştirmesi',
     'stage.4.howItWorks': 'Kabul edilen her kurucu, en zayıf alanını (jüri değerlendirmelerinden belirlenen) en iyi ele alan mentorla eşleştirilir. Mentor daha sonra belirli kilometre taşları, odak alanları ve ilk hafta görevleri ile kişiselleştirilmiş 8 haftalık bir yol haritası oluşturur. Program Yöneticisi eşleştirmeyi denetler ve ek notlar sağlar.',
     'stage.4.features': 'Zayıf alan bazlı eşleştirme algoritması|Kurucu başına kişiselleştirilmiş 8 haftalık yol haritası|İlk hafta görev atamaları|Program Yöneticisi gözetimi|Odak alanı belirleme',
@@ -231,8 +232,8 @@ const translations = {
     'howItWorks.step1.desc': 'Hızlandırıcınızı adlandırın ve AI mülakatçı kriterlerini özelleştirin. 5 dakikada hazır. İsterseniz önce demo ile test edin.',
     'howItWorks.step2.title': 'Mülakat Linkini Paylaşın',
     'howItWorks.step2.desc': 'Gerçek girişimcilerinize mülakat linki gönderin. Her aday AI mülakatçı ile 10 dakikalık adaptif bir görüşme yapar.',
-    'howItWorks.step3.title': 'AI Jüri Değerlendirir',
-    'howItWorks.step3.desc': '3 uzman AI jüri her mülakatı bağımsız değerlendirir, müzakere eder ve KABUL/RED kararı verir. Siz sonuçları inceleyin.',
+    'howItWorks.step3.title': 'Jüri Değerlendirir',
+    'howItWorks.step3.desc': 'AI jüri otomatik değerlendirir + kendi ekibinizi insan jüri olarak ekleyin. Müzakere ve KABUL/RED kararları otomatik verilir.',
 
     // ── Landing / CTA ──
     'cta.title1': 'Seçim sürecinizi',
@@ -365,6 +366,17 @@ const translations = {
     'dashboard.interviewStarting': 'Mülakat başlatılıyor',
     'dashboard.turn': 'Tur',
     'dashboard.interviewsDone': 'mülakat tamamlandı.',
+    'dashboard.juryPanel': 'Jüri & Mentor Paneli',
+    'dashboard.inviteMember': 'Üye Davet Et',
+    'dashboard.humanLabel': 'İnsan',
+    'dashboard.mentorsLabel': 'MENTORLAR',
+    'dashboard.addMentor': 'Mentor Ekle',
+    'dashboard.noMentorsYet': 'Henüz mentor eklenmedi',
+    'dashboard.inviteJury': 'Jüri Üyesi Davet Et',
+    'dashboard.inviteMentor': 'Mentor Davet Et',
+    'dashboard.memberName': 'İsim',
+    'dashboard.memberEmail': 'E-posta (opsiyonel)',
+    'dashboard.inviteBtn': 'Davet Et',
     'dashboard.deleteProgram': 'Programı Sil',
     'dashboard.deleteConfirmTitle': 'Programı Silmek İstediğinize Emin misiniz?',
     'dashboard.deleteConfirmDesc': 'Bu işlem geri alınamaz. Program ve tüm mülakatlar kalıcı olarak silinecektir.',
@@ -475,6 +487,7 @@ const translations = {
     'nav.dashboard': 'Dashboard',
     'nav.results': 'Results',
     'nav.program': 'Program',
+    'nav.evaluate': 'Evaluate',
     'nav.menu': 'Menu',
 
     // ── Landing / Hero ──
@@ -543,7 +556,7 @@ const translations = {
     'stage.0.agents': '🚀|Ayşe Demir|Strong technical founder (DeepMind background);;💡|Kerem Yılmaz|Creative product thinker (design → tech);;📊|Mehmet Kaya|Data-driven business founder;;🌍|Elif Arslan|Impact-driven social entrepreneur;;🎯|Can Öztürk|Sales-driven entrepreneur;;🔬|Zeynep Aydın|Deep tech researcher',
 
     'stage.1.title': 'Expert Jury',
-    'stage.1.desc': '3 AI jury members independently evaluate each interview from technical, business, and vision perspectives.',
+    'stage.1.desc': 'AI + human jury members independently evaluate each interview from technical, business, and vision perspectives.',
     'stage.1.subtitle': 'Independent expert evaluation from three perspectives',
     'stage.1.howItWorks': 'Each completed interview is reviewed by 3 AI jury members with different evaluation perspectives. They read the full transcript and produce independent scores — no jury member sees the others\' evaluations at this stage. This prevents groupthink and ensures diverse viewpoints.',
     'stage.1.features': 'Independent evaluation (no cross-influence)|Weighted scoring by jury expertise|Structured output with rationale for each score|Red flag and highlight detection|One-line summary per jury member',
@@ -565,7 +578,7 @@ const translations = {
     'stage.3.output': 'ACCEPT / WAITLIST / REJECT decision with final score per candidate, applied across all evaluated interviews in the program',
 
     'stage.4.title': 'Mentor Matching',
-    'stage.4.desc': '5 expert mentors auto-matched to founders based on their weakest areas. Personalized 8-week roadmaps.',
+    'stage.4.desc': 'AI + human mentors matched to founders based on their weakest areas. Personalized 8-week roadmaps.',
     'stage.4.subtitle': 'Smart mentor-founder matching',
     'stage.4.howItWorks': 'Each accepted founder is matched with the mentor who best addresses their weakest area (determined from jury evaluations). The mentor then creates a personalized 8-week roadmap with specific milestones, focus areas, and first-week tasks. The Program Manager oversees the matching and provides additional notes.',
     'stage.4.features': 'Weakness-based matching algorithm|Personalized 8-week roadmap per founder|First-week task assignments|Program Manager oversight|Focus area identification',
@@ -599,8 +612,8 @@ const translations = {
     'howItWorks.step1.desc': 'Name your accelerator and customize your AI interviewer criteria. Ready in 5 minutes. Test with demo first if you like.',
     'howItWorks.step2.title': 'Share the Interview Link',
     'howItWorks.step2.desc': 'Send the interview link to real founders. Each candidate goes through a 10-minute adaptive AI interview.',
-    'howItWorks.step3.title': 'AI Jury Evaluates',
-    'howItWorks.step3.desc': '3 expert AI jurors independently evaluate each interview, deliberate, and make ACCEPT/REJECT decisions. You review the results.',
+    'howItWorks.step3.title': 'Jury Evaluates',
+    'howItWorks.step3.desc': 'AI jury evaluates automatically + add your own team as human jurors. Deliberation and ACCEPT/REJECT decisions are made automatically.',
 
     // ── Landing / CTA ──
     'cta.title1': 'Ready to hand your selection',
@@ -733,6 +746,17 @@ const translations = {
     'dashboard.interviewStarting': 'Starting interview with',
     'dashboard.turn': 'Turn',
     'dashboard.interviewsDone': 'interviews completed.',
+    'dashboard.juryPanel': 'Jury & Mentor Panel',
+    'dashboard.inviteMember': 'Invite Member',
+    'dashboard.humanLabel': 'Human',
+    'dashboard.mentorsLabel': 'MENTORS',
+    'dashboard.addMentor': 'Add Mentor',
+    'dashboard.noMentorsYet': 'No mentors added yet',
+    'dashboard.inviteJury': 'Invite Jury Member',
+    'dashboard.inviteMentor': 'Invite Mentor',
+    'dashboard.memberName': 'Name',
+    'dashboard.memberEmail': 'Email (optional)',
+    'dashboard.inviteBtn': 'Invite',
     'dashboard.deleteProgram': 'Delete Program',
     'dashboard.deleteConfirmTitle': 'Are You Sure You Want to Delete This Program?',
     'dashboard.deleteConfirmDesc': 'This action cannot be undone. The program and all interviews will be permanently deleted.',
