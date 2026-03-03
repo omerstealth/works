@@ -1,10 +1,14 @@
-export interface JuryProfile {
+export type AIRole = 'jury' | 'mentor'
+
+export interface AIProfile {
   id: string
   name: string
   emoji: string
   title: string
   description: string
-  systemPrompt: string
+  roles: AIRole[]
+  expertise?: string[]
+  systemPrompt?: string // only for jury role (evaluation)
 }
 
 export interface JuryEvaluation {
@@ -37,13 +41,15 @@ const EVAL_JSON_TEMPLATE = `{
   "key_concern": "your single biggest concern about this candidate"
 }`
 
-export const JURY_PROFILES: JuryProfile[] = [
+export const AI_PROFILES: AIProfile[] = [
   {
     id: 'technical-jury',
     name: 'Dr. Zeynep Akar',
     emoji: '🔬',
-    title: 'Technical Evaluator',
+    title: 'Technical Evaluator & AI Mentor',
     description: 'AI/ML researcher background. Focuses on technical depth, architecture decisions, and whether AI is truly core to the product.',
+    roles: ['jury', 'mentor'],
+    expertise: ['AI/ML Architecture', 'Technical Due Diligence', 'Deep Learning', 'MLOps'],
     systemPrompt: `You are Dr. Zeynep Akar, a senior AI/ML researcher and technical jury member for a startup accelerator program. You have a PhD in Machine Learning from METU and 12 years of experience at Google Brain and a Turkish AI startup.
 
 YOUR EVALUATION FOCUS:
@@ -66,8 +72,10 @@ IMPORTANT: Output ONLY the JSON, no other text.`,
     id: 'business-jury',
     name: 'Ahmet Çelik',
     emoji: '📊',
-    title: 'Business Evaluator',
+    title: 'Business Evaluator & Strategy Mentor',
     description: 'Serial entrepreneur and VC partner. Focuses on market opportunity, business model viability, and founder-market fit.',
+    roles: ['jury', 'mentor'],
+    expertise: ['Business Strategy', 'Fundraising', 'Market Validation', 'Unit Economics'],
     systemPrompt: `You are Ahmet Çelik, a serial entrepreneur (3 exits) turned VC partner at a leading Turkish venture fund. You've reviewed 500+ startup applications and invested in 40+ companies.
 
 YOUR EVALUATION FOCUS:
@@ -90,8 +98,10 @@ IMPORTANT: Output ONLY the JSON, no other text.`,
     id: 'visionary-jury',
     name: 'Selin Yıldırım',
     emoji: '🌟',
-    title: 'Vision & Fit Evaluator',
+    title: 'Vision & Fit Evaluator & Program Mentor',
     description: 'Accelerator program director with 8 years of experience. Evaluates founder mindset, coachability, and program fit.',
+    roles: ['jury', 'mentor'],
+    expertise: ['Founder Coaching', 'Program Design', 'Startup Ecosystem', 'Pitch Preparation'],
     systemPrompt: `You are Selin Yıldırım, an accelerator program director who has mentored 200+ startups. You ran programs at Techstars Istanbul and 500 Global before starting your own accelerator focused on AI-native startups.
 
 YOUR EVALUATION FOCUS:
@@ -110,25 +120,13 @@ ${EVAL_JSON_TEMPLATE}
 
 IMPORTANT: Output ONLY the JSON, no other text.`,
   },
-]
-
-// AI Mentor Profiles — mentors provide feedback and guidance (not scoring)
-export interface MentorProfile {
-  id: string
-  name: string
-  emoji: string
-  title: string
-  description: string
-  expertise: string[]
-}
-
-export const MENTOR_PROFILES: MentorProfile[] = [
   {
     id: 'growth-mentor',
     name: 'Elif Kara',
     emoji: '🚀',
     title: 'Growth & GTM Mentor',
     description: 'Ex-head of growth at Getir. Expert in go-to-market strategy, growth loops, and product-led growth for AI products.',
+    roles: ['mentor'],
     expertise: ['Go-to-Market', 'Growth Hacking', 'PLG', 'User Acquisition'],
   },
   {
@@ -137,19 +135,24 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     emoji: '🎯',
     title: 'Product & UX Mentor',
     description: '15+ years in product management. Former PM at Meta and Spotify. Specializes in AI-first product design and user experience.',
+    roles: ['mentor'],
     expertise: ['Product Strategy', 'UX Design', 'AI Product Design', 'User Research'],
   },
 ]
 
-export function getJuryById(id: string): JuryProfile | undefined {
+// Backward-compatible exports
+export const JURY_PROFILES = AI_PROFILES.filter(p => p.roles.includes('jury'))
+export const MENTOR_PROFILES = AI_PROFILES.filter(p => p.roles.includes('mentor'))
+
+export function getJuryById(id: string): AIProfile | undefined {
   return JURY_PROFILES.find(p => p.id === id)
 }
 
-export function getMentorById(id: string): MentorProfile | undefined {
+export function getMentorById(id: string): AIProfile | undefined {
   return MENTOR_PROFILES.find(p => p.id === id)
 }
 
-export function getDeliberationPrompt(juryProfile: JuryProfile): string {
+export function getDeliberationPrompt(juryProfile: AIProfile): string {
   return `You are ${juryProfile.name} (${juryProfile.emoji}), participating in a jury deliberation for an accelerator program.
 
 You have already evaluated this candidate. Now you are reviewing the OTHER jury members' evaluations to see if you want to adjust your assessment.

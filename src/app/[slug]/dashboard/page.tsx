@@ -16,21 +16,23 @@ interface TestAgentProfile {
   expectedScore: string
 }
 
+interface AIProfileItem {
+  id: string
+  name: string
+  emoji: string
+  title: string
+  description: string
+  roles: ('jury' | 'mentor')[]
+  expertise: string[]
+}
+
+// Keep for backward compat
 interface JuryMember {
   id: string
   name: string
   emoji: string
   title: string
   description: string
-}
-
-interface AIMentor {
-  id: string
-  name: string
-  emoji: string
-  title: string
-  description: string
-  expertise: string[]
 }
 
 export default function DashboardPage() {
@@ -53,9 +55,9 @@ export default function DashboardPage() {
   const [testProgress, setTestProgress] = useState('')
   const [testResults, setTestResults] = useState<any>(null)
 
-  // Jury state
+  // AI profiles & Jury state
+  const [aiProfiles, setAiProfiles] = useState<AIProfileItem[]>([])
   const [juryMembers, setJuryMembers] = useState<JuryMember[]>([])
-  const [aiMentors, setAiMentors] = useState<AIMentor[]>([])
   const [juryRunning, setJuryRunning] = useState(false)
   const [juryProgress, setJuryProgress] = useState('')
 
@@ -127,7 +129,7 @@ export default function DashboardPage() {
       if (juryRes.ok) {
         const data = await juryRes.json()
         setJuryMembers(data.jury || [])
-        setAiMentors(data.mentors || [])
+        setAiProfiles(data.ai_profiles || [])
       }
 
       // Load human members (jury + mentor)
@@ -681,70 +683,64 @@ export default function DashboardPage() {
           <h2 className="text-sm font-semibold flex items-center gap-2">
             ⚖️ {t('dashboard.juryPanel')}
           </h2>
-          <button
-            onClick={() => { setInviteRole('jury'); setShowInviteModal(true) }}
-            className="text-xs font-medium text-[#58A6FF] hover:text-[#79B8FF] transition-colors"
-          >
-            + {t('dashboard.inviteMember')}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setInviteRole('jury'); setShowInviteModal(true) }}
+              className="text-xs font-medium text-[#58A6FF] hover:text-[#79B8FF] transition-colors"
+            >
+              + {t('dashboard.inviteJury')}
+            </button>
+            <button
+              onClick={() => { setInviteRole('mentor'); setShowInviteModal(true) }}
+              className="text-xs font-medium text-[#D2A8FF] hover:text-[#E0C0FF] transition-colors"
+            >
+              + {t('dashboard.addMentor')}
+            </button>
+          </div>
         </div>
 
-        {/* AI Jury */}
+        {/* AI Members */}
         <div className="flex flex-wrap gap-2 mb-3">
-          {juryMembers.map(j => (
-            <div key={j.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs">
-              <span>{j.emoji}</span>
-              <span className="font-medium">{j.name}</span>
+          {aiProfiles.map(p => (
+            <div key={p.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs">
+              <span>{p.emoji}</span>
+              <span className="font-medium">{p.name}</span>
               <span className="text-[10px] text-[#8B949E] bg-[#30363D] px-1.5 py-0.5 rounded">AI</span>
+              {p.roles.map(r => (
+                <span key={r} className={`text-[10px] px-1.5 py-0.5 rounded ${
+                  r === 'jury' ? 'text-[#58A6FF] bg-[#58A6FF]/10' : 'text-[#D2A8FF] bg-[#D2A8FF]/10'
+                }`}>
+                  {r === 'jury' ? 'Jüri' : 'Mentor'}
+                </span>
+              ))}
             </div>
           ))}
         </div>
 
-        {/* Human Members */}
-        {humanMembers.filter(m => m.role === 'jury').length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-3">
-            {humanMembers.filter(m => m.role === 'jury').map(m => (
+        {/* Human Members (jury + mentor together) */}
+        {humanMembers.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {humanMembers.map(m => (
               <div key={m.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs group">
-                <span>👤</span>
+                <span>{m.role === 'mentor' ? '🧑‍🏫' : '👤'}</span>
                 <span className="font-medium">{m.display_name}</span>
                 <span className="text-[10px] text-[#3FB950] bg-[#3FB950]/10 px-1.5 py-0.5 rounded">{t('dashboard.humanLabel')}</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                  m.role === 'jury' ? 'text-[#58A6FF] bg-[#58A6FF]/10' : 'text-[#D2A8FF] bg-[#D2A8FF]/10'
+                }`}>
+                  {m.role === 'jury' ? 'Jüri' : 'Mentor'}
+                </span>
                 <button onClick={() => removeMember(m.id)} className="text-[#F85149] opacity-0 group-hover:opacity-100 transition-opacity ml-1">×</button>
               </div>
             ))}
           </div>
         )}
 
-        {/* Mentors Section */}
-        <div className="border-t border-[#30363D] pt-3 mt-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-[#8B949E] font-mono">{t('dashboard.mentorsLabel')}</span>
-            <button
-              onClick={() => { setInviteRole('mentor'); setShowInviteModal(true) }}
-              className="text-[10px] text-[#58A6FF] hover:text-[#79B8FF]"
-            >
-              + {t('dashboard.addMentor')}
-            </button>
+        {humanMembers.length === 0 && (
+          <div className="text-xs text-[#484F58] mt-1">
+            {t('dashboard.noMentorsYet')}
           </div>
-          <div className="flex flex-wrap gap-2">
-            {/* AI Mentors */}
-            {aiMentors.map(m => (
-              <div key={m.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs">
-                <span>{m.emoji}</span>
-                <span className="font-medium">{m.name}</span>
-                <span className="text-[10px] text-[#8B949E] bg-[#30363D] px-1.5 py-0.5 rounded">AI</span>
-              </div>
-            ))}
-            {/* Human Mentors */}
-            {humanMembers.filter(m => m.role === 'mentor').map(m => (
-              <div key={m.id} className="flex items-center gap-2 bg-[#0D1117] rounded-lg px-3 py-1.5 text-xs group">
-                <span>🧑‍🏫</span>
-                <span className="font-medium">{m.display_name}</span>
-                <span className="text-[10px] text-[#3FB950] bg-[#3FB950]/10 px-1.5 py-0.5 rounded">{t('dashboard.humanLabel')}</span>
-                <button onClick={() => removeMember(m.id)} className="text-[#F85149] opacity-0 group-hover:opacity-100 transition-opacity ml-1">×</button>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Invite Modal */}

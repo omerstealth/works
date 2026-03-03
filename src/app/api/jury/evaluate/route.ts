@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createServerSupabase } from '@/lib/supabase/server'
-import { JURY_PROFILES, MENTOR_PROFILES, getJuryById } from '@/lib/jury-agents'
+import { AI_PROFILES, JURY_PROFILES, MENTOR_PROFILES, getJuryById } from '@/lib/jury-agents'
 import type { JuryEvaluation } from '@/lib/jury-agents'
 
 // Each call evaluates ONE interview with ONE jury member (stays within timeout)
@@ -184,9 +184,20 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/// GET: List available jury members and mentors
+//// GET: List available AI profiles (jury + mentors)
 export async function GET() {
   return NextResponse.json({
+    // All AI profiles with their roles
+    ai_profiles: AI_PROFILES.map(p => ({
+      id: p.id,
+      name: p.name,
+      emoji: p.emoji,
+      title: p.title,
+      description: p.description,
+      roles: p.roles,
+      expertise: p.expertise || [],
+    })),
+    // Backward compatible
     jury: JURY_PROFILES.map(j => ({
       id: j.id,
       name: j.name,
@@ -200,7 +211,7 @@ export async function GET() {
       emoji: m.emoji,
       title: m.title,
       description: m.description,
-      expertise: m.expertise,
+      expertise: m.expertise || [],
     })),
   })
 }
