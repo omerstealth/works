@@ -626,36 +626,13 @@ export default function DashboardPage() {
             <h2 className="text-xl font-semibold text-[#E6EDF3] mb-2">{t('dashboard.onboardTitle')}</h2>
           </div>
 
-          {/* Onboarding steps */}
-          <div className="space-y-3 mb-8">
-            {[
-              { num: '1', emoji: '🤖', text: t('dashboard.onboardStep1'), action: () => setShowTestPanel(true), btn: t('dashboard.testAgents') },
-              { num: '2', emoji: '🔗', text: t('dashboard.onboardStep2'), action: null, btn: null },
-              { num: '3', emoji: '⚖️', text: t('dashboard.onboardStep3'), action: null, btn: null },
-            ].map((step, i) => (
-              <div key={i} className="flex items-start gap-4 bg-[#161B22] border border-[#30363D] rounded-xl p-4">
-                <div className="w-8 h-8 rounded-full bg-[#58A6FF]/10 border border-[#58A6FF]/30 flex items-center justify-center text-xs font-bold text-[#58A6FF] flex-shrink-0">
-                  {step.num}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-[#E6EDF3]">{step.emoji} {step.text}</p>
-                  {step.action && (
-                    <button
-                      onClick={step.action}
-                      className="mt-2 text-xs font-medium text-[#58A6FF] hover:text-[#79B8FF] transition-colors"
-                    >
-                      → {step.btn}
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Interview link */}
-          <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-4">
-            <div className="text-xs text-[#8B949E] mb-2 font-mono">{t('dashboard.onboardStep2').split('.')[0]}</div>
-            <div className="flex items-center gap-2">
+          {/* Step 1: Interview link (PRIMARY) */}
+          <div className="bg-[#161B22] border border-[#58A6FF]/30 rounded-xl p-5 mb-4">
+            <div className="flex items-start gap-4 mb-3">
+              <div className="w-8 h-8 rounded-full bg-[#58A6FF] flex items-center justify-center text-xs font-bold text-[#0D1117] flex-shrink-0">1</div>
+              <p className="text-sm text-[#E6EDF3] pt-1">🔗 {t('dashboard.onboardStep1')}</p>
+            </div>
+            <div className="flex items-center gap-2 ml-12">
               <code className="flex-1 bg-[#0D1117] rounded-lg px-3 py-2 text-xs font-mono text-[#58A6FF] truncate">
                 {typeof window !== 'undefined' ? window.location.origin : ''}/{slug}/interview
               </code>
@@ -671,6 +648,31 @@ export default function DashboardPage() {
                 {t('dashboard.copyLink')}
               </button>
             </div>
+          </div>
+
+          {/* Step 2 & 3: Secondary */}
+          <div className="space-y-3 mb-4">
+            {[
+              { num: '2', emoji: '🤖', text: t('dashboard.onboardStep2'), action: () => setShowTestPanel(true), btn: t('dashboard.testAgents') },
+              { num: '3', emoji: '⚖️', text: t('dashboard.onboardStep3'), action: null, btn: null },
+            ].map((step, i) => (
+              <div key={i} className="flex items-start gap-4 bg-[#161B22] border border-[#30363D] rounded-xl p-4">
+                <div className="w-8 h-8 rounded-full bg-[#30363D]/50 border border-[#30363D] flex items-center justify-center text-xs font-bold text-[#8B949E] flex-shrink-0">
+                  {step.num}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-[#E6EDF3]">{step.emoji} {step.text}</p>
+                  {step.action && (
+                    <button
+                      onClick={step.action}
+                      className="mt-2 text-xs font-medium text-[#8B949E] hover:text-[#58A6FF] transition-colors"
+                    >
+                      → {step.btn}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       ) : (

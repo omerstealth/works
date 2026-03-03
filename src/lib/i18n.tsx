@@ -114,10 +114,10 @@ const translations = {
     'hero.title1': 'Startup Hızlandırıcılar',
     'hero.title2': 'için',
     'hero.title3': 'AI İşletim Sistemi',
-    'hero.subtitle': "Başvurudan Demo Day'e — her adım AI ajanları ile. Mülakatlar, jüri değerlendirmesi, müzakere, kararlar, mentorluk ve program yönetimi tek platformda.",
-    'hero.cta': 'Ücretsiz Deneyin',
-    'hero.demo': 'Demoyu İzle',
-    'hero.socialProof': 'Hızlandırıcılar, VC\'ler ve üniversite kuluçkaları tarafından kullanılıyor',
+    'hero.subtitle': "Gerçek girişimcilerinizi AI mülakatçı ile değerlendirin. Jüri, müzakere, karar ve mentorluk — tüm seçim süreci tek platformda, dakikalar içinde.",
+    'hero.cta': 'Programınızı Oluşturun',
+    'hero.demo': 'Demoyu Deneyin',
+    'hero.socialProof': 'Hızlandırıcılar, VC\'ler ve üniversite kuluçkaları için tasarlandı',
 
     // ── Landing / Problem ──
     'problem.section': '// SORUN',
@@ -134,7 +134,7 @@ const translations = {
     'solution.section': '// ÇÖZÜM',
     'solution.title': 'Uçtan uca AI ile',
     'solution.titleHighlight': 'dakikalar içinde',
-    'solution.subtitle': '6 AI ajan, tüm pipeline\'ı otomatikleştirir — mülakatlardan Demo Day\'e.',
+    'solution.subtitle': 'Gerçek adaylarınız AI ile mülakata girer, uzman jüri değerlendirir, kararlar otomatik verilir.',
 
     // ── Landing / Numbers ──
     'numbers.time': '~5 dk',
@@ -167,7 +167,7 @@ const translations = {
 
     // Pipeline stage titles
     'stage.0.title': 'AI Mülakatlar',
-    'stage.0.desc': '6 benzersiz AI aday profili ile adaptif görüşmeler. Çok dilli, gerçek zamanlı değerlendirme.',
+    'stage.0.desc': 'Gerçek adaylarınız AI mülakatçı ile 10 dk adaptif görüşme yapar. Çok dilli, gerçek zamanlı değerlendirme.',
     'stage.0.subtitle': 'Her adaya uyum sağlayan konuşma yapay zekası',
     'stage.0.howItWorks': 'Her adayın farklı geçmiş, uzmanlık seviyesi ve iletişim tarzına sahip benzersiz bir AI kişiliği vardır. AI mülakatçı, yanıtlara göre takip soruları sorarak adaptif 10 dakikalık görüşmeler yürütür. Mülakatlar paralel çalışır — 6 aday eş zamanlı değerlendirilebilir.',
     'stage.0.features': 'Çok dilli destek (TR/EN)|Yanıtlara göre adaptif sorular|Gerçek zamanlı transkript|Yapılandırılmış puanlarla otomatik değerlendirme|Güvenilir çalışma için adım bazlı API',
@@ -228,17 +228,17 @@ const translations = {
     'howItWorks.section': '// NASIL ÇALIŞIR',
     'howItWorks.title': 'Üç adımda başlayın',
     'howItWorks.step1.title': 'Programınızı Oluşturun',
-    'howItWorks.step1.desc': 'Kaydolun, hızlandırıcınızı adlandırın, AI mülakatçı komutunu ve değerlendirme kriterlerini özelleştirin. 5 dakika sürer.',
-    'howItWorks.step2.title': 'Simülasyonu Çalıştırın',
-    'howItWorks.step2.desc': "Tam pipeline'ı çalıştırmak için Demo'ya tıklayın — AI adaylar, jüri değerlendirmesi, müzakere, kararlar, mentorluk ve Demo Day — tek tıkla.",
-    'howItWorks.step3.title': 'Sonuçları İnceleyin',
-    'howItWorks.step3.desc': 'Kohort analitiği, mentor raporları, pitch hazırlık puanları ve yatırımcı özetlerini keşfedin. Verileri dışa aktarın veya panoyu ekibinizle paylaşın.',
+    'howItWorks.step1.desc': 'Hızlandırıcınızı adlandırın ve AI mülakatçı kriterlerini özelleştirin. 5 dakikada hazır. İsterseniz önce demo ile test edin.',
+    'howItWorks.step2.title': 'Mülakat Linkini Paylaşın',
+    'howItWorks.step2.desc': 'Gerçek girişimcilerinize mülakat linki gönderin. Her aday AI mülakatçı ile 10 dakikalık adaptif bir görüşme yapar.',
+    'howItWorks.step3.title': 'AI Jüri Değerlendirir',
+    'howItWorks.step3.desc': '3 uzman AI jüri her mülakatı bağımsız değerlendirir, müzakere eder ve KABUL/RED kararı verir. Siz sonuçları inceleyin.',
 
     // ── Landing / CTA ──
-    'cta.title1': 'Tam',
-    'cta.title2': "pipeline'ı",
-    'cta.title3': 'çalışırken görmeye hazır mısınız?',
-    'cta.subtitle': "Bir program oluşturun ve tek tıkla demoyu çalıştırın. Başvurudan Demo Day'e 5 dakikada.",
+    'cta.title1': 'Seçim sürecinizi',
+    'cta.title2': "AI'a",
+    'cta.title3': 'devretmeye hazır mısınız?',
+    'cta.subtitle': 'Programınızı oluşturun, mülakat linkini paylaşın. Gerisi otomatik.',
     'cta.button': 'Ücretsiz Başlayın',
 
     // ── Landing / Footer ──
@@ -278,10 +278,10 @@ const translations = {
     'create.step3': 'Jüri paneli ve değerlendirme sistemi hazır olur',
     'create.submitBtn': 'Programı Oluştur',
     'create.creating': 'Oluşturuluyor...',
-    'dashboard.onboardTitle': 'Hadi Başlayalım!',
-    'dashboard.onboardStep1': 'Test ajanları çalıştırarak demo mülakatlar oluşturun',
-    'dashboard.onboardStep2': 'Veya mülakat linkini paylaşarak gerçek başvuru alın',
-    'dashboard.onboardStep3': 'Mülakatlar tamamlanınca Jüri ve değerlendirme adımlarına geçin',
+    'dashboard.onboardTitle': 'Programınız Hazır!',
+    'dashboard.onboardStep1': 'Mülakat linkini girişimcilerinize gönderin — gerçek başvuru alın',
+    'dashboard.onboardStep2': 'Veya önce AI test adaylarıyla sistemi deneyin (demo)',
+    'dashboard.onboardStep3': 'Mülakatlar tamamlanınca Jüri ile değerlendirme yapın',
     'dashboard.copyLink': 'Linki Kopyala',
     'dashboard.copied': 'Kopyalandı!',
 
@@ -482,10 +482,10 @@ const translations = {
     'hero.title1': 'The AI Operating System',
     'hero.title2': 'for',
     'hero.title3': 'Startup Accelerators',
-    'hero.subtitle': 'From application to Demo Day — every step powered by AI agents. Interviews, jury evaluation, deliberation, decisions, mentoring and program management in one platform.',
-    'hero.cta': 'Try Free',
-    'hero.demo': 'Watch Demo',
-    'hero.socialProof': 'Used by accelerators, VCs and university incubators',
+    'hero.subtitle': 'Evaluate real founders with an AI interviewer. Jury, deliberation, decisions and mentoring — your entire selection process in one platform, in minutes.',
+    'hero.cta': 'Create Your Program',
+    'hero.demo': 'Try the Demo',
+    'hero.socialProof': 'Built for accelerators, VCs and university incubators',
 
     // ── Landing / Problem ──
     'problem.section': '// THE PROBLEM',
@@ -502,7 +502,7 @@ const translations = {
     'solution.section': '// THE SOLUTION',
     'solution.title': 'End-to-end with AI in',
     'solution.titleHighlight': 'minutes',
-    'solution.subtitle': '6 AI agents automate the entire pipeline — from interviews to Demo Day.',
+    'solution.subtitle': 'Real candidates interview with AI, expert jury evaluates, decisions are made automatically.',
 
     // ── Landing / Numbers ──
     'numbers.time': '~5 min',
@@ -535,7 +535,7 @@ const translations = {
 
     // Pipeline stage titles
     'stage.0.title': 'AI Interviews',
-    'stage.0.desc': 'Adaptive interviews with 6 unique AI candidate profiles. Multilingual, real-time evaluation.',
+    'stage.0.desc': 'Real candidates take a 10-min adaptive AI interview. Multilingual, real-time evaluation.',
     'stage.0.subtitle': 'Conversational AI that adapts to each candidate',
     'stage.0.howItWorks': 'Each candidate has a unique AI personality with different background, expertise, and communication style. The AI interviewer conducts adaptive 10-minute interviews with follow-up questions based on responses. Interviews run in parallel — 6 candidates can be evaluated simultaneously.',
     'stage.0.features': 'Multilingual support (TR/EN)|Adaptive questions based on responses|Real-time transcript|Automatic evaluation with structured scores|Step-based API for reliable operation',
@@ -596,17 +596,17 @@ const translations = {
     'howItWorks.section': '// HOW IT WORKS',
     'howItWorks.title': 'Get started in three steps',
     'howItWorks.step1.title': 'Create Your Program',
-    'howItWorks.step1.desc': 'Sign up, name your accelerator, customize the AI interviewer prompt and evaluation criteria. Takes 5 minutes.',
-    'howItWorks.step2.title': 'Run the Simulation',
-    'howItWorks.step2.desc': 'Click "Demo" to run the full pipeline — AI candidates, jury evaluation, deliberation, decisions, mentoring and Demo Day — one click.',
-    'howItWorks.step3.title': 'Review Results',
-    'howItWorks.step3.desc': 'Explore cohort analytics, mentor reports, pitch readiness scores and investor briefs. Export data or share the dashboard with your team.',
+    'howItWorks.step1.desc': 'Name your accelerator and customize your AI interviewer criteria. Ready in 5 minutes. Test with demo first if you like.',
+    'howItWorks.step2.title': 'Share the Interview Link',
+    'howItWorks.step2.desc': 'Send the interview link to real founders. Each candidate goes through a 10-minute adaptive AI interview.',
+    'howItWorks.step3.title': 'AI Jury Evaluates',
+    'howItWorks.step3.desc': '3 expert AI jurors independently evaluate each interview, deliberate, and make ACCEPT/REJECT decisions. You review the results.',
 
     // ── Landing / CTA ──
-    'cta.title1': 'Ready to see the full',
-    'cta.title2': 'pipeline',
-    'cta.title3': 'in action?',
-    'cta.subtitle': 'Create a program and run the demo in one click. From application to Demo Day in 5 minutes.',
+    'cta.title1': 'Ready to hand your selection',
+    'cta.title2': 'process',
+    'cta.title3': 'to AI?',
+    'cta.subtitle': 'Create your program, share the interview link. The rest is automatic.',
     'cta.button': 'Get Started Free',
 
     // ── Landing / Footer ──
@@ -646,10 +646,10 @@ const translations = {
     'create.step3': 'Jury panel and evaluation system are ready to go',
     'create.submitBtn': 'Create Program',
     'create.creating': 'Creating...',
-    'dashboard.onboardTitle': "Let's Get Started!",
-    'dashboard.onboardStep1': 'Run test agents to create demo interviews',
-    'dashboard.onboardStep2': 'Or share the interview link to collect real applications',
-    'dashboard.onboardStep3': 'Once interviews are complete, proceed with Jury evaluation',
+    'dashboard.onboardTitle': 'Your Program is Ready!',
+    'dashboard.onboardStep1': 'Send the interview link to your founders — collect real applications',
+    'dashboard.onboardStep2': 'Or test the system first with AI demo candidates',
+    'dashboard.onboardStep3': 'Once interviews are complete, run the Jury evaluation',
     'dashboard.copyLink': 'Copy Link',
     'dashboard.copied': 'Copied!',
 
