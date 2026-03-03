@@ -620,14 +620,57 @@ export default function DashboardPage() {
 
       {/* Cards Grid */}
       {sorted.length === 0 ? (
-        <div className="text-center py-20 text-[#8B949E]">
-          <div className="text-5xl mb-4">&#128203;</div>
-          <h2 className="text-xl text-[#E6EDF3] mb-2">{t('dashboard.noInterviews')}</h2>
-          <p className="text-sm max-w-md mx-auto leading-relaxed">
-            {t('dashboard.noInterviewsDesc')}
-          </p>
-          <div className="mt-4 bg-[#161B22] border border-[#30363D] rounded-lg px-4 py-2 inline-block font-mono text-xs text-[#58A6FF]">
-            {typeof window !== 'undefined' ? window.location.origin : ''}/{slug}/interview
+        <div className="max-w-lg mx-auto py-12">
+          <div className="text-center mb-8">
+            <div className="text-5xl mb-3">🚀</div>
+            <h2 className="text-xl font-semibold text-[#E6EDF3] mb-2">{t('dashboard.onboardTitle')}</h2>
+          </div>
+
+          {/* Onboarding steps */}
+          <div className="space-y-3 mb-8">
+            {[
+              { num: '1', emoji: '🤖', text: t('dashboard.onboardStep1'), action: () => setShowTestPanel(true), btn: t('dashboard.testAgents') },
+              { num: '2', emoji: '🔗', text: t('dashboard.onboardStep2'), action: null, btn: null },
+              { num: '3', emoji: '⚖️', text: t('dashboard.onboardStep3'), action: null, btn: null },
+            ].map((step, i) => (
+              <div key={i} className="flex items-start gap-4 bg-[#161B22] border border-[#30363D] rounded-xl p-4">
+                <div className="w-8 h-8 rounded-full bg-[#58A6FF]/10 border border-[#58A6FF]/30 flex items-center justify-center text-xs font-bold text-[#58A6FF] flex-shrink-0">
+                  {step.num}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-[#E6EDF3]">{step.emoji} {step.text}</p>
+                  {step.action && (
+                    <button
+                      onClick={step.action}
+                      className="mt-2 text-xs font-medium text-[#58A6FF] hover:text-[#79B8FF] transition-colors"
+                    >
+                      → {step.btn}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Interview link */}
+          <div className="bg-[#161B22] border border-[#30363D] rounded-xl p-4">
+            <div className="text-xs text-[#8B949E] mb-2 font-mono">{t('dashboard.onboardStep2').split('.')[0]}</div>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 bg-[#0D1117] rounded-lg px-3 py-2 text-xs font-mono text-[#58A6FF] truncate">
+                {typeof window !== 'undefined' ? window.location.origin : ''}/{slug}/interview
+              </code>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/${slug}/interview`)
+                  const btn = document.getElementById('copy-btn')
+                  if (btn) { btn.textContent = t('dashboard.copied'); setTimeout(() => { btn.textContent = t('dashboard.copyLink') }, 2000) }
+                }}
+                id="copy-btn"
+                className="px-3 py-2 rounded-lg text-xs font-medium bg-[#58A6FF] text-[#0D1117] hover:bg-[#79B8FF] transition-colors whitespace-nowrap"
+              >
+                {t('dashboard.copyLink')}
+              </button>
+            </div>
           </div>
         </div>
       ) : (

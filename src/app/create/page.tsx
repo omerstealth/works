@@ -67,21 +67,21 @@ export default function CreateProgramPage() {
   const supabase = createClient()
   const { t } = useLanguage()
 
+  const [step, setStep] = useState(1)
   const [name, setName] = useState('')
   const [slug, setSlug] = useState('')
   const [description, setDescription] = useState('')
   const [systemPrompt, setSystemPrompt] = useState(DEFAULT_SYSTEM_PROMPT)
+  const [showPrompt, setShowPrompt] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Check auth
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) router.push('/auth/login?redirect=/create')
     })
   }, [])
 
-  // Auto-generate slug from name
   useEffect(() => {
     setSlug(name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''))
   }, [name])
@@ -98,7 +98,6 @@ export default function CreateProgramPage() {
       return
     }
 
-    // Create program
     const { data: program, error: progErr } = await supabase
       .from('programs')
       .insert({
@@ -127,96 +126,205 @@ export default function CreateProgramPage() {
       return
     }
 
-    // Add creator as owner
     await supabase
       .from('program_members')
-      .insert({
-        program_id: program.id,
-        user_id: user.id,
-        role: 'owner',
-      })
+      .insert({ program_id: program.id, user_id: user.id, role: 'owner' })
 
-    router.push(`/${slug}`)
+    router.push(`/${slug}/dashboard`)
   }
+
+  const canProceed = step === 1 ? name.trim().length >= 2 : true
 
   return (
     <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3]">
       <Navbar />
-      <div className="p-6">
-        <div className="max-w-2xl mx-auto">
-          <div className="mb-8">
+      <div className="px-4 sm:px-6 py-8">
+        <div className="max-w-xl mx-auto">
+          {/* Header */}
+          <div className="mb-8 text-center">
             <h1 className="text-2xl font-bold mb-2">{t('create.title')}</h1>
-            <p className="text-[#8B949E] text-sm">AI destekli mülakat ajanınızı dakikalar içinde kurun.</p>
+            <p className="text-[#8B949E] text-sm">{t('create.subtitle')}</p>
           </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name */}
-          <div>
-            <label className="block text-xs font-mono text-[#8B949E] mb-2">{t('create.nameLabel').toUpperCase()}</label>
-            <input
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder={t('create.namePlaceholder')}
-              required
-              className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#58A6FF] placeholder-[#8B949E]"
-            />
+          {/* Steps indicator */}
+          <div className="flex items-center justify-center gap-2 mb-8">
+            {[1, 2].map(s => (
+              <div key={s} className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                  step >= s ? 'bg-[#58A6FF] text-[#0D1117]' : 'bg-[#161B22] text-[#8B949E] border border-[#30363D]'
+                }`}>
+                  {step > s ? '✓' : s}
+                </div>
+                {s < 2 && <div className={`w-12 h-0.5 ${step > 1 ? 'bg-[#58A6FF]' : 'bg-[#30363D]'}`} />}
+              </div>
+            ))}
           </div>
 
-          {/* Slug */}
-          <div>
-            <label className="block text-xs font-mono text-[#8B949E] mb-2">URL SLUG</label>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-[#8B949E] font-mono">stealthworks.app/</span>
-              <input
-                type="text"
-                value={slug}
-                onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                required
-                className="flex-1 bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-sm font-mono outline-none focus:border-[#58A6FF]"
-              />
-            </div>
-          </div>
+          <form onSubmit={handleSubmit}>
+            {/* Step 1: Basic info */}
+            {step === 1 && (
+              <div className="space-y-5 animate-fadeIn">
+                {/* Name */}
+                <div>
+                  <label className="block text-sm font-medium text-[#E6EDF3] mb-1.5">
+                    {t('create.nameLabel')} <span className="text-[#F85149]">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder={t('create.namePlaceholder')}
+                    required
+                    autoFocus
+                    maxLength={80}
+                    className="w-full bg-[#161B22] border border-[#30363D] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#58A6FF] focus:ring-1 focus:ring-[#58A6FF]/50 placeholder-[#484F58] transition-colors"
+                  />
+                  <div className="flex justify-between mt-1.5">
+                    <span className="text-[11px] text-[#484F58]">{t('create.nameHint')}</span>
+                    <span className={`text-[11px] ${name.length > 60 ? 'text-[#F78166]' : 'text-[#484F58]'}`}>{name.length}/80</span>
+                  </div>
+                </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-xs font-mono text-[#8B949E] mb-2">{t('create.descLabel').toUpperCase()}</label>
-            <textarea
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder={t('create.descPlaceholder')}
-              rows={3}
-              className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#58A6FF] placeholder-[#8B949E] resize-none"
-            />
-          </div>
+                {/* Slug */}
+                <div>
+                  <label className="block text-sm font-medium text-[#E6EDF3] mb-1.5">
+                    URL
+                  </label>
+                  <div className="flex items-center bg-[#161B22] border border-[#30363D] rounded-lg overflow-hidden focus-within:border-[#58A6FF] focus-within:ring-1 focus-within:ring-[#58A6FF]/50 transition-colors">
+                    <span className="px-3 text-xs text-[#484F58] font-mono bg-[#0D1117] py-3 border-r border-[#30363D]">
+                      {typeof window !== 'undefined' ? window.location.host : 'stealthworks.app'}/
+                    </span>
+                    <input
+                      type="text"
+                      value={slug}
+                      onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                      required
+                      className="flex-1 bg-transparent px-3 py-3 text-sm font-mono outline-none"
+                    />
+                  </div>
+                  <span className="text-[11px] text-[#484F58] mt-1.5 block">{t('create.slugHint')}</span>
+                </div>
 
-          {/* System Prompt */}
-          <div>
-            <label className="block text-xs font-mono text-[#8B949E] mb-2">
-              {t('create.promptLabel').toUpperCase()}
-              <span className="ml-2 text-[#58A6FF]">(özelleştirilebilir)</span>
-            </label>
-            <textarea
-              value={systemPrompt}
-              onChange={e => setSystemPrompt(e.target.value)}
-              rows={12}
-              className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-4 py-3 text-xs font-mono outline-none focus:border-[#58A6FF] placeholder-[#8B949E] resize-y leading-relaxed"
-            />
-            <p className="text-[10px] text-[#8B949E] mt-1">
-              Bu komut AI mülakatçının davranışını tanımlar. Aşamaları, soruları ve değerlendirme kriterlerini özelleştirin.
-            </p>
-          </div>
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-medium text-[#E6EDF3] mb-1.5">
+                    {t('create.descLabel')}
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                    placeholder={t('create.descPlaceholder')}
+                    rows={2}
+                    maxLength={300}
+                    className="w-full bg-[#161B22] border border-[#30363D] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#58A6FF] focus:ring-1 focus:ring-[#58A6FF]/50 placeholder-[#484F58] resize-none transition-colors"
+                  />
+                  <div className="flex justify-end mt-1">
+                    <span className="text-[11px] text-[#484F58]">{description.length}/300</span>
+                  </div>
+                </div>
 
-          {error && <div className="text-sm text-red-400">{error}</div>}
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  disabled={!canProceed}
+                  className="w-full bg-[#58A6FF] text-[#0D1117] py-3 rounded-lg font-semibold text-sm transition-all hover:bg-[#79B8FF] disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {t('create.next')} →
+                </button>
+              </div>
+            )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#58A6FF] text-[#0D1117] py-3.5 rounded-lg font-bold text-sm transition-all hover:bg-[#79B8FF] disabled:opacity-50"
-          >
-            {loading ? t('create.creating') : t('create.submitBtn')}
-          </button>
-        </form>
+            {/* Step 2: AI Configuration */}
+            {step === 2 && (
+              <div className="space-y-5 animate-fadeIn">
+                {/* Summary of step 1 */}
+                <div className="bg-[#161B22] border border-[#30363D] rounded-lg p-4 flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-semibold">{name}</div>
+                    <div className="text-xs text-[#8B949E] font-mono">/{slug}</div>
+                  </div>
+                  <button type="button" onClick={() => setStep(1)} className="text-xs text-[#58A6FF] hover:underline">
+                    {t('create.edit')}
+                  </button>
+                </div>
+
+                {/* System Prompt — collapsible */}
+                <div className="bg-[#161B22] border border-[#30363D] rounded-lg overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setShowPrompt(!showPrompt)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[#1C2128] transition-colors"
+                  >
+                    <div>
+                      <div className="text-sm font-medium">{t('create.promptLabel')}</div>
+                      <div className="text-[11px] text-[#8B949E] mt-0.5">{t('create.promptHint')}</div>
+                    </div>
+                    <span className="text-[#8B949E] text-lg">{showPrompt ? '▾' : '▸'}</span>
+                  </button>
+                  {showPrompt && (
+                    <div className="px-4 pb-4 border-t border-[#30363D]">
+                      <textarea
+                        value={systemPrompt}
+                        onChange={e => setSystemPrompt(e.target.value)}
+                        rows={16}
+                        className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-3 py-3 text-xs font-mono outline-none focus:border-[#58A6FF] resize-y leading-relaxed mt-3"
+                      />
+                      <div className="flex items-center justify-between mt-2">
+                        <button
+                          type="button"
+                          onClick={() => setSystemPrompt(DEFAULT_SYSTEM_PROMPT)}
+                          className="text-[11px] text-[#8B949E] hover:text-[#58A6FF] transition-colors"
+                        >
+                          ↻ {t('create.resetPrompt')}
+                        </button>
+                        <span className="text-[11px] text-[#484F58]">{systemPrompt.length} chars</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* What happens next */}
+                <div className="bg-[#161B22] border border-[#30363D] rounded-lg p-4">
+                  <div className="text-xs font-mono text-[#8B949E] mb-3">{t('create.whatNext')}</div>
+                  <div className="space-y-2">
+                    {[
+                      { emoji: '🤖', text: t('create.step1') },
+                      { emoji: '🔗', text: t('create.step2') },
+                      { emoji: '⚖️', text: t('create.step3') },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-3 text-xs text-[#8B949E]">
+                        <span>{item.emoji}</span>
+                        <span>{item.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="bg-[#F8514922] border border-[#F85149] rounded-lg px-4 py-3 text-sm text-[#F85149] flex items-center gap-2">
+                    <span>⚠️</span> {error}
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="px-6 py-3 rounded-lg text-sm font-medium bg-[#161B22] border border-[#30363D] text-[#E6EDF3] hover:border-[#58A6FF] transition-colors"
+                  >
+                    ← {t('create.back')}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 bg-[#58A6FF] text-[#0D1117] py-3 rounded-lg font-bold text-sm transition-all hover:bg-[#79B8FF] disabled:opacity-50"
+                  >
+                    {loading ? t('create.creating') : t('create.submitBtn')}
+                  </button>
+                </div>
+              </div>
+            )}
+          </form>
         </div>
       </div>
     </div>
