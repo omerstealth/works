@@ -66,19 +66,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Only program owner can add members' }, { status: 403 })
     }
 
-    // Check if email user already exists in auth (for linking)
-    // For MVP, we use a placeholder user_id since the human may not have an account yet
-    const userId = email ? `invite-${email}` : `invite-${Date.now()}`
+    // For invited members, user_id is null until they sign up and claim their seat
+    const insertData: any = {
+      program_id,
+      role,
+      display_name,
+      email: email || null,
+    }
+
+    // If the invited person already has an account, link them
+    if (email) {
+      const { data: existingUsers } = await admin.auth.admin.listUsers()
+      const existingUser = existingUsers?.users?.find((u: any) => u.email === email)
+      if (existingUser) {
+        insertData.user_id = existingUser.id
+      }
+    }
 
     const { data: member, error } = await admin
       .from('program_members')
-      .insert({
-        program_id,
-        user_id: userId,
-        role,
-        display_name,
-        email: email || null,
-      })
+      .insert(insertData)
       .select()
       .single()
 

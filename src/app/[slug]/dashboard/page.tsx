@@ -69,6 +69,7 @@ export default function DashboardPage() {
   const [inviteEmail, setInviteEmail] = useState('')
   const [humanMembers, setHumanMembers] = useState<any[]>([])
   const [inviting, setInviting] = useState(false)
+  const [inviteError, setInviteError] = useState('')
 
   const supabase = createClient()
 
@@ -139,6 +140,7 @@ export default function DashboardPage() {
   async function inviteMember() {
     if (!program || !inviteName || inviting) return
     setInviting(true)
+    setInviteError('')
     try {
       const res = await fetch('/api/program/members', {
         method: 'POST',
@@ -154,9 +156,15 @@ export default function DashboardPage() {
         await loadMembers()
         setInviteName('')
         setInviteEmail('')
+        setInviteError('')
         setShowInviteModal(false)
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setInviteError(data.error || `Hata: ${res.status}`)
       }
-    } catch {}
+    } catch (err: any) {
+      setInviteError(err.message || 'Bağlantı hatası')
+    }
     setInviting(false)
   }
 
@@ -761,8 +769,13 @@ export default function DashboardPage() {
                   className="w-full bg-[#0D1117] border border-[#30363D] rounded-lg px-3 py-2 text-sm text-[#E6EDF3] placeholder-[#484F58] focus:outline-none focus:border-[#58A6FF]"
                 />
               </div>
+              {inviteError && (
+                <div className="text-xs text-[#F85149] bg-[#F8514920] border border-[#F8514940] rounded-lg px-3 py-2">
+                  {inviteError}
+                </div>
+              )}
               <div className="flex gap-2 pt-2">
-                <button onClick={() => setShowInviteModal(false)} className="flex-1 py-2 rounded-lg text-xs font-medium border border-[#30363D] text-[#8B949E] hover:border-[#58A6FF] transition-colors">
+                <button onClick={() => { setShowInviteModal(false); setInviteError('') }} className="flex-1 py-2 rounded-lg text-xs font-medium border border-[#30363D] text-[#8B949E] hover:border-[#58A6FF] transition-colors">
                   {t('dashboard.deleteCancel')}
                 </button>
                 <button
