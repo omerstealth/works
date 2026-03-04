@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       debugInfo.variant_error = variantError?.message || null
 
       // If variant not found in DB but slug matches high-school pattern, use built-in prompt
-      const isHighSchool = normalizedSlug === 'high-school'
+      const isHighSchool = normalizedSlug === 'high-school' || variant_slug === 'high_school' || variant_slug === 'high-school'
       if (!variant && isHighSchool) {
         debugInfo.using_builtin_fallback_no_variant = true
         systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
 
         if (promptOverride) {
           systemPrompt = promptOverride
-        } else if (isHighSchool || variant.slug === 'high-school') {
+        } else if (isHighSchool || variant.slug === 'high-school' || variant.slug === 'high_school') {
           // Fallback: use built-in high school prompt for high-school variants
           systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
           debugInfo.using_builtin_fallback = true
