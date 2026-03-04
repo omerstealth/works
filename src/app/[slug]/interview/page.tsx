@@ -86,6 +86,9 @@ export default function InterviewPage() {
       }
 
       setInterviewId(data.interview_id)
+      if (data._debug) {
+        console.log('Interview debug:', JSON.stringify(data._debug, null, 2))
+      }
       setMessages([{ role: 'assistant', content: data.message }])
     } catch (err) {
       setError(t('interview.failStart'))

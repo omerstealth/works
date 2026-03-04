@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { createServerSupabase } from '@/lib/supabase/server'
 import { createAdminSupabase } from '@/lib/supabase/admin'
-import { buildSystemPrompt, DEFAULT_PARAMETERS } from '@/lib/interview-parameters'
+import { buildSystemPrompt, DEFAULT_PARAMETERS, HIGH_SCHOOL_SYSTEM_PROMPT } from '@/lib/interview-parameters'
 import type { InterviewParameters } from '@/lib/interview-parameters'
 
 export async function POST(request: NextRequest) {
@@ -13,11 +12,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'program_id is required' }, { status: 400 })
     }
 
-    const supabase = await createServerSupabase()
+    // Use admin client for all DB operations (avoids RLS/auth cookie issues)
     const admin = createAdminSupabase()
 
     // Get program config
-    const { data: program, error: programError } = await supabase
+    const { data: program, error: programError } = await admin
       .from('programs')
       .select('*')
       .eq('id', program_id)
@@ -31,20 +30,33 @@ export async function POST(request: NextRequest) {
     let variantId: string | null = null
     let parameters: InterviewParameters = DEFAULT_PARAMETERS
     let systemPrompt = program.system_prompt
+    let debugInfo: any = { variant_slug_received: variant_slug || null }
 
     if (variant_slug) {
-      const { data: variant } = await admin
+      const { data: variant, error: variantError } = await admin
         .from('interview_variants')
         .select('*')
         .eq('program_id', program_id)
         .eq('slug', variant_slug)
         .single()
 
+      debugInfo.variant_found = !!variant
+      debugInfo.variant_error = variantError?.message || null
+
       if (variant) {
         variantId = variant.id
         parameters = { ...DEFAULT_PARAMETERS, ...variant.parameters }
-        // Use system_prompt_override from DB column OR from parameters JSONB
-        const promptOverride = variant.system_prompt_override || parameters.system_prompt_override
+
+        // Check for system_prompt_override in multiple locations
+        const promptOverride = variant.system_prompt_override
+          || variant.parameters?.system_prompt_override
+          || parameters.system_prompt_override
+
+        debugInfo.has_db_override = !!variant.system_prompt_override
+        debugInfo.has_params_override = !!variant.parameters?.system_prompt_override
+        debugInfo.has_merged_override = !!parameters.system_prompt_override
+        debugInfo.using_override = !!promptOverride
+
         if (promptOverride) {
           systemPrompt = promptOverride
         } else {
@@ -69,7 +81,10 @@ export async function POST(request: NextRequest) {
       if (defaultVariant) {
         variantId = defaultVariant.id
         parameters = { ...DEFAULT_PARAMETERS, ...defaultVariant.parameters }
-        const defaultOverride = defaultVariant.system_prompt_override || parameters.system_prompt_override
+        const defaultOverride = defaultVariant.system_prompt_override
+          || defaultVariant.parameters?.system_prompt_override
+          || parameters.system_prompt_override
+
         if (defaultOverride) {
           systemPrompt = defaultOverride
         } else {
@@ -89,7 +104,7 @@ export async function POST(request: NextRequest) {
       : '[Interview started. Greet the candidate and ask their language preference.]'
 
     // Create interview record with variant info
-    const { data: interview, error: insertError } = await supabase
+    const { data: interview, error: insertError } = await admin
       .from('interviews')
       .insert({
         program_id,
@@ -123,7 +138,7 @@ export async function POST(request: NextRequest) {
 
     // Save the first message
     const messages = [{ role: 'assistant' as const, content: agentMessage }]
-    await supabase
+    await admin
       .from('interviews')
       .update({ messages })
       .eq('id', interview.id)
@@ -132,6 +147,7 @@ export async function POST(request: NextRequest) {
       interview_id: interview.id,
       message: agentMessage,
       variant_id: variantId,
+      _debug: debugInfo,
     })
   } catch (err: any) {
     console.error('Interview start error:', err)
