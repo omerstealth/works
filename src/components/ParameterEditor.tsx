@@ -10,20 +10,20 @@ interface ParameterEditorProps {
 }
 
 type FocusAreaKey =
-  | 'vision'
-  | 'execution'
-  | 'market_understanding'
-  | 'team_fit'
-  | 'adaptability'
-  | 'passion';
+  | 'problem_clarity'
+  | 'ai_nativeness'
+  | 'technical_depth'
+  | 'market_awareness'
+  | 'founder_energy'
+  | 'program_fit';
 
 type DepthLevelKey =
-  | 'vision'
-  | 'execution'
-  | 'market_understanding'
-  | 'team_fit'
-  | 'adaptability'
-  | 'passion';
+  | 'problem_clarity'
+  | 'ai_nativeness'
+  | 'technical_depth'
+  | 'market_awareness'
+  | 'founder_energy'
+  | 'program_fit';
 
 interface CollapsibleState {
   focusAreas: boolean;
@@ -34,12 +34,12 @@ interface CollapsibleState {
 }
 
 const focusAreaLabels: Record<FocusAreaKey, { tr: string; en: string }> = {
-  vision: { tr: 'Vizyon', en: 'Vision' },
-  execution: { tr: 'Yürütme', en: 'Execution' },
-  market_understanding: { tr: 'Pazar Anlayışı', en: 'Market Understanding' },
-  team_fit: { tr: 'Takım Uyumu', en: 'Team Fit' },
-  adaptability: { tr: 'Uyum Sağlama', en: 'Adaptability' },
-  passion: { tr: 'Tutku', en: 'Passion' },
+  problem_clarity: { tr: 'Problem Netliği', en: 'Problem Clarity' },
+  ai_nativeness: { tr: 'AI Yatkınlığı', en: 'AI Nativeness' },
+  technical_depth: { tr: 'Teknik Derinlik', en: 'Technical Depth' },
+  market_awareness: { tr: 'Pazar Farkındalığı', en: 'Market Awareness' },
+  founder_energy: { tr: 'Kurucu Enerjisi', en: 'Founder Energy' },
+  program_fit: { tr: 'Program Uyumu', en: 'Program Fit' },
 };
 
 const getWeightColor = (weight: number): string => {
@@ -122,12 +122,12 @@ export default function ParameterEditor({
   };
 
   const focusAreaKeys: FocusAreaKey[] = [
-    'vision',
-    'execution',
-    'market_understanding',
-    'team_fit',
-    'adaptability',
-    'passion',
+    'problem_clarity',
+    'ai_nativeness',
+    'technical_depth',
+    'market_awareness',
+    'founder_energy',
+    'program_fit',
   ];
 
   return (
