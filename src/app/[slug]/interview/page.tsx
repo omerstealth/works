@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Program, Evaluation } from '@/lib/supabase/types'
 import { useLanguage } from '@/lib/i18n'
@@ -15,7 +15,9 @@ interface Message {
 export default function InterviewPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const slug = params.slug as string
+  const variantSlug = searchParams.get('v')
   const { t } = useLanguage()
 
   const [program, setProgram] = useState<Program | null>(null)
@@ -74,7 +76,7 @@ export default function InterviewPage() {
       const res = await fetch('/api/interview/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ program_id: program.id }),
+        body: JSON.stringify({ program_id: program.id, ...(variantSlug && { variant_slug: variantSlug }) }),
       })
       const data = await res.json()
 
@@ -160,7 +162,12 @@ export default function InterviewPage() {
       <Navbar slug={slug} minimal />
 
       {/* Phase indicator */}
-      <div className="bg-[#161B22] border-b border-[#30363D] px-6 py-3 flex items-center justify-end">
+      <div className="bg-[#161B22] border-b border-[#30363D] px-6 py-3 flex items-center justify-between">
+        {variantSlug && (
+          <div className="bg-[#58A6FF]/10 text-[#58A6FF] text-[10px] px-2 py-0.5 rounded-full font-medium">
+            {variantSlug}
+          </div>
+        )}
         <div className="flex items-center gap-2 bg-[rgba(63,185,80,0.15)] text-[#3FB950] px-3 py-1 rounded-full text-[11px] font-medium">
           <span className="w-1.5 h-1.5 rounded-full bg-[#3FB950] animate-pulse" />
           {phase}

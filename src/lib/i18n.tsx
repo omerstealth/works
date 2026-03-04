@@ -108,6 +108,8 @@ const translations = {
     'nav.results': 'Sonuçlar',
     'nav.program': 'Program',
     'nav.evaluate': 'Değerlendir',
+    'nav.variants': 'Varyantlar',
+    'nav.insights': 'İçgörüler',
     'nav.menu': 'Menü',
 
     // ── Landing / Hero ──
@@ -488,6 +490,8 @@ const translations = {
     'nav.results': 'Results',
     'nav.program': 'Program',
     'nav.evaluate': 'Evaluate',
+    'nav.variants': 'Variants',
+    'nav.insights': 'Insights',
     'nav.menu': 'Menu',
 
     // ── Landing / Hero ──

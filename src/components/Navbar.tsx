@@ -45,6 +45,8 @@ export default function Navbar({ slug, minimal }: NavbarProps) {
     { href: `/${slug}/results`, label: t('nav.results') },
     { href: `/${slug}/program`, label: t('nav.program') },
     { href: `/${slug}/demo`, label: 'Demo' },
+    { href: `/${slug}/variants`, label: t('nav.variants') || 'Variants' },
+    { href: `/${slug}/insights`, label: t('nav.insights') || 'Insights' },
   ] : []
 
   const isActive = (href: string) => pathname === href

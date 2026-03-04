@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createServerSupabase } from '@/lib/supabase/server'
+import { createAdminSupabase } from '@/lib/supabase/admin'
+import { buildSystemPrompt } from '@/lib/interview-parameters'
+import { extractQuestionSignals } from '@/lib/interview-analysis'
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,12 +35,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Program not found' }, { status: 404 })
     }
 
+    // Use parameters_snapshot if available, otherwise use base system prompt
+    const params = interview.parameters_snapshot
+    const systemPrompt = params
+      ? buildSystemPrompt(program.system_prompt, params)
+      : program.system_prompt
+
+    // Build starter message based on language preference
+    const starterMessage = params?.language_preference
+      ? `[Interview started. Greet the candidate in ${params.language_preference} and begin the interview.]`
+      : '[Interview started. Greet the candidate and ask their language preference.]'
+
     // Append user message
     const messages = [...(interview.messages || []), { role: 'user' as const, content: message }]
 
     // Build API messages (prepend hidden starter)
     const apiMessages = [
-      { role: 'user' as const, content: '[Interview started. Greet the candidate and ask their language preference.]' },
+      { role: 'user' as const, content: starterMessage },
       ...messages,
     ]
 
@@ -48,7 +62,7 @@ export async function POST(request: NextRequest) {
     const response = await anthropic.messages.create({
       model,
       max_tokens: 2048,
-      system: program.system_prompt,
+      system: systemPrompt,
       messages: apiMessages,
     })
 
@@ -63,6 +77,7 @@ export async function POST(request: NextRequest) {
     let overallScore = null
     let candidateName = interview.candidate_name
     let status: 'in_progress' | 'completed' = 'in_progress'
+    let questionSignals = null
 
     if (agentText.includes('"recommendation"') && agentText.includes('"scores"')) {
       try {
@@ -73,6 +88,38 @@ export async function POST(request: NextRequest) {
           overallScore = evaluation.overall_score
           candidateName = evaluation.candidate_name || candidateName
           status = 'completed'
+
+          // Extract question signals for self-improvement
+          try {
+            questionSignals = extractQuestionSignals(updatedMessages, evaluation)
+          } catch {
+            // Signal extraction is non-critical
+          }
+
+          // Update variant avg_score if variant_id exists
+          if (interview.variant_id && overallScore) {
+            try {
+              const admin = createAdminSupabase()
+              const { data: variant } = await admin
+                .from('interview_variants')
+                .select('avg_score, interview_count')
+                .eq('id', interview.variant_id)
+                .single()
+
+              if (variant) {
+                const count = variant.interview_count || 1
+                const currentAvg = variant.avg_score || overallScore
+                const newAvg = (currentAvg * (count - 1) + overallScore) / count
+
+                await admin
+                  .from('interview_variants')
+                  .update({ avg_score: Math.round(newAvg * 100) / 100 })
+                  .eq('id', interview.variant_id)
+              }
+            } catch {
+              // Non-critical
+            }
+          }
         }
       } catch {
         // JSON parse failed, not an evaluation
@@ -84,8 +131,15 @@ export async function POST(request: NextRequest) {
       .from('interviews')
       .update({
         messages: updatedMessages,
-        ...(evaluation && { evaluation, recommendation, overall_score: overallScore, status, completed_at: new Date().toISOString() }),
+        ...(evaluation && {
+          evaluation,
+          recommendation,
+          overall_score: overallScore,
+          status,
+          completed_at: new Date().toISOString(),
+        }),
         ...(candidateName && { candidate_name: candidateName }),
+        ...(questionSignals && { question_signals: questionSignals }),
       })
       .eq('id', interview_id)
 
