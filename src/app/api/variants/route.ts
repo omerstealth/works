@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { program_id, name, slug, description, targeting, parameters, self_improvement_config, is_default } = body
+    const { program_id, name, slug, description, targeting, parameters, self_improvement_config, is_default, system_prompt_override } = body
 
     if (!program_id || !name || !slug) {
       return NextResponse.json({ error: 'program_id, name, and slug are required' }, { status: 400 })
@@ -84,6 +84,7 @@ export async function POST(request: NextRequest) {
         parameters: finalParams,
         self_improvement_config: finalSI,
         is_default: is_default || false,
+        system_prompt_override: system_prompt_override || null,
       })
       .select()
       .single()

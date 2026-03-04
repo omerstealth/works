@@ -50,6 +50,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (body.targeting !== undefined) updateData.targeting = body.targeting
     if (body.self_improvement_config !== undefined) updateData.self_improvement_config = body.self_improvement_config
     if (body.is_default !== undefined) updateData.is_default = body.is_default
+    if (body.system_prompt_override !== undefined) updateData.system_prompt_override = body.system_prompt_override
 
     // Parameters update: merge with existing + bump version
     if (body.parameters !== undefined) {

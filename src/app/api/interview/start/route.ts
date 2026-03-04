@@ -43,7 +43,12 @@ export async function POST(request: NextRequest) {
       if (variant) {
         variantId = variant.id
         parameters = { ...DEFAULT_PARAMETERS, ...variant.parameters }
-        systemPrompt = buildSystemPrompt(program.system_prompt, parameters)
+        // Use system_prompt_override if present, otherwise build from base
+        if (variant.system_prompt_override) {
+          systemPrompt = variant.system_prompt_override
+        } else {
+          systemPrompt = buildSystemPrompt(program.system_prompt, parameters)
+        }
 
         // Increment interview count
         await admin
@@ -63,7 +68,11 @@ export async function POST(request: NextRequest) {
       if (defaultVariant) {
         variantId = defaultVariant.id
         parameters = { ...DEFAULT_PARAMETERS, ...defaultVariant.parameters }
-        systemPrompt = buildSystemPrompt(program.system_prompt, parameters)
+        if (defaultVariant.system_prompt_override) {
+          systemPrompt = defaultVariant.system_prompt_override
+        } else {
+          systemPrompt = buildSystemPrompt(program.system_prompt, parameters)
+        }
 
         await admin
           .from('interview_variants')

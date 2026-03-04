@@ -6,7 +6,7 @@ import { useLanguage } from '@/lib/i18n';
 import { createClient } from '@/lib/supabase/client';
 import Navbar from '@/components/Navbar';
 import ParameterEditor from '@/components/ParameterEditor';
-import { InterviewParameters, VARIANT_PRESETS, DEFAULT_PARAMETERS } from '@/lib/interview-parameters';
+import { InterviewParameters, VARIANT_PRESETS, DEFAULT_PARAMETERS, HIGH_SCHOOL_SYSTEM_PROMPT } from '@/lib/interview-parameters';
 
 interface Program {
   id: string;
@@ -43,6 +43,7 @@ interface ModalData {
   stage: string;
   parameters: InterviewParameters;
   self_improvement: boolean;
+  system_prompt_override: string | null;
 }
 
 
@@ -64,6 +65,7 @@ export default function VariantsPage() {
       stage: 'all',
       parameters: DEFAULT_PARAMETERS,
       self_improvement: false,
+      system_prompt_override: null,
     },
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -133,9 +135,12 @@ export default function VariantsPage() {
         ...prev,
         data: {
           ...prev.data,
+          name: prev.data.name || (preset.targeting.custom_label || presetKey),
+          slug: prev.data.slug || presetKey,
           founder_type: preset.targeting.founder_type,
           stage: preset.targeting.stage,
           parameters: { ...DEFAULT_PARAMETERS, ...preset.parameters },
+          system_prompt_override: preset.system_prompt_override || null,
         },
       }));
     }
@@ -152,6 +157,7 @@ export default function VariantsPage() {
         stage: 'all',
         parameters: DEFAULT_PARAMETERS,
         self_improvement: false,
+        system_prompt_override: null,
       },
     });
   };
@@ -168,6 +174,7 @@ export default function VariantsPage() {
         stage: variant.targeting?.stage || 'all',
         parameters: { ...DEFAULT_PARAMETERS, ...variant.parameters },
         self_improvement: variant.self_improvement_config?.enabled || false,
+        system_prompt_override: (variant as any).system_prompt_override || null,
       },
     });
   };
@@ -204,6 +211,7 @@ export default function VariantsPage() {
           min_interviews: 20,
           optimize_for: 'discrimination' as const,
         },
+        system_prompt_override: modal.data.system_prompt_override,
       }
 
       if (modal.mode === 'create') {
@@ -567,6 +575,14 @@ export default function VariantsPage() {
                   {lang === 'tr' ? 'Hızlı Ön Ayarlar' : 'Quick Presets'}
                 </p>
                 <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => applyPreset('high-school')}
+                    className="bg-[#238636] hover:bg-[#2ea043] text-white text-sm px-3 py-2 rounded transition font-medium"
+                  >
+                    {lang === 'tr'
+                      ? 'Lise Öğrencileri'
+                      : 'High School Students'}
+                  </button>
                   <button
                     onClick={() => applyPreset('technical-founders')}
                     className="bg-[#30363D] hover:bg-[#3D444D] text-[#58A6FF] text-sm px-3 py-2 rounded transition"
