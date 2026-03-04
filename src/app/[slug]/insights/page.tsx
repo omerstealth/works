@@ -26,11 +26,24 @@ interface ParameterSuggestion {
   suggested: number;
 }
 
+interface RecentInterview {
+  id: string;
+  status: string;
+  candidate_name: string | null;
+  overall_score: number | null;
+  language: string | null;
+  message_count: number;
+  created_at: string;
+  completed_at: string | null;
+}
+
 interface InsightsData {
   total_interviews: number;
+  completed_interviews: number;
   avg_score: number | null;
   effectiveness: Insight[];
   suggestions: ParameterSuggestion[];
+  recent_interviews: RecentInterview[];
 }
 
 const topicNameMap: Record<string, Record<string, string>> = {
@@ -175,7 +188,7 @@ export default function InsightsPage() {
         ) : (
           <>
             {/* Stats Bar */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div
                 className="rounded-lg p-6"
                 style={{ backgroundColor: '#161B22', borderColor: '#30363D', borderWidth: '1px' }}
@@ -185,6 +198,18 @@ export default function InsightsPage() {
                 </p>
                 <p style={{ color: '#E6EDF3' }} className="text-2xl font-bold">
                   {data.total_interviews}
+                </p>
+              </div>
+
+              <div
+                className="rounded-lg p-6"
+                style={{ backgroundColor: '#161B22', borderColor: '#30363D', borderWidth: '1px' }}
+              >
+                <p style={{ color: '#8B949E' }} className="text-sm font-medium mb-2">
+                  {lang === 'tr' ? 'Tamamlanan' : 'Completed'}
+                </p>
+                <p style={{ color: '#3FB950' }} className="text-2xl font-bold">
+                  {data.completed_interviews || 0}
                 </p>
               </div>
 
@@ -237,6 +262,77 @@ export default function InsightsPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+            )}
+
+            {/* Recent Interviews Table */}
+            {data.recent_interviews && data.recent_interviews.length > 0 && (
+              <div className="mb-8">
+                <h2 style={{ color: '#E6EDF3' }} className="text-xl font-bold mb-4">
+                  {lang === 'tr' ? 'Mülakatlar' : 'Interviews'}
+                </h2>
+                <div
+                  className="rounded-lg overflow-hidden"
+                  style={{ backgroundColor: '#161B22', borderColor: '#30363D', borderWidth: '1px' }}
+                >
+                  <table className="w-full">
+                    <thead>
+                      <tr style={{ backgroundColor: '#0D1117', borderBottomColor: '#30363D', borderBottomWidth: '1px' }}>
+                        <th className="px-4 py-3 text-left text-sm" style={{ color: '#8B949E' }}>
+                          {lang === 'tr' ? 'Aday' : 'Candidate'}
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm" style={{ color: '#8B949E' }}>
+                          {lang === 'tr' ? 'Durum' : 'Status'}
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm" style={{ color: '#8B949E' }}>
+                          {lang === 'tr' ? 'Mesaj' : 'Messages'}
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm" style={{ color: '#8B949E' }}>
+                          {lang === 'tr' ? 'Puan' : 'Score'}
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm" style={{ color: '#8B949E' }}>
+                          {lang === 'tr' ? 'Tarih' : 'Date'}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.recent_interviews.map((interview) => (
+                        <tr
+                          key={interview.id}
+                          style={{ borderBottomColor: '#21262D', borderBottomWidth: '1px' }}
+                        >
+                          <td className="px-4 py-3" style={{ color: '#E6EDF3' }}>
+                            {interview.candidate_name || (lang === 'tr' ? 'Anonim' : 'Anonymous')}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className="px-2 py-1 rounded text-xs font-medium"
+                              style={{
+                                backgroundColor: interview.status === 'completed' ? '#23863620' : interview.status === 'in_progress' ? '#58A6FF20' : '#F8514920',
+                                color: interview.status === 'completed' ? '#3FB950' : interview.status === 'in_progress' ? '#58A6FF' : '#F85149',
+                              }}
+                            >
+                              {interview.status === 'completed' ? (lang === 'tr' ? 'Tamamlandı' : 'Completed') :
+                               interview.status === 'in_progress' ? (lang === 'tr' ? 'Devam Ediyor' : 'In Progress') :
+                               interview.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3" style={{ color: '#8B949E' }}>
+                            {interview.message_count}
+                          </td>
+                          <td className="px-4 py-3" style={{ color: '#E6EDF3' }}>
+                            {interview.overall_score != null ? interview.overall_score.toFixed(1) : '—'}
+                          </td>
+                          <td className="px-4 py-3" style={{ color: '#8B949E', fontSize: '0.85rem' }}>
+                            {new Date(interview.created_at).toLocaleDateString(lang === 'tr' ? 'tr-TR' : 'en-US', {
+                              day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                            })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
