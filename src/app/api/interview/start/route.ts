@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
           strictness: 'light' as const,
           tone: 'casual' as const,
           language_preference: 'Turkish',
+          system_prompt_override: HIGH_SCHOOL_SYSTEM_PROMPT,
         }
       }
 
@@ -98,18 +99,28 @@ export async function POST(request: NextRequest) {
 
         if (promptOverride) {
           systemPrompt = promptOverride
+          // Ensure override is saved in parameters for message route
+          parameters.system_prompt_override = promptOverride
         } else if (isHighSchool || variant.slug === 'high-school' || variant.slug === 'high_school') {
           // Fallback: use built-in high school prompt for high-school variants
           systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
+          // CRITICAL: Save override in parameters so message route also uses it
+          parameters.system_prompt_override = HIGH_SCHOOL_SYSTEM_PROMPT
           debugInfo.using_builtin_fallback = true
         } else {
           systemPrompt = buildSystemPrompt(program.system_prompt, parameters)
         }
 
-        // Increment interview count
+        // Increment interview count + auto-fix: persist override in variant params if missing
+        const variantUpdate: any = { interview_count: (variant.interview_count || 0) + 1 }
+        if (debugInfo.using_builtin_fallback && !variant.parameters?.system_prompt_override) {
+          // Auto-patch: save the override so future lookups find it directly
+          variantUpdate.parameters = { ...variant.parameters, system_prompt_override: HIGH_SCHOOL_SYSTEM_PROMPT }
+          debugInfo.auto_patched_variant = true
+        }
         await admin
           .from('interview_variants')
-          .update({ interview_count: (variant.interview_count || 0) + 1 })
+          .update(variantUpdate)
           .eq('id', variant.id)
       }
     } else {
@@ -130,6 +141,7 @@ export async function POST(request: NextRequest) {
 
         if (defaultOverride) {
           systemPrompt = defaultOverride
+          parameters.system_prompt_override = defaultOverride
         } else {
           systemPrompt = buildSystemPrompt(program.system_prompt, parameters)
         }
