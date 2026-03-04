@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
 
       if (variantOverride) {
         systemPrompt = variantOverride
-      } else if (variant?.slug === 'high-school') {
+      } else if (variant?.slug === 'high-school' || variant?.slug === 'high_school') {
         systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
       } else if (params) {
         systemPrompt = buildSystemPrompt(program.system_prompt, params)

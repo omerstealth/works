@@ -33,18 +33,42 @@ export async function POST(request: NextRequest) {
     let debugInfo: any = { variant_slug_received: variant_slug || null }
 
     if (variant_slug) {
-      const { data: variant, error: variantError } = await admin
+      // Normalize slug: replace underscores with hyphens for consistent matching
+      const normalizedSlug = variant_slug.replace(/_/g, '-')
+      debugInfo.normalized_slug = normalizedSlug
+
+      // Try both original and normalized slug
+      let variant = null
+      let variantError = null
+
+      const { data: v1, error: e1 } = await admin
         .from('interview_variants')
         .select('*')
         .eq('program_id', program_id)
         .eq('slug', variant_slug)
         .single()
 
+      if (v1) {
+        variant = v1
+      } else if (normalizedSlug !== variant_slug) {
+        const { data: v2, error: e2 } = await admin
+          .from('interview_variants')
+          .select('*')
+          .eq('program_id', program_id)
+          .eq('slug', normalizedSlug)
+          .single()
+        variant = v2
+        variantError = e2
+      } else {
+        variantError = e1
+      }
+
       debugInfo.variant_found = !!variant
       debugInfo.variant_error = variantError?.message || null
 
-      // If variant not found in DB but slug is 'high-school', still use built-in prompt
-      if (!variant && variant_slug === 'high-school') {
+      // If variant not found in DB but slug matches high-school pattern, use built-in prompt
+      const isHighSchool = normalizedSlug === 'high-school'
+      if (!variant && isHighSchool) {
         debugInfo.using_builtin_fallback_no_variant = true
         systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
         parameters = {
@@ -74,7 +98,7 @@ export async function POST(request: NextRequest) {
 
         if (promptOverride) {
           systemPrompt = promptOverride
-        } else if (variant_slug === 'high-school' || variant.slug === 'high-school') {
+        } else if (isHighSchool || variant.slug === 'high-school') {
           // Fallback: use built-in high school prompt for high-school variants
           systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
           debugInfo.using_builtin_fallback = true
