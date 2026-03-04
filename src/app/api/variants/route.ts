@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabase } from '@/lib/supabase/server'
 import { createAdminSupabase } from '@/lib/supabase/admin'
 import { DEFAULT_PARAMETERS, DEFAULT_TARGETING, DEFAULT_SELF_IMPROVEMENT } from '@/lib/interview-parameters'
 
@@ -43,27 +42,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Helper: get user from cookie session OR Authorization header
-async function getAuthUser(request: NextRequest) {
-  // Try cookie-based session first
-  try {
-    const supabase = await createServerSupabase()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) return user
-  } catch {}
-
-  // Fallback: Authorization header with access token
-  const authHeader = request.headers.get('Authorization')
-  if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.slice(7)
-    const admin = createAdminSupabase()
-    const { data: { user } } = await admin.auth.getUser(token)
-    if (user) return user
-  }
-
-  return null
-}
-
 // POST: Create a new variant
 export async function POST(request: NextRequest) {
   try {
@@ -74,21 +52,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'program_id, name, and slug are required' }, { status: 400 })
     }
 
-    const user = await getAuthUser(request)
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Verify ownership
     const admin = createAdminSupabase()
+
+    // Verify program exists
     const { data: program } = await admin
       .from('programs')
-      .select('created_by')
+      .select('id')
       .eq('id', program_id)
       .single()
 
-    if (!program || program.created_by !== user.id) {
-      return NextResponse.json({ error: 'Only program owner can create variants' }, { status: 403 })
+    if (!program) {
+      return NextResponse.json({ error: 'Program not found' }, { status: 404 })
     }
 
     // Merge with defaults
