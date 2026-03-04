@@ -19,12 +19,13 @@ interface Variant {
   program_id: string;
   name: string;
   slug: string;
-  founder_type: string;
-  stage: string;
+  targeting: { founder_type: string; stage: string; region: string | null; custom_label: string | null };
   interview_count: number;
-  avg_score: number;
+  avg_score: number | null;
   parameters: InterviewParameters;
-  self_improvement: boolean;
+  self_improvement_config: { enabled: boolean; aggressiveness: string; auto_apply: boolean; min_interviews: number; optimize_for: string };
+  interview_link?: string;
+  is_default: boolean;
   created_at: string;
 }
 
@@ -163,10 +164,10 @@ export default function VariantsPage() {
       data: {
         name: variant.name,
         slug: variant.slug,
-        founder_type: variant.founder_type,
-        stage: variant.stage,
-        parameters: variant.parameters,
-        self_improvement: variant.self_improvement,
+        founder_type: variant.targeting?.founder_type || 'all',
+        stage: variant.targeting?.stage || 'all',
+        parameters: { ...DEFAULT_PARAMETERS, ...variant.parameters },
+        self_improvement: variant.self_improvement_config?.enabled || false,
       },
     });
   };
@@ -175,81 +176,89 @@ export default function VariantsPage() {
     if (!program || !modal.data.name || !modal.data.slug) return;
 
     try {
+      const body = {
+        program_id: program.id,
+        name: modal.data.name,
+        slug: modal.data.slug,
+        targeting: {
+          founder_type: modal.data.founder_type,
+          stage: modal.data.stage,
+          region: null,
+          custom_label: null,
+        },
+        parameters: modal.data.parameters,
+        self_improvement_config: {
+          enabled: modal.data.self_improvement,
+          aggressiveness: 'conservative' as const,
+          auto_apply: false as const,
+          min_interviews: 20,
+          optimize_for: 'discrimination' as const,
+        },
+      }
+
       if (modal.mode === 'create') {
-        const { data: newVariant, error } = await supabase
-          .from('variants')
-          .insert({
-            program_id: program.id,
-            name: modal.data.name,
-            slug: modal.data.slug,
-            founder_type: modal.data.founder_type,
-            stage: modal.data.stage,
-            parameters: modal.data.parameters,
-            self_improvement: modal.data.self_improvement,
-          })
-          .select()
-          .single();
+        const res = await fetch('/api/variants', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Failed to create variant')
 
-        if (error) throw error;
-        setVariants([...variants, newVariant]);
+        // Reload variants
+        const listRes = await fetch(`/api/variants?program_id=${program.id}`)
+        const listData = await listRes.json()
+        setVariants(listData.variants || [])
       } else if (modal.mode === 'edit' && modal.variantId) {
-        const { error } = await supabase
-          .from('variants')
-          .update({
-            name: modal.data.name,
-            slug: modal.data.slug,
-            founder_type: modal.data.founder_type,
-            stage: modal.data.stage,
-            parameters: modal.data.parameters,
-            self_improvement: modal.data.self_improvement,
-          })
-          .eq('id', modal.variantId);
+        const res = await fetch(`/api/variants/${modal.variantId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: body.name,
+            targeting: body.targeting,
+            parameters: body.parameters,
+            self_improvement_config: body.self_improvement_config,
+          }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Failed to update variant')
 
-        if (error) throw error;
-        setVariants(
-          variants.map((v) =>
-            v.id === modal.variantId
-              ? {
-                  ...v,
-                  name: modal.data.name,
-                  slug: modal.data.slug,
-                  founder_type: modal.data.founder_type,
-                  stage: modal.data.stage,
-                  parameters: modal.data.parameters,
-                  self_improvement: modal.data.self_improvement,
-                }
-              : v
-          )
-        );
+        // Reload variants
+        const listRes = await fetch(`/api/variants?program_id=${program.id}`)
+        const listData = await listRes.json()
+        setVariants(listData.variants || [])
       }
 
       setModal((prev) => ({
         ...prev,
         isOpen: false,
       }));
-    } catch (error) {
-      console.error('Error saving variant:', error);
+    } catch (error: any) {
+      console.error('Error saving variant:', error)
+      alert(error.message || 'Error saving variant')
     }
   };
 
   const handleDeleteVariant = async (variantId: string) => {
     try {
-      const { error } = await supabase
-        .from('variants')
-        .delete()
-        .eq('id', variantId);
-
-      if (error) throw error;
+      const res = await fetch(`/api/variants/${variantId}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to delete')
+      }
       setVariants(variants.filter((v) => v.id !== variantId));
       setDeleteConfirm(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting variant:', error);
+      alert(error.message || 'Error deleting variant')
     }
   };
 
-  const copyInterviewLink = async (variantId: string) => {
+  const copyInterviewLink = async (variant: Variant) => {
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    const link = `${baseUrl}/interview/${program?.slug}/${variantId}`;
+    const link = variant.interview_link
+      ? `${baseUrl}${variant.interview_link}`
+      : `${baseUrl}/${program?.slug}/interview?v=${variant.slug}`;
     try {
       await navigator.clipboard.writeText(link);
       alert(lang === 'tr' ? 'Bağlantı kopyalandı!' : 'Link copied!');
@@ -325,13 +334,13 @@ export default function VariantsPage() {
                         ? 'Kurucu Tipi'
                         : 'Founder Type'}
                     </span>
-                    <span className="text-[#E6EDF3]">{variant.founder_type}</span>
+                    <span className="text-[#E6EDF3]">{variant.targeting?.founder_type || 'all'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[#8B949E]">
                       {lang === 'tr' ? 'Aşama' : 'Stage'}
                     </span>
-                    <span className="text-[#E6EDF3]">{variant.stage}</span>
+                    <span className="text-[#E6EDF3]">{variant.targeting?.stage || 'all'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[#8B949E]">
@@ -348,7 +357,7 @@ export default function VariantsPage() {
                       {lang === 'tr' ? 'Ort. Puan' : 'Avg Score'}
                     </span>
                     <span className="text-[#E6EDF3]">
-                      {variant.avg_score.toFixed(1)}/10
+                      {variant.avg_score != null ? `${variant.avg_score.toFixed(1)}/10` : '—'}
                     </span>
                   </div>
                 </div>
@@ -357,7 +366,7 @@ export default function VariantsPage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      copyInterviewLink(variant.id);
+                      copyInterviewLink(variant);
                     }}
                     className="flex-1 bg-[#30363D] hover:bg-[#3D444D] text-[#58A6FF] text-sm py-2 rounded transition"
                   >
