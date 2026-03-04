@@ -14,24 +14,23 @@ interface Variant {
 interface Insight {
   topic: string;
   times_asked: number;
-  avg_depth: number;
-  discrimination_score: number;
+  avg_answer_depth: number;
+  discrimination: number;
 }
 
 interface ParameterSuggestion {
   type: string;
   topic: string;
   reason: string;
-  current_value: string;
-  suggested_value: string;
+  current: number;
+  suggested: number;
 }
 
 interface InsightsData {
   total_interviews: number;
-  avg_score: number;
-  completion_rate: number;
-  insights: Insight[];
-  parameter_suggestions: ParameterSuggestion[];
+  avg_score: number | null;
+  effectiveness: Insight[];
+  suggestions: ParameterSuggestion[];
 }
 
 const topicNameMap: Record<string, Record<string, string>> = {
@@ -97,7 +96,7 @@ export default function InsightsPage() {
       try {
         const response = await fetch(`/api/variants?program_id=${programId}`);
         const variantsData = await response.json();
-        setVariants(variantsData);
+        setVariants(variantsData.variants || []);
       } catch (error) {
         console.error('Error loading variants:', error);
       }
@@ -136,11 +135,11 @@ export default function InsightsPage() {
   }, [programId, selectedVariant]);
 
   const handleApprove = (index: number) => {
-    console.log(`Approved suggestion ${index}:`, data?.parameter_suggestions[index]);
+    console.log(`Approved suggestion ${index}:`, data?.suggestions?.[index]);
   };
 
   const handleReject = (index: number) => {
-    console.log(`Rejected suggestion ${index}:`, data?.parameter_suggestions[index]);
+    console.log(`Rejected suggestion ${index}:`, data?.suggestions?.[index]);
   };
 
   return (
@@ -197,7 +196,7 @@ export default function InsightsPage() {
                   {lang === 'tr' ? 'Ortalama Puan' : 'Average Score'}
                 </p>
                 <p style={{ color: '#E6EDF3' }} className="text-2xl font-bold">
-                  {data.avg_score.toFixed(2)}
+                  {data.avg_score != null ? data.avg_score.toFixed(2) : '—'}
                 </p>
               </div>
 
@@ -206,10 +205,10 @@ export default function InsightsPage() {
                 style={{ backgroundColor: '#161B22', borderColor: '#30363D', borderWidth: '1px' }}
               >
                 <p style={{ color: '#8B949E' }} className="text-sm font-medium mb-2">
-                  {lang === 'tr' ? 'Tamamlanma Oranı' : 'Completion Rate'}
+                  {lang === 'tr' ? 'Analiz Edilen Konular' : 'Topics Analyzed'}
                 </p>
                 <p style={{ color: '#E6EDF3' }} className="text-2xl font-bold">
-                  {data.completion_rate}%
+                  {data.effectiveness?.length || 0}
                 </p>
               </div>
             </div>
@@ -268,7 +267,7 @@ export default function InsightsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.insights.map((insight, idx) => (
+                    {(data.effectiveness || []).map((insight, idx) => (
                       <tr
                         key={idx}
                         style={{ borderBottomColor: '#30363D', borderBottomWidth: '1px' }}
@@ -280,17 +279,17 @@ export default function InsightsPage() {
                           {insight.times_asked}
                         </td>
                         <td className="px-6 py-4" style={{ color: '#E6EDF3' }}>
-                          {insight.avg_depth.toFixed(2)}
+                          {insight.avg_answer_depth.toFixed(2)}
                         </td>
                         <td className="px-6 py-4">
                           <span
                             className="px-3 py-1 rounded-full text-sm font-medium"
                             style={{
-                              backgroundColor: `${getDiscriminationColor(insight.discrimination_score)}20`,
-                              color: getDiscriminationColor(insight.discrimination_score),
+                              backgroundColor: `${getDiscriminationColor(insight.discrimination)}20`,
+                              color: getDiscriminationColor(insight.discrimination),
                             }}
                           >
-                            {insight.discrimination_score.toFixed(2)}
+                            {insight.discrimination.toFixed(2)}
                           </span>
                         </td>
                       </tr>
@@ -301,13 +300,13 @@ export default function InsightsPage() {
             </div>
 
             {/* Parameter Suggestions */}
-            {data.parameter_suggestions && data.parameter_suggestions.length > 0 && (
+            {data.suggestions && data.suggestions.length > 0 && (
               <div>
                 <h2 style={{ color: '#E6EDF3' }} className="text-xl font-bold mb-4">
                   {lang === 'tr' ? 'Parametre Önerileri' : 'Parameter Suggestions'}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {data.parameter_suggestions.map((suggestion, idx) => (
+                  {data.suggestions.map((suggestion, idx) => (
                     <div
                       key={idx}
                       className="rounded-lg p-6"
@@ -333,13 +332,13 @@ export default function InsightsPage() {
                           {lang === 'tr' ? 'Mevcut' : 'Current'}
                         </p>
                         <p style={{ color: '#58A6FF' }} className="font-mono text-sm">
-                          {suggestion.current_value}
+                          {suggestion.current}
                         </p>
                         <p style={{ color: '#8B949E' }} className="text-xs mt-2 mb-1">
                           {lang === 'tr' ? 'Önerilen' : 'Suggested'}
                         </p>
                         <p style={{ color: '#3FB950' }} className="font-mono text-sm">
-                          {suggestion.suggested_value}
+                          {suggestion.suggested}
                         </p>
                       </div>
 
