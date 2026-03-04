@@ -43,6 +43,20 @@ export async function POST(request: NextRequest) {
       debugInfo.variant_found = !!variant
       debugInfo.variant_error = variantError?.message || null
 
+      // If variant not found in DB but slug is 'high-school', still use built-in prompt
+      if (!variant && variant_slug === 'high-school') {
+        debugInfo.using_builtin_fallback_no_variant = true
+        systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
+        parameters = {
+          ...DEFAULT_PARAMETERS,
+          max_questions: 8,
+          min_questions: 5,
+          strictness: 'light' as const,
+          tone: 'casual' as const,
+          language_preference: 'Turkish',
+        }
+      }
+
       if (variant) {
         variantId = variant.id
         parameters = { ...DEFAULT_PARAMETERS, ...variant.parameters }
@@ -56,9 +70,14 @@ export async function POST(request: NextRequest) {
         debugInfo.has_params_override = !!variant.parameters?.system_prompt_override
         debugInfo.has_merged_override = !!parameters.system_prompt_override
         debugInfo.using_override = !!promptOverride
+        debugInfo.variant_slug_in_db = variant.slug
 
         if (promptOverride) {
           systemPrompt = promptOverride
+        } else if (variant_slug === 'high-school' || variant.slug === 'high-school') {
+          // Fallback: use built-in high school prompt for high-school variants
+          systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
+          debugInfo.using_builtin_fallback = true
         } else {
           systemPrompt = buildSystemPrompt(program.system_prompt, parameters)
         }

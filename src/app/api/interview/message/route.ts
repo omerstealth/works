@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { createServerSupabase } from '@/lib/supabase/server'
 import { createAdminSupabase } from '@/lib/supabase/admin'
-import { buildSystemPrompt } from '@/lib/interview-parameters'
+import { buildSystemPrompt, HIGH_SCHOOL_SYSTEM_PROMPT } from '@/lib/interview-parameters'
 import { extractQuestionSignals } from '@/lib/interview-analysis'
 
 export async function POST(request: NextRequest) {
@@ -13,10 +12,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'interview_id and message are required' }, { status: 400 })
     }
 
-    const supabase = await createServerSupabase()
+    const admin = createAdminSupabase()
 
     // Get interview with program data
-    const { data: interview, error: intError } = await supabase
+    const { data: interview, error: intError } = await admin
       .from('interviews')
       .select('*, programs(*)')
       .eq('id', interview_id)
@@ -35,11 +34,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Program not found' }, { status: 404 })
     }
 
-    // Use parameters_snapshot if available, otherwise use base system prompt
+    // Determine system prompt: check for override in parameters_snapshot
     const params = interview.parameters_snapshot
-    const systemPrompt = params
-      ? buildSystemPrompt(program.system_prompt, params)
-      : program.system_prompt
+    let systemPrompt: string
+
+    if (params?.system_prompt_override) {
+      // Use the override stored in parameters
+      systemPrompt = params.system_prompt_override
+    } else if (interview.variant_id) {
+      // Check variant for override
+      const { data: variant } = await admin
+        .from('interview_variants')
+        .select('system_prompt_override, slug, parameters')
+        .eq('id', interview.variant_id)
+        .single()
+
+      const variantOverride = variant?.system_prompt_override
+        || variant?.parameters?.system_prompt_override
+
+      if (variantOverride) {
+        systemPrompt = variantOverride
+      } else if (variant?.slug === 'high-school') {
+        systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
+      } else if (params) {
+        systemPrompt = buildSystemPrompt(program.system_prompt, params)
+      } else {
+        systemPrompt = program.system_prompt
+      }
+    } else if (params) {
+      systemPrompt = buildSystemPrompt(program.system_prompt, params)
+    } else {
+      systemPrompt = program.system_prompt
+    }
 
     // Build starter message based on language preference
     const starterMessage = params?.language_preference
@@ -99,7 +125,6 @@ export async function POST(request: NextRequest) {
           // Update variant avg_score if variant_id exists
           if (interview.variant_id && overallScore) {
             try {
-              const admin = createAdminSupabase()
               const { data: variant } = await admin
                 .from('interview_variants')
                 .select('avg_score, interview_count')
@@ -127,7 +152,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update interview
-    await supabase
+    await admin
       .from('interviews')
       .update({
         messages: updatedMessages,
