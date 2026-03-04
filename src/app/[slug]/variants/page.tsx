@@ -140,7 +140,7 @@ export default function VariantsPage() {
           founder_type: preset.targeting.founder_type,
           stage: preset.targeting.stage,
           parameters: { ...DEFAULT_PARAMETERS, ...preset.parameters },
-          system_prompt_override: preset.system_prompt_override || null,
+          system_prompt_override: preset.parameters?.system_prompt_override || preset.system_prompt_override || null,
         },
       }));
     }

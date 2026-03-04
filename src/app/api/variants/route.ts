@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { program_id, name, slug, description, targeting, parameters, self_improvement_config, is_default, system_prompt_override } = body
 
+
     if (!program_id || !name || !slug) {
       return NextResponse.json({ error: 'program_id, name, and slug are required' }, { status: 400 })
     }
@@ -65,8 +66,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Program not found' }, { status: 404 })
     }
 
-    // Merge with defaults
+    // Merge with defaults — include system_prompt_override in params JSONB
     const finalParams = { ...DEFAULT_PARAMETERS, ...(parameters || {}) }
+    if (system_prompt_override) {
+      finalParams.system_prompt_override = system_prompt_override
+    }
     const finalTargeting = { ...DEFAULT_TARGETING, ...(targeting || {}) }
     const finalSI = { ...DEFAULT_SELF_IMPROVEMENT, ...(self_improvement_config || {}) }
 
@@ -84,7 +88,6 @@ export async function POST(request: NextRequest) {
         parameters: finalParams,
         self_improvement_config: finalSI,
         is_default: is_default || false,
-        system_prompt_override: system_prompt_override || null,
       })
       .select()
       .single()

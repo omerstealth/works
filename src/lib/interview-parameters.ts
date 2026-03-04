@@ -15,6 +15,7 @@ export interface InterviewParameters {
     high: number   // score >= this = STRONG_YES
     pass: number   // score >= this = YES
   }
+  system_prompt_override?: string | null  // completely replaces program's system prompt
 }
 
 export interface VariantTargeting {
@@ -282,8 +283,8 @@ export const VARIANT_PRESETS: Record<string, { targeting: VariantTargeting; para
         high: 7.0,
         pass: 5.0,
       },
+      system_prompt_override: HIGH_SCHOOL_SYSTEM_PROMPT,
     },
-    system_prompt_override: HIGH_SCHOOL_SYSTEM_PROMPT,
   },
   'technical-founders': {
     targeting: { founder_type: 'technical', stage: 'all', region: null, custom_label: 'Teknik Kurucular' },

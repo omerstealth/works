@@ -43,9 +43,10 @@ export async function POST(request: NextRequest) {
       if (variant) {
         variantId = variant.id
         parameters = { ...DEFAULT_PARAMETERS, ...variant.parameters }
-        // Use system_prompt_override if present, otherwise build from base
-        if (variant.system_prompt_override) {
-          systemPrompt = variant.system_prompt_override
+        // Use system_prompt_override from DB column OR from parameters JSONB
+        const promptOverride = variant.system_prompt_override || parameters.system_prompt_override
+        if (promptOverride) {
+          systemPrompt = promptOverride
         } else {
           systemPrompt = buildSystemPrompt(program.system_prompt, parameters)
         }
@@ -68,8 +69,9 @@ export async function POST(request: NextRequest) {
       if (defaultVariant) {
         variantId = defaultVariant.id
         parameters = { ...DEFAULT_PARAMETERS, ...defaultVariant.parameters }
-        if (defaultVariant.system_prompt_override) {
-          systemPrompt = defaultVariant.system_prompt_override
+        const defaultOverride = defaultVariant.system_prompt_override || parameters.system_prompt_override
+        if (defaultOverride) {
+          systemPrompt = defaultOverride
         } else {
           systemPrompt = buildSystemPrompt(program.system_prompt, parameters)
         }
