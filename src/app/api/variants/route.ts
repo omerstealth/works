@@ -43,6 +43,27 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// Helper: get user from cookie session OR Authorization header
+async function getAuthUser(request: NextRequest) {
+  // Try cookie-based session first
+  try {
+    const supabase = await createServerSupabase()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) return user
+  } catch {}
+
+  // Fallback: Authorization header with access token
+  const authHeader = request.headers.get('Authorization')
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.slice(7)
+    const admin = createAdminSupabase()
+    const { data: { user } } = await admin.auth.getUser(token)
+    if (user) return user
+  }
+
+  return null
+}
+
 // POST: Create a new variant
 export async function POST(request: NextRequest) {
   try {
@@ -53,8 +74,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'program_id, name, and slug are required' }, { status: 400 })
     }
 
-    const supabase = await createServerSupabase()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser(request)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

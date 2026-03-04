@@ -172,10 +172,20 @@ export default function VariantsPage() {
     });
   };
 
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (session?.access_token) {
+      headers['Authorization'] = `Bearer ${session.access_token}`;
+    }
+    return headers;
+  };
+
   const handleSaveVariant = async () => {
     if (!program || !modal.data.name || !modal.data.slug) return;
 
     try {
+      const headers = await getAuthHeaders();
       const body = {
         program_id: program.id,
         name: modal.data.name,
@@ -199,7 +209,7 @@ export default function VariantsPage() {
       if (modal.mode === 'create') {
         const res = await fetch('/api/variants', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify(body),
         })
         const data = await res.json()
@@ -212,7 +222,7 @@ export default function VariantsPage() {
       } else if (modal.mode === 'edit' && modal.variantId) {
         const res = await fetch(`/api/variants/${modal.variantId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             name: body.name,
             targeting: body.targeting,
@@ -241,7 +251,8 @@ export default function VariantsPage() {
 
   const handleDeleteVariant = async (variantId: string) => {
     try {
-      const res = await fetch(`/api/variants/${variantId}`, { method: 'DELETE' })
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/variants/${variantId}`, { method: 'DELETE', headers })
       if (!res.ok) {
         const data = await res.json()
         throw new Error(data.error || 'Failed to delete')
