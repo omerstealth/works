@@ -7,70 +7,77 @@ const BUILTIN_PROMPTS: Record<string, string> = {
   'coding-education': CODING_EDUCATION_SYSTEM_PROMPT,
 }
 
-// GET: One-time fix to patch variant with system_prompt_override
-// Visit: /api/fix-variant?slug=high-school OR /api/fix-variant?slug=coding-education
+// GET: Fix variant parameters to match preset
+// Always applies full preset (override + language + tone + strictness etc.)
+// /api/fix-variant?slug=high_school
+// /api/fix-variant?slug=coding_education
+// /api/fix-variant?slug=all  (fixes all known presets)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const slug = searchParams.get('slug') || 'high-school'
-    const normalizedSlug = slug.replace(/_/g, '-')
-
+    const slug = searchParams.get('slug') || 'all'
     const admin = createAdminSupabase()
-
-    // Find variant by slug (try both forms)
-    const { data: variants, error } = await admin
-      .from('interview_variants')
-      .select('*')
-      .or(`slug.eq.${slug},slug.eq.${normalizedSlug}`)
-
-    if (error || !variants?.length) {
-      return NextResponse.json({ error: 'Variant not found', slug, normalizedSlug }, { status: 404 })
-    }
 
     const results = []
 
-    for (const variant of variants) {
-      const variantSlugNorm = variant.slug?.replace(/_/g, '-')
-      const builtinPrompt = BUILTIN_PROMPTS[variantSlugNorm]
-      const preset = VARIANT_PRESETS[variantSlugNorm]
+    // Determine which slugs to fix
+    const slugsToFix: string[] = []
+    if (slug === 'all') {
+      slugsToFix.push(...Object.keys(BUILTIN_PROMPTS))
+    } else {
+      slugsToFix.push(slug.replace(/_/g, '-'))
+    }
 
-      if (builtinPrompt) {
+    for (const presetSlug of slugsToFix) {
+      const builtinPrompt = BUILTIN_PROMPTS[presetSlug]
+      const preset = VARIANT_PRESETS[presetSlug]
+      if (!builtinPrompt || !preset) continue
+
+      // Find variants matching this slug (both hyphen and underscore forms)
+      const underscoreSlug = presetSlug.replace(/-/g, '_')
+      const { data: variants } = await admin
+        .from('interview_variants')
+        .select('*')
+        .or(`slug.eq.${presetSlug},slug.eq.${underscoreSlug}`)
+
+      if (!variants?.length) {
+        results.push({ slug: presetSlug, status: 'NOT_FOUND', message: 'No variant with this slug in DB' })
+        continue
+      }
+
+      for (const variant of variants) {
         const currentParams = variant.parameters || {}
-        const hasOverride = !!currentParams.system_prompt_override
 
-        if (!hasOverride) {
-          const updatedParams = {
-            ...currentParams,
-            ...(preset?.parameters || {}),
-            system_prompt_override: builtinPrompt,
-          }
-
-          await admin
-            .from('interview_variants')
-            .update({ parameters: updatedParams })
-            .eq('id', variant.id)
-
-          results.push({
-            id: variant.id,
-            slug: variant.slug,
-            status: 'PATCHED',
-            message: 'system_prompt_override added to parameters',
-          })
-        } else {
-          results.push({
-            id: variant.id,
-            slug: variant.slug,
-            status: 'ALREADY_OK',
-            message: 'system_prompt_override already exists',
-            override_length: currentParams.system_prompt_override.length,
-          })
+        // Always apply full preset parameters + override
+        const updatedParams = {
+          ...currentParams,
+          ...preset.parameters,
+          system_prompt_override: builtinPrompt,
         }
-      } else {
+
+        await admin
+          .from('interview_variants')
+          .update({ parameters: updatedParams })
+          .eq('id', variant.id)
+
+        // Report what changed
+        const changes: string[] = []
+        if (!currentParams.system_prompt_override) changes.push('added system_prompt_override')
+        if (currentParams.language_preference !== preset.parameters.language_preference) changes.push(`language: ${currentParams.language_preference} → ${preset.parameters.language_preference}`)
+        if (currentParams.tone !== preset.parameters.tone) changes.push(`tone: ${currentParams.tone} → ${preset.parameters.tone}`)
+        if (currentParams.strictness !== preset.parameters.strictness) changes.push(`strictness: ${currentParams.strictness} → ${preset.parameters.strictness}`)
+        if (currentParams.max_questions !== preset.parameters.max_questions) changes.push(`max_questions: ${currentParams.max_questions} → ${preset.parameters.max_questions}`)
+        if (currentParams.min_questions !== preset.parameters.min_questions) changes.push(`min_questions: ${currentParams.min_questions} → ${preset.parameters.min_questions}`)
+
         results.push({
           id: variant.id,
           slug: variant.slug,
-          status: 'SKIPPED',
-          message: 'No built-in prompt for this slug',
+          status: 'PATCHED',
+          changes,
+          new_language: updatedParams.language_preference,
+          new_tone: updatedParams.tone,
+          new_strictness: updatedParams.strictness,
+          override_length: builtinPrompt.length,
         })
       }
     }
