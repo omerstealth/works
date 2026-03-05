@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createAdminSupabase } from '@/lib/supabase/admin'
-import { buildSystemPrompt, HIGH_SCHOOL_SYSTEM_PROMPT } from '@/lib/interview-parameters'
+import { buildSystemPrompt, HIGH_SCHOOL_SYSTEM_PROMPT, CODING_EDUCATION_SYSTEM_PROMPT } from '@/lib/interview-parameters'
 import { extractQuestionSignals } from '@/lib/interview-analysis'
 
 export async function POST(request: NextRequest) {
@@ -52,10 +52,16 @@ export async function POST(request: NextRequest) {
       const variantOverride = variant?.system_prompt_override
         || variant?.parameters?.system_prompt_override
 
+      const slugNorm = variant?.slug?.replace(/_/g, '-')
+      const BUILTIN_PROMPTS: Record<string, string> = {
+        'high-school': HIGH_SCHOOL_SYSTEM_PROMPT,
+        'coding-education': CODING_EDUCATION_SYSTEM_PROMPT,
+      }
+
       if (variantOverride) {
         systemPrompt = variantOverride
-      } else if (variant?.slug === 'high-school' || variant?.slug === 'high_school') {
-        systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
+      } else if (slugNorm && BUILTIN_PROMPTS[slugNorm]) {
+        systemPrompt = BUILTIN_PROMPTS[slugNorm]
       } else if (params) {
         systemPrompt = buildSystemPrompt(program.system_prompt, params)
       } else {

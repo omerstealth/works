@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminSupabase } from '@/lib/supabase/admin'
-import { HIGH_SCHOOL_SYSTEM_PROMPT } from '@/lib/interview-parameters'
+import { HIGH_SCHOOL_SYSTEM_PROMPT, CODING_EDUCATION_SYSTEM_PROMPT, VARIANT_PRESETS } from '@/lib/interview-parameters'
 
-// GET: One-time fix to patch high-school variant with system_prompt_override
-// Visit: /api/fix-variant?slug=high-school OR /api/fix-variant?slug=high_school
+const BUILTIN_PROMPTS: Record<string, string> = {
+  'high-school': HIGH_SCHOOL_SYSTEM_PROMPT,
+  'coding-education': CODING_EDUCATION_SYSTEM_PROMPT,
+}
+
+// GET: One-time fix to patch variant with system_prompt_override
+// Visit: /api/fix-variant?slug=high-school OR /api/fix-variant?slug=coding-education
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -25,22 +30,19 @@ export async function GET(request: NextRequest) {
     const results = []
 
     for (const variant of variants) {
-      const isHighSchool = variant.slug === 'high-school' || variant.slug === 'high_school'
+      const variantSlugNorm = variant.slug?.replace(/_/g, '-')
+      const builtinPrompt = BUILTIN_PROMPTS[variantSlugNorm]
+      const preset = VARIANT_PRESETS[variantSlugNorm]
 
-      if (isHighSchool) {
+      if (builtinPrompt) {
         const currentParams = variant.parameters || {}
         const hasOverride = !!currentParams.system_prompt_override
 
         if (!hasOverride) {
-          // Patch: add system_prompt_override to parameters
           const updatedParams = {
             ...currentParams,
-            system_prompt_override: HIGH_SCHOOL_SYSTEM_PROMPT,
-            language_preference: currentParams.language_preference || 'Turkish',
-            max_questions: currentParams.max_questions || 8,
-            min_questions: currentParams.min_questions || 5,
-            strictness: currentParams.strictness || 'light',
-            tone: currentParams.tone || 'casual',
+            ...(preset?.parameters || {}),
+            system_prompt_override: builtinPrompt,
           }
 
           await admin
@@ -59,18 +61,21 @@ export async function GET(request: NextRequest) {
             id: variant.id,
             slug: variant.slug,
             status: 'ALREADY_OK',
-            message: 'system_prompt_override already exists in parameters',
+            message: 'system_prompt_override already exists',
             override_length: currentParams.system_prompt_override.length,
           })
         }
+      } else {
+        results.push({
+          id: variant.id,
+          slug: variant.slug,
+          status: 'SKIPPED',
+          message: 'No built-in prompt for this slug',
+        })
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      results,
-      prompt_length: HIGH_SCHOOL_SYSTEM_PROMPT.length,
-    })
+    return NextResponse.json({ success: true, results })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }

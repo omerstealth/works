@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createAdminSupabase } from '@/lib/supabase/admin'
-import { buildSystemPrompt, DEFAULT_PARAMETERS, HIGH_SCHOOL_SYSTEM_PROMPT } from '@/lib/interview-parameters'
+import { buildSystemPrompt, DEFAULT_PARAMETERS, HIGH_SCHOOL_SYSTEM_PROMPT, CODING_EDUCATION_SYSTEM_PROMPT, VARIANT_PRESETS } from '@/lib/interview-parameters'
 import type { InterviewParameters } from '@/lib/interview-parameters'
 
 export async function POST(request: NextRequest) {
@@ -66,19 +66,27 @@ export async function POST(request: NextRequest) {
       debugInfo.variant_found = !!variant
       debugInfo.variant_error = variantError?.message || null
 
-      // If variant not found in DB but slug matches high-school pattern, use built-in prompt
+      // Check for known preset slugs
       const isHighSchool = normalizedSlug === 'high-school' || variant_slug === 'high_school' || variant_slug === 'high-school'
-      if (!variant && isHighSchool) {
+      const isCodingEducation = normalizedSlug === 'coding-education' || variant_slug === 'coding_education' || variant_slug === 'coding-education'
+
+      // Built-in prompt map for known presets
+      const BUILTIN_PROMPTS: Record<string, string> = {
+        'high-school': HIGH_SCHOOL_SYSTEM_PROMPT,
+        'coding-education': CODING_EDUCATION_SYSTEM_PROMPT,
+      }
+
+      // If variant not found in DB but slug matches a known preset, use built-in
+      if (!variant && (isHighSchool || isCodingEducation)) {
+        const presetKey = isHighSchool ? 'high-school' : 'coding-education'
+        const preset = VARIANT_PRESETS[presetKey]
         debugInfo.using_builtin_fallback_no_variant = true
-        systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
+        debugInfo.preset_key = presetKey
+        systemPrompt = BUILTIN_PROMPTS[presetKey]
         parameters = {
           ...DEFAULT_PARAMETERS,
-          max_questions: 8,
-          min_questions: 5,
-          strictness: 'light' as const,
-          tone: 'casual' as const,
-          language_preference: 'Turkish',
-          system_prompt_override: HIGH_SCHOOL_SYSTEM_PROMPT,
+          ...preset?.parameters,
+          system_prompt_override: BUILTIN_PROMPTS[presetKey],
         }
       }
 
@@ -101,21 +109,22 @@ export async function POST(request: NextRequest) {
           systemPrompt = promptOverride
           // Ensure override is saved in parameters for message route
           parameters.system_prompt_override = promptOverride
-        } else if (isHighSchool || variant.slug === 'high-school' || variant.slug === 'high_school') {
-          // Fallback: use built-in high school prompt for high-school variants
-          systemPrompt = HIGH_SCHOOL_SYSTEM_PROMPT
-          // CRITICAL: Save override in parameters so message route also uses it
-          parameters.system_prompt_override = HIGH_SCHOOL_SYSTEM_PROMPT
+        } else if (BUILTIN_PROMPTS[normalizedSlug] || BUILTIN_PROMPTS[variant.slug?.replace(/_/g, '-')]) {
+          // Fallback: use built-in prompt for known preset slugs
+          const builtinKey = BUILTIN_PROMPTS[normalizedSlug] ? normalizedSlug : variant.slug?.replace(/_/g, '-')
+          systemPrompt = BUILTIN_PROMPTS[builtinKey]
+          parameters.system_prompt_override = BUILTIN_PROMPTS[builtinKey]
           debugInfo.using_builtin_fallback = true
+          debugInfo.builtin_key = builtinKey
         } else {
           systemPrompt = buildSystemPrompt(program.system_prompt, parameters)
         }
 
         // Increment interview count + auto-fix: persist override in variant params if missing
         const variantUpdate: any = { interview_count: (variant.interview_count || 0) + 1 }
-        if (debugInfo.using_builtin_fallback && !variant.parameters?.system_prompt_override) {
+        if (debugInfo.using_builtin_fallback && !variant.parameters?.system_prompt_override && systemPrompt) {
           // Auto-patch: save the override so future lookups find it directly
-          variantUpdate.parameters = { ...variant.parameters, system_prompt_override: HIGH_SCHOOL_SYSTEM_PROMPT }
+          variantUpdate.parameters = { ...variant.parameters, system_prompt_override: systemPrompt }
           debugInfo.auto_patched_variant = true
         }
         await admin

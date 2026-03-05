@@ -6,7 +6,7 @@ import { useLanguage } from '@/lib/i18n';
 import { createClient } from '@/lib/supabase/client';
 import Navbar from '@/components/Navbar';
 import ParameterEditor from '@/components/ParameterEditor';
-import { InterviewParameters, VARIANT_PRESETS, DEFAULT_PARAMETERS, HIGH_SCHOOL_SYSTEM_PROMPT } from '@/lib/interview-parameters';
+import { InterviewParameters, VARIANT_PRESETS, DEFAULT_PARAMETERS, HIGH_SCHOOL_SYSTEM_PROMPT, CODING_EDUCATION_SYSTEM_PROMPT } from '@/lib/interview-parameters';
 
 interface Program {
   id: string;
@@ -582,6 +582,14 @@ export default function VariantsPage() {
                     {lang === 'tr'
                       ? 'Lise Öğrencileri'
                       : 'High School Students'}
+                  </button>
+                  <button
+                    onClick={() => applyPreset('coding-education')}
+                    className="bg-[#1F6FEB] hover:bg-[#388BFD] text-white text-sm px-3 py-2 rounded transition font-medium"
+                  >
+                    {lang === 'tr'
+                      ? 'Kodlama Eğitimi Keşif'
+                      : 'Coding Education Discovery'}
                   </button>
                   <button
                     onClick={() => applyPreset('technical-founders')}
