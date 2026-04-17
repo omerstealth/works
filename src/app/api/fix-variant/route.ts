@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminSupabase } from '@/lib/supabase/admin'
-import { HIGH_SCHOOL_SYSTEM_PROMPT, CODING_EDUCATION_SYSTEM_PROMPT, VARIANT_PRESETS } from '@/lib/interview-parameters'
+import { HIGH_SCHOOL_SYSTEM_PROMPT, CODING_EDUCATION_SYSTEM_PROMPT, WORKUP_21DAY_SYSTEM_PROMPT, VARIANT_PRESETS } from '@/lib/interview-parameters'
 
 const BUILTIN_PROMPTS: Record<string, string> = {
   'high-school': HIGH_SCHOOL_SYSTEM_PROMPT,
   'coding-education': CODING_EDUCATION_SYSTEM_PROMPT,
+  'workup-21day': WORKUP_21DAY_SYSTEM_PROMPT,
 }
 
 // GET: Fix variant parameters to match preset

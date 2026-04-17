@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createAdminSupabase } from '@/lib/supabase/admin'
-import { buildSystemPrompt, HIGH_SCHOOL_SYSTEM_PROMPT, CODING_EDUCATION_SYSTEM_PROMPT } from '@/lib/interview-parameters'
+import { buildSystemPrompt, HIGH_SCHOOL_SYSTEM_PROMPT, CODING_EDUCATION_SYSTEM_PROMPT, WORKUP_21DAY_SYSTEM_PROMPT } from '@/lib/interview-parameters'
 import { extractQuestionSignals } from '@/lib/interview-analysis'
 
 export async function POST(request: NextRequest) {
@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
       const BUILTIN_PROMPTS: Record<string, string> = {
         'high-school': HIGH_SCHOOL_SYSTEM_PROMPT,
         'coding-education': CODING_EDUCATION_SYSTEM_PROMPT,
+        'workup-21day': WORKUP_21DAY_SYSTEM_PROMPT,
       }
 
       if (variantOverride) {

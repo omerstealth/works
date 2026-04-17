@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createAdminSupabase } from '@/lib/supabase/admin'
-import { buildSystemPrompt, DEFAULT_PARAMETERS, HIGH_SCHOOL_SYSTEM_PROMPT, CODING_EDUCATION_SYSTEM_PROMPT, VARIANT_PRESETS } from '@/lib/interview-parameters'
+import { buildSystemPrompt, DEFAULT_PARAMETERS, HIGH_SCHOOL_SYSTEM_PROMPT, CODING_EDUCATION_SYSTEM_PROMPT, WORKUP_21DAY_SYSTEM_PROMPT, VARIANT_PRESETS } from '@/lib/interview-parameters'
 import type { InterviewParameters } from '@/lib/interview-parameters'
 
 export async function POST(request: NextRequest) {
@@ -69,16 +69,22 @@ export async function POST(request: NextRequest) {
       // Check for known preset slugs
       const isHighSchool = normalizedSlug === 'high-school' || variant_slug === 'high_school' || variant_slug === 'high-school'
       const isCodingEducation = normalizedSlug === 'coding-education' || variant_slug === 'coding_education' || variant_slug === 'coding-education'
+      const isWorkup21Day = normalizedSlug === 'workup-21day' || variant_slug === 'workup_21day' || variant_slug === 'workup-21day'
 
       // Built-in prompt map for known presets
       const BUILTIN_PROMPTS: Record<string, string> = {
         'high-school': HIGH_SCHOOL_SYSTEM_PROMPT,
         'coding-education': CODING_EDUCATION_SYSTEM_PROMPT,
+        'workup-21day': WORKUP_21DAY_SYSTEM_PROMPT,
       }
 
       // If variant not found in DB but slug matches a known preset, use built-in
-      if (!variant && (isHighSchool || isCodingEducation)) {
-        const presetKey = isHighSchool ? 'high-school' : 'coding-education'
+      if (!variant && (isHighSchool || isCodingEducation || isWorkup21Day)) {
+        const presetKey = isHighSchool
+          ? 'high-school'
+          : isCodingEducation
+          ? 'coding-education'
+          : 'workup-21day'
         const preset = VARIANT_PRESETS[presetKey]
         debugInfo.using_builtin_fallback_no_variant = true
         debugInfo.preset_key = presetKey
